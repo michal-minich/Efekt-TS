@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="1366"
+   height="768"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.4 r9939"
+   sodipodi:docname="Efekt Ide.svg">
+  <defs
+     id="defs4">
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient3769">
+      <stop
+         style="stop-color:#5a9fff;stop-opacity:1"
+         offset="0"
+         id="stop3771" />
+      <stop
+         style="stop-color:#d9eaff;stop-opacity:1"
+         offset="1"
+         id="stop3773" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3769"
+       id="linearGradient3775"
+       x1="200.3792"
+       y1="101.24944"
+       x2="200.3792"
+       y2="123.92682"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(0,284.36218)" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1"
+     inkscape:cx="544.98511"
+     inkscape:cy="462.50902"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1357"
+     inkscape:window-height="901"
+     inkscape:window-x="1854"
+     inkscape:window-y="175"
+     inkscape:window-maximized="0" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-284.36218)">
+    <rect
+       ry="8"
+       rx="8"
+       y="438.36218"
+       x="174"
+       height="27.211409"
+       width="90.297539"
+       id="rect3796"
+       style="fill:#cccccc;stroke:none;stroke-width:1" />
+    <path
+       style="fill:url(#linearGradient3775);fill-opacity:1;stroke:#769eec;stroke-width:1;stroke-opacity:1"
+       d="m 182,388.36218 c -4.432,0 -8,3.02397 -8,6.7802 l 0,12.89828 31.7258,-0.0561 c 12.08078,-0.069 13.03139,-12.87899 12.8367,-19.62237 z"
+       id="rect3761"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="sscccs" />
+    <rect
+       style="fill:none;stroke:#000000;stroke-width:1"
+       id="rect2991"
+       width="90.297539"
+       height="27.211409"
+       x="174"
+       y="388.36218"
+       rx="8"
+       ry="8" />
+    <text
+       xml:space="preserve"
+       style="font-size:13px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Consolas;-inkscape-font-specification:Consolas"
+       x="229.38405"
+       y="403.98132"
+       id="text2987"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan2989"
+         x="229.38405"
+         y="403.98132">123</tspan></text>
+    <text
+       sodipodi:linespacing="125%"
+       id="text3777"
+       y="402.56522"
+       x="180.29233"
+       style="font-size:13px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Consolas;-inkscape-font-specification:Consolas"
+       xml:space="preserve"><tspan
+         y="402.56522"
+         x="180.29233"
+         id="tspan3779"
+         sodipodi:role="line">Name</tspan></text>
+    <path
+       style="fill:none;stroke:#3131ff;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 228.38021,406.3812 24.48007,0"
+       id="path3781"
+       inkscape:connector-curvature="0" />
+    <path
+       sodipodi:nodetypes="sscccs"
+       inkscape:connector-curvature="0"
+       id="path3794"
+       d="m 182,438.36218 c -4.432,0 -8,3.02397 -8,6.7802 l 0,12.89828 31.7258,-0.0561 c 12.08078,-0.069 13.03139,-12.87899 12.8367,-19.62237 z"
+       style="fill:#4d4d4d;fill-opacity:1;stroke:none;stroke-width:1;stroke-opacity:1" />
+    <text
+       sodipodi:linespacing="125%"
+       id="text3798"
+       y="454.98132"
+       x="229.38405"
+       style="font-size:13px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Consolas;-inkscape-font-specification:Consolas"
+       xml:space="preserve"><tspan
+         y="454.98132"
+         x="229.38405"
+         id="tspan3800"
+         sodipodi:role="line">123</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:13px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Consolas;-inkscape-font-specification:Consolas"
+       x="180.29233"
+       y="452.56522"
+       id="text3802"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3804"
+         x="180.29233"
+         y="452.56522">Name</tspan></text>
+    <path
+       inkscape:connector-curvature="0"
+       id="path3806"
+       d="m 228.38021,456.3812 24.48007,0"
+       style="fill:none;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+  </g>
+</svg>
