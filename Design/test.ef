@@ -1,0 +1,121 @@
+
+var expr : Exp = exp 1 + 1
+var bool : Bool = true
+var char : UniCodeUnit8 = 'g'
+var char : UniCodeUnit8 = '̆ '
+var char : UniCodeUnit16 = 'ğ'
+var char : UniCodePoint = 'ğ'
+var char : Char = 'ğ '
+var byte : Byte = 255
+var text : Text = 'abc"  // Array(Char, #)
+var int  : Int = 123
+var dbl  : Double = 3.13
+var arr  : Array(Int, 3)
+var type : Type
+var func : fn () {}
+var ifc  : new interface {}
+var obj  : new class {}
+var stru : new struct {} // ?
+var unio : new union {} // ?
+
+var I : interface {}
+var C : class {}
+var S : struct {}
+var U : union {}
+
+any
+  get type value
+value / type
+  unused
+  pass down
+  return
+  assign to other
+  assign to it
+  compare for identity
+  compare for value
+  use symbol
+  get binary representation
+binary representation
+  get size
+  get value
+value (fn)
+  apply
+value (Type)
+  get signature expression
+value (Array)
+  get value at index
+  get length value
+
+var Any = struct { all built in }
+var Type = struct (T of Type) { }
+var Exp = struct (E... of Exp) {  all built in }
+var AnyOf = struct (T...) {  }
+
+
+
+
+
+var @unsafe = attribute (a : A of Any, b : A)
+
+var Percent = struct () extends Int {
+    invariant {
+        assert value <= 100 and value >= 0
+    }
+}
+
+var a = fn () {
+     var x = @unsafe fn () {}
+     assume not @unsafe x()
+}
+
+// comment
+/* comment */
+
+var Shape     = interface { }
+var Box       = struct of Shape {}
+var Rectangle = struct of Box {}
+var Circle    = struct of Shape {}
+
+var arr : Array(out Shape) = new Array(Box, 1)
+var item : Shape = arr.get(0)
+
+var arr : Array(in Rectangle) = new Array(Box, 1)
+arr.add(new Rectangle)
+
+var arr : Array = new Array(Box, 1)
+arr.count
+
+
+var Comparer = interface (in A of Any, in B of Any) {
+    var callable = fn (a : A, b : B) -> Int
+}
+
+implicit var ComparerBoxBox = struct of Comparer(Box, Box) {
+    var callable = fn (a, b) { }
+}
+
+
+var max
+: Fn(A, B, Comparer(A, B), MaxType(a, b, c))
+= fn (a, b, implicit c) {
+    return if c(a, b) == 0 then a, else b end
+}
+
+var max = fn (a : A, b : any B, implicit c : Comparer(A, B)) -> MaxType(a, b, c) {
+    return if c(a, b) == 0 then a, else b end
+}
+
+var MaxType = fn (a, b, implicit c : Comparer(TypeOf(a), TypeOf(b))) -> AnyOf(TypeOf(a), TypeOf(b)) {
+    return if c(a, b) == 0 then TypeOf(a) else TypeOf(b) end
+}
+
+var first = (arr: Array(any A)) -> A
+    requires arr.length >= 1 {
+    return arr[0]
+}
+
+var CommonType = fn (a : Numeric, b : Numeric) -> AnyOf(Int, Double) {
+    if a.Type.isInt && b.Type.isInt then return Int else return Double
+}
+
+
