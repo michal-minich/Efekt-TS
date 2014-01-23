@@ -23,13 +23,39 @@ var C : class {}
 var S : struct {}
 var U : union {}
 
+
+if test then true end
+if test then true else false end
+foreach item in collection do body end
+while test do body end
+do body while test end
+loop body end
+break
+continue
+label name
+goto name
+return expression
+yield expression
+
+var props:
+is fn param var
+is local var
+is global var
+is shared global var
+
+var props (fn):
+writesIO
+readsIO
+
 any
   get type value
 value / type
   unused
-  pass down
   return
-  assign to other
+  assign to fn param var (pass down)
+  assign to local var
+  assign to global var
+  assign to shared global var
   assign to it
   compare for identity
   compare for value
@@ -51,8 +77,15 @@ var Type = struct (T of Type) { }
 var Exp = struct (E... of Exp) {  all built in }
 var AnyOf = struct (T...) {  }
 
-
-
+@
+deterministic (result does not depends on readsIO, or readsMutableGlobal)
+  constant
+modifiesGlobal
+readsImmutableGlobal
+readsMutableGlobal
+writesIO
+readsIO
+modifiesVar
 
 
 var @unsafe = attribute (a : A of Any, b : A)
@@ -70,6 +103,7 @@ var a = fn () {
 
 // comment
 /* comment */
+
 
 var Shape     = interface { }
 var Box       = struct of Shape {}

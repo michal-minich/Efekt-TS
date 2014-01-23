@@ -15,42 +15,20 @@ class Printer implements AstVisitor<void> {
 
 
 
+    // helpers ===============================================
+
+
+
+
     visitAsiList (al : AsiList) : void {
-        throw undefined;
+        for (var i = 0; i < al.items.length; i++)
+            al[i].accept(this);
     }
 
 
 
 
-    visitErr (err : Err) : void {
-        throw undefined;
-    }
-
-
-
-
-    visitNone (n : None) : void {
-    }
-
-
-
-
-    visitIdent (i : Ident) : void {
-        this.cw.writeIdent(i.name);
-    }
-
-
-
-
-    visitScope (sc : Scope) : void {
-        this.cw.writeMarkup("{");
-        this.cw.tab();
-        this.visitAsiList(sc.list);
-        this.cw.unTab();
-        this.cw.writeMarkup("}");
-    }
-
-
+    // statements ===============================================
 
 
     visitVar (v : Var) : void {
@@ -66,7 +44,67 @@ class Printer implements AstVisitor<void> {
 
 
 
-    visitIf (i : If) : void {
+    visitLoop (l : Loop) : void {
+        this.cw.writeComment("");
+    }
+
+
+
+
+    visitBreak (b : Break) : void {
+        this.cw.writeComment("");
+    }
+
+
+
+
+    visitContinue (c : Continue) : void {
+        this.cw.writeComment("");
+    }
+
+
+
+
+    visitReturn (r : Return) : void {
+        this.cw.writeKey("return");
+        if (r.value != Void.instance) {
+            this.cw.writeSpace();
+            r.value.accept(this);
+        }
+    }
+
+
+
+
+    // expressions ===============================================
+
+
+    visitScope (sc : Scope) : void {
+        this.cw.writeMarkup("{");
+        this.cw.tab();
+        this.visitAsiList(sc.list);
+        this.cw.unTab();
+        this.cw.writeMarkup("}");
+    }
+
+
+
+
+    visitIdent (i : Ident) : void {
+        this.cw.writeIdent(i.name);
+    }
+
+
+
+
+    visitMember (m : Member) : void {
+        return this.visitIdent(m.ident);
+    }
+
+
+
+
+    visitFnApply (fna : FnApply) : void {
         throw undefined;
     }
 
@@ -80,40 +118,33 @@ class Printer implements AstVisitor<void> {
 
 
 
-    visitFn (fn : Fn) : void {
+    visitIf (i : If) : void {
         throw undefined;
     }
 
 
 
 
-    visitFnApply (fna : FnApply) : void {
+    // values ===============================================
+
+
+
+
+    visitErr (er : Err) : void {
         throw undefined;
     }
 
 
 
 
-    visitReturn (r : Return) : void {
-        this.cw.writeKey("return");
-        if (r.value != None.instance) {
-            this.cw.writeSpace();
-            r.value.accept(this);
-        }
+    visitVoid (vo : Void) : void {
     }
 
 
 
 
-    visitObj (o : Obj) : void {
-        throw undefined;
-    }
-
-
-
-
-    visitMember (m : Member) : void {
-        return this.visitIdent(m.ident);
+    visitBool (b : Bool) : void {
+        this.cw.writeComment("");
     }
 
 
@@ -121,5 +152,126 @@ class Printer implements AstVisitor<void> {
 
     visitInt (ii : Int) : void {
         this.cw.writeNum(ii.value);
+    }
+
+
+
+
+    visitFloat (f : Float) : void {
+        this.cw.writeNum(f.value);
+    }
+
+
+
+
+    visitArr (arr : Arr) : void {
+        throw undefined;
+    }
+
+
+
+
+    visitFn (fn : Fn) : void {
+        throw undefined;
+    }
+
+
+
+
+    visitStruct (st : Struct) : void {
+        throw undefined;
+    }
+
+
+
+    visitInterface (ifc : Interface) : void {
+        this.cw.writeComment("");
+    }
+
+
+
+
+    // types ===============================================
+
+
+
+
+    visitTypeAny (ta : TypeAny) : void {
+        this.cw.writeComment("");
+    }
+
+
+
+
+    visitTypeAnyOf (tao : TypeAnyOf) : void {
+        this.cw.writeComment("");
+    }
+
+
+
+
+    // types of values ===============================================
+
+
+
+
+    visitTypeErr (te : TypeErr) : void {
+        throw undefined;
+    }
+
+
+
+
+    visitTypeVoid (tvo : TypeVoid) : void {
+        this.cw.writeComment("");
+    }
+
+
+
+
+    visitTypeBool (tb : TypeBool) : void {
+        this.cw.writeComment("");
+    }
+
+
+
+
+    visitTypeInt (tii : TypeInt) : void {
+        this.cw.writeComment("");
+    }
+
+
+
+
+    visitTypeFloat (tf : TypeFloat) : void {
+        this.cw.writeComment("");
+    }
+
+
+
+
+    visitTypeArr (tarr : TypeArr) : void {
+        this.cw.writeComment("");
+    }
+
+
+
+
+    visitTypeFn (tfn : TypeFn) : void {
+        this.cw.writeComment("");
+    }
+
+
+
+
+    visitTypeStruct (ts : TypeStruct) : void {
+        this.cw.writeComment("");
+    }
+
+
+
+
+    visitTypeInterface (tifc : TypeInterface) : void {
+        this.cw.writeComment("");
     }
 }

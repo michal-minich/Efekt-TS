@@ -2,90 +2,114 @@
 
 interface CodeWriter {
 
-    writeKey(value : string) : void;
-    writeIdent(value : string) : void;
-    //writeType(value : string) : void;
-    writeMarkup(value : string) : void;
-    writeComment(value : string) : void;
-    writeText(value : string) : void;
-    writeNum(value : string) : void;
-    writeOp(value : string) : void;
+    writeKey(value : string) : CodeWriter;
+    writeIdent(value : string) : CodeWriter;
+    writeType(value : string) : CodeWriter;
+    writeMarkup(value : string) : CodeWriter;
+    writeComment(value : string) : CodeWriter;
+    writeText(value : string) : CodeWriter;
+    writeNum(value : string) : CodeWriter;
+    writeOp(value : string) : CodeWriter;
 
-    writeNewLine() : void;
-    writeSpace() : void;
+    writeNewLine() : CodeWriter;
+    writeSpace() : CodeWriter;
 
-    tab() : void;
-    unTab() : void;
+    tab() : CodeWriter;
+    unTab() : CodeWriter;
 
-    //beginUnused() : void;
-    //endUnused() : void;
+    //beginUnused() : CodeWriter;
+    //endUnused() : CodeWriter;
 
-    //beginError() : void;
-    //endError() : void;
+    //beginError() : CodeWriter;
+    //endError() : CodeWriter;
 
-    //beginWarning() : void;
-    //endWarning() : void;
+    //beginWarning() : CodeWriter;
+    //endWarning() : CodeWriter;
 
-    //beginNotice() : void;
-    //endNotice() : void;
+    //beginNotice() : CodeWriter;
+    //endNotice() : CodeWriter;
 }
 
 
 
 
-class TextCodeWriter implements CodeWriter {
+class HtmlCodeWriter implements CodeWriter {
 
     private tw : TextWriter;
+    private tabs : string;
 
 
     constructor (tw : TextWriter) {
         this.tw = tw;
+        this.tabs = "";
     }
 
 
-    writeKey (value : string) : void {
-        this.tw.write(value);
+    private w (style : string, value : string) : void {
+        this.tw.write(this.tabs, "<span class='efekt", style, "'", value, "</span>");
     }
 
-    writeIdent (value : string) : void {
-        this.tw.write(value);
+
+    writeKey (value : string) : CodeWriter {
+        this.w('Key', value);
+        return this;
     }
 
-    writeMarkup (value : string) : void {
-        this.tw.write(value);
+    writeIdent (value : string) : CodeWriter {
+        this.w('Ident', value);
+        return this;
     }
 
-    writeComment (value : string) : void {
-        this.tw.write(value);
+    writeType (value : string) : CodeWriter {
+        this.w('Type', value);
+        return this;
     }
 
-    writeText (value : string) : void {
-        this.tw.write(value);
+    writeMarkup (value : string) : CodeWriter {
+        this.w('Markup', value);
+        return this;
     }
 
-    writeNum (value : string) : void {
-        this.tw.write(value);
+    writeComment (value : string) : CodeWriter {
+        this.w('Comment', value);
+        return this;
     }
 
-    writeOp (value : string) : void {
-        this.tw.write(value);
+    writeText (value : string) : CodeWriter {
+        this.w('Text', value);
+        return this;
     }
 
-    writeNewLine () : void {
-        this.tw.writeNewLine();
+    writeNum (value : string) : CodeWriter {
+        this.w('Num', value);
+        return this;
     }
 
-    writeSpace () : void {
+    writeOp (value : string) : CodeWriter {
+        this.w('Op', value);
+        return this;
+    }
+
+    writeNewLine () : CodeWriter {
+        this.tw.write("<br/>");
+        return this;
+    }
+
+    writeSpace () : CodeWriter {
         this.tw.write(" ");
+        return this;
     }
 
-    tab () : void {
-        this.tw.write("");
+    tab () : CodeWriter {
+        this.tabs += "    ";
+        this.tw.write(this.tabs);
         this.writeNewLine();
+        return this;
     }
 
-    unTab () : void {
-        this.tw.write("");
+    unTab () : CodeWriter {
+        this.tabs = this.tabs.substr(this.tabs.length - 4);
         this.writeNewLine();
+        return this;
     }
 }
