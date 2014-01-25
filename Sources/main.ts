@@ -7,7 +7,7 @@
 function start () {
 
     var parser = new Parser();
-    var exp = parser.parse("123");
+    var exp = parser.parse("var a=1+4");
 
     var sw = new StringWriter();
     var cw = new HtmlCodeWriter(sw);
