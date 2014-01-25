@@ -46,7 +46,7 @@ class HtmlCodeWriter implements CodeWriter {
 
 
     private w (style : string, value : string) : void {
-        this.tw.write(this.tabs, "<span class='efekt", style, "'", value, "</span>");
+        this.tw.write("<span class='efekt", style, "'>", value, "</span>");
     }
 
 
@@ -92,6 +92,7 @@ class HtmlCodeWriter implements CodeWriter {
 
     writeNewLine () : CodeWriter {
         this.tw.write("<br/>");
+        this.tw.write(this.tabs);
         return this;
     }
 
@@ -102,14 +103,12 @@ class HtmlCodeWriter implements CodeWriter {
 
     tab () : CodeWriter {
         this.tabs += "    ";
-        this.tw.write(this.tabs);
         this.writeNewLine();
         return this;
     }
 
     unTab () : CodeWriter {
-        this.tabs = this.tabs.substr(this.tabs.length - 4);
-        this.writeNewLine();
+        this.tabs = this.tabs.substr(0, this.tabs.length - 4);
         return this;
     }
 }

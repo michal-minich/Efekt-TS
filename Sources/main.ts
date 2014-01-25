@@ -5,13 +5,17 @@
 /// <reference path="interpreter.ts"/>
 
 function start () {
-    var i = new Int(undefined, undefined, "12345");
+
+    var parser = new Parser();
+    var exp = parser.parse("123");
 
     var sw = new StringWriter();
     var cw = new HtmlCodeWriter(sw);
     var p : AstVisitor<void> = new Printer(cw);
 
-    i.accept(p);
+    exp.accept(p);
 
-    document.getElementById("view").textContent = sw.getString();
+    var str = sw.getString();
+    console.log(str);
+    document.getElementById("view").innerHTML = str;
 }

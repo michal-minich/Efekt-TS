@@ -4,7 +4,7 @@
 interface AstVisitor<T> {
 
     // helpers
-    visitAsiList (al : AsiList) : T;
+    visitExpList (el : ExpList) : T;
 
     // statements
     visitVar (v : Var) : T;
@@ -12,6 +12,8 @@ interface AstVisitor<T> {
     visitBreak(b : Break) : T;
     visitContinue(c : Continue) : T;
     visitReturn (r : Return) : T;
+    visitThrow (th : Throw) : T;
+    visitTry (tr : Try) : T;
 
     // expresions
     visitScope (sc : Scope) : T;
@@ -20,6 +22,8 @@ interface AstVisitor<T> {
     visitFnApply (fna : FnApply) : T;
     visitBinOpApply (opa : BinOpApply) : T;
     visitIf (i : If) : T;
+    visitNew (nw : New) : T;
+    visitTypeOf (tof : TypeOf) : T;
 
     // values
     visitErr (er : Err) : T;
@@ -28,22 +32,23 @@ interface AstVisitor<T> {
     visitInt (ii : Int) : T;
     visitFloat (f : Float) : T;
     visitArr(arr : Arr) : T;
+    visitRef(rf : Ref) : T;
+
+    // values / types
     visitFn (fn : Fn) : T;
+
+    // types (user defined)
     visitStruct (st : Struct) : T;
     visitInterface(ifc : Interface) : T;
 
-    // types
+    // types (built in)
     visitTypeAny(ta : TypeAny) : T;
     visitTypeAnyOf(tao : TypeAnyOf) : T;
-
-    // types of values
     visitTypeErr(ter : TypeErr) : T;
     visitTypeVoid(tvo : TypeVoid) : T;
     visitTypeBool(tb : TypeBool) : T;
     visitTypeInt(tii : TypeInt) : T;
     visitTypeFloat(tf : TypeFloat) : T;
     visitTypeArr(tarr : TypeArr) : T;
-    visitTypeFn(tfn : TypeFn) : T;
-    visitTypeStruct(tst : TypeStruct) : T;
-    visitTypeInterface(tifc : TypeInterface) : T;
+    visitTypeRef(trf : TypeRef) : T;
 }

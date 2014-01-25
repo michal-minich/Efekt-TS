@@ -12,7 +12,7 @@ class StringWriter implements TextWriter {
 
 
     public getString () : string {
-        return this.buffer.join();
+        return this.buffer.join("");
     }
 
 

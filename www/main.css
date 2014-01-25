@@ -1,0 +1,35 @@
+.efektCode {
+    font: bold 10pt Consolas, sans-serif;
+}
+
+.efektKey {
+    color: #af0009;
+}
+
+.efektIdent {
+    color: #2930af;
+}
+
+.efektType {
+    color: #008f24;
+}
+
+.efektMarkup {
+    color: #5d5d5d;
+}
+
+.efektComment {
+    color: #9c9c9c;
+}
+
+.efektText {
+    color: #d57300;
+}
+
+.efektNum {
+    color: #528ee2;
+}
+
+.efektOp {
+    color: #000000;
+}

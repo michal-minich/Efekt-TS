@@ -7,12 +7,13 @@
 class Asi {
 
     public parent : Asi;
-    public attrs : AsiList;
-    public comment : string;
+    public attrs : ExpList;
 
-    constructor (parent : Asi, attrs : AsiList) {
-        this.parent = parent;
-        this.attrs = attrs;
+    constructor (attrs : ExpList) {
+        if (attrs) {
+            this.attrs = attrs;
+            attrs.parent = this;
+        }
     }
 
     public accept<T> (v : AstVisitor<T>) : T {
@@ -48,12 +49,18 @@ class Stm extends Asi {
 
 
 
-class AsiList extends Asi {
+class ExpList extends Asi {
 
-    public items : Asi[];
+    public items : Exp[];
+
+    constructor (attrs : ExpList, items : Exp[]) {
+        super(attrs);
+        for (var i = 0; i < items.length; i++)
+            items[i].parent = this;
+    }
 
     public accept<T> (v : AstVisitor<T>) : T {
-        return v.visitAsiList(this);
+        return v.visitExpList(this);
     }
 }
 
@@ -67,15 +74,18 @@ class AsiList extends Asi {
 
 class Var extends Stm {
 
-    public isPublic : Boolean;
     public ident : Ident;
+    public type : Exp;
+    public constraint : Exp;
     public value : Exp;
 
-    constructor (parent : Asi, attrs : AsiList, isPublic : Boolean, ident : Ident, value : Exp) {
-        super(parent, attrs);
-        this.isPublic = isPublic;
+    constructor (attrs : ExpList, ident : Ident, value : Exp) {
+        super(attrs);
         this.ident = ident;
         this.value = value;
+        ident.parent = this;
+        value.parent = this;
+
     }
 
     public accept<T> (v : AstVisitor<T>) : T {
@@ -90,9 +100,10 @@ class Loop extends Exp {
 
     public body : Scope;
 
-    constructor (parent : Asi, attrs : AsiList, body : Scope) {
-        super(parent, attrs);
+    constructor (attrs : ExpList, body : Scope) {
+        super(attrs);
         this.body = body;
+        body.parent = this;
     }
 
     public accept<T> (v : AstVisitor<T>) : T {
@@ -127,14 +138,61 @@ class Return extends Exp {
 
     public value : Exp;
 
-    constructor (parent : Asi, attrs : AsiList, value : Exp) {
-        super(parent, attrs);
+    constructor (attrs : ExpList, value : Exp) {
+        super(attrs);
         this.value = value;
+        value.parent = this;
     }
 
     public accept<T> (v : AstVisitor<T>) : T {
         return v.visitReturn(this);
     }
+}
+
+
+
+
+class Throw extends Exp {
+
+    public ex : Exp;
+
+    constructor (attrs : ExpList, ex : Exp) {
+        super(attrs);
+        this.ex = ex;
+        ex.parent = this;
+    }
+
+    public accept<T> (v : AstVisitor<T>) : T {
+        return v.visitThrow(this);
+    }
+}
+
+
+
+
+class Try extends Exp {
+
+    public body : Scope;
+    public catches : Catch[];
+    public fin : Scope;
+
+    constructor (attrs : ExpList, fin : Scope) {
+        super(attrs);
+        this.fin = fin;
+        fin.parent = this;
+    }
+
+    public accept<T> (v : AstVisitor<T>) : T {
+        return v.visitTry(this);
+    }
+}
+
+
+
+
+class Catch {
+    public on : Var;
+    public body : Scope;
 }
 
 
@@ -147,11 +205,13 @@ class Return extends Exp {
 
 class Scope extends Exp {
 
-    public list : AsiList;
+    public items : Asi[];
 
-    constructor (parent : Asi, attrs : AsiList, list : AsiList) {
-        super(parent, attrs);
-        this.list = list;
+    constructor (attrs : ExpList, items : Asi[]) {
+        super(attrs);
+        this.items = items;
+        for (var i = 0; i < items.length; i++)
+            items[i].parent = this;
     }
 
     public accept<T> (v : AstVisitor<T>) : T {
@@ -166,8 +226,8 @@ class Ident extends Exp {
 
     public name : string;
 
-    constructor (parent : Asi, attrs : AsiList, name : string) {
-        super(parent, attrs);
+    constructor (attrs : ExpList, name : string) {
+        super(attrs);
         this.name = name;
     }
 
@@ -183,9 +243,10 @@ class Member extends Exp {
 
     public ident : Ident;
 
-    constructor (parent : Asi, attrs : AsiList, ident : Ident) {
-        super(parent, attrs);
+    constructor (attrs : ExpList, ident : Ident) {
+        super(attrs);
         this.ident = ident;
+        ident.parent = this;
     }
 
     public accept<T> (v : AstVisitor<T>) : T {
@@ -198,13 +259,15 @@ class Member extends Exp {
 
 class FnApply extends Exp {
 
-    public args : AsiList;
+    public args : ExpList;
     public fn : Exp;
 
-    constructor (parent : Asi, attrs : AsiList, args : AsiList, fn : Exp) {
-        super(parent, attrs);
+    constructor (attrs : ExpList, args : ExpList, fn : Exp) {
+        super(attrs);
         this.args = args;
         this.fn = fn;
+        args.parent = this;
+        fn.parent = this;
     }
 
     public accept<T> (v : AstVisitor<T>) : T {
@@ -221,11 +284,14 @@ class BinOpApply extends Exp {
     public op1 : Exp;
     public op2 : Exp;
 
-    constructor (parent : Asi, attrs : AsiList, op : Ident, op1 : Exp, op2 : Exp) {
-        super(parent, attrs);
+    constructor (attrs : ExpList, op : Ident, op1 : Exp, op2 : Exp) {
+        super(attrs);
         this.op = op;
         this.op1 = op1;
         this.op2 = op2;
+        op.parent = this;
+        op1.parent = this;
+        op2.parent = this;
     }
 
     public accept<T> (v : AstVisitor<T>) : T {
@@ -242,15 +308,54 @@ class If extends Exp {
     public then : Scope;
     public otherwise : Scope;
 
-    constructor (parent : Asi, attrs : AsiList, test : Exp, then : Scope, otherwise : Scope) {
-        super(parent, attrs);
+    constructor (attrs : ExpList, test : Exp, then : Scope, otherwise : Scope) {
+        super(attrs);
         this.test = test;
         this.then = then;
         this.otherwise = otherwise;
+        test.parent = this;
+        then.parent = this;
+        otherwise.parent = this;
     }
 
     public accept<T> (v : AstVisitor<T>) : T {
         return v.visitIf(this);
+    }
+}
+
+
+
+
+class New extends Exp {
+
+    public value : Exp;
+
+    constructor (attrs : ExpList, value : Exp) {
+        super(attrs);
+        this.value = value;
+        value.parent = this;
+    }
+
+    public accept<T> (v : AstVisitor<T>) : T {
+        return v.visitNew(this);
+    }
+}
+
+
+
+
+class TypeOf extends Exp {
+
+    public value : Exp;
+
+    constructor (attrs : ExpList, value : Exp) {
+        super(attrs);
+        this.value = value;
+        value.parent = this;
+    }
+
+    public accept<T> (v : AstVisitor<T>) : T {
+        return v.visitTypeOf(this);
     }
 }
 
@@ -266,9 +371,10 @@ class Err extends Exp {
 
     public item : Asi;
 
-    constructor (parent : Asi, attrs : AsiList, item : Asi) {
-        super(parent, attrs);
+    constructor (attrs : ExpList, item : Asi) {
+        super(attrs);
         this.item = item;
+        item.parent = this;
     }
 
     public accept<T> (v : AstVisitor<T>) : T {
@@ -285,7 +391,7 @@ class Void extends Exp {
         return v.visitVoid(this);
     }
 
-    public static instance = new Void(undefined, undefined);
+    public static instance = new Void(undefined);
 }
 
 
@@ -295,8 +401,8 @@ class Bool extends Exp {
 
     public value : boolean;
 
-    constructor (parent : Asi, attrs : AsiList, value : boolean) {
-        super(parent, attrs);
+    constructor (attrs : ExpList, value : boolean) {
+        super(attrs);
         this.value = value;
     }
 
@@ -312,8 +418,8 @@ class Int extends Exp {
 
     public value : string;
 
-    constructor (parent : Asi, attrs : AsiList, value : string) {
-        super(parent, attrs);
+    constructor (attrs : ExpList, value : string) {
+        super(attrs);
         this.value = value;
     }
 
@@ -329,8 +435,8 @@ class Float extends Exp {
 
     public value : string;
 
-    constructor (parent : Asi, attrs : AsiList, value : string) {
-        super(parent, attrs);
+    constructor (attrs : ExpList, value : string) {
+        super(attrs);
         this.value = value;
     }
 
@@ -344,6 +450,14 @@ class Float extends Exp {
 
 class Arr extends Exp {
 
+    public list : ExpList;
+
+    constructor (attrs : ExpList, list : ExpList) {
+        super(attrs);
+        this.list = list;
+        list.parent = this;
+    }
+
     public accept<T> (v : AstVisitor<T>) : T {
         return v.visitArr(this);
     }
@@ -352,15 +466,41 @@ class Arr extends Exp {
 
 
 
+class Ref extends Exp {
+
+    public item : Exp;
+
+    constructor (attrs : ExpList, item : Exp) {
+        super(attrs);
+        this.item = item;
+        item.parent = this;
+    }
+
+    public accept<T> (v : AstVisitor<T>) : T {
+        return v.visitRef(this);
+    }
+}
+
+
+
+
+// values / types ===============================================
+
+
+
+
 class Fn extends Exp {
 
-    public params : AsiList;
+    public params : ExpList;
     public body : Scope;
+    public returnType : Exp;
 
-    constructor (parent : Asi, attrs : AsiList, params : AsiList, body : Scope) {
-        super(parent, attrs);
+    constructor (attrs : ExpList, params : ExpList, body : Scope) {
+        super(attrs);
         this.params = params;
         this.body = body;
+        params.parent = this;
+        body.parent = this;
     }
 
     public accept<T> (v : AstVisitor<T>) : T {
@@ -371,12 +511,17 @@ class Fn extends Exp {
 
 
 
+// types (user defined) ===============================================
+
+
+
+
 class Struct extends Exp {
 
     public body : Scope;
 
-    constructor (parent : Asi, attrs : AsiList, body : Scope) {
-        super(parent, attrs);
+    constructor (attrs : ExpList, body : Scope) {
+        super(attrs);
         this.body = body;
     }
 
@@ -392,8 +537,8 @@ class Interface extends Exp {
 
     public body : Scope;
 
-    constructor (parent : Asi, attrs : AsiList, body : Scope) {
-        super(parent, attrs);
+    constructor (attrs : ExpList, body : Scope) {
+        super(attrs);
         this.body = body;
     }
 
@@ -405,7 +550,7 @@ class Interface extends Exp {
 
 
 
-// values ===============================================
+// types (built in) ===============================================
 
 
 
@@ -422,10 +567,10 @@ class TypeAny extends Exp {
 
 class TypeAnyOf extends Exp {
 
-    public choices : Exp[];
+    public choices : ExpList;
 
-    constructor (parent : Asi, attrs : AsiList, choices : Exp[]) {
-        super(parent, attrs);
+    constructor (attrs : ExpList, choices : ExpList) {
+        super(attrs);
         this.choices = choices;
     }
 
@@ -433,11 +578,6 @@ class TypeAnyOf extends Exp {
         return v.visitTypeAnyOf(this);
     }
 }
-
-
-
-
-// types of values ===============================================
 
 
 
@@ -497,8 +637,8 @@ class TypeArr extends Exp {
     public elementType : Exp;
     public length : Exp;
 
-    constructor (parent : Asi, attrs : AsiList, elementType : Exp, length : Exp) {
-        super(parent, attrs);
+    constructor (attrs : ExpList, elementType : Exp, length : Exp) {
+        super(attrs);
         this.elementType = elementType;
         this.length = length;
     }
@@ -511,36 +651,16 @@ class TypeArr extends Exp {
 
 
 
-class TypeFn extends Exp {
+class TypeRef extends Exp {
 
-    public signature : Exp[];
+    public elementType : Exp;
 
-    constructor (parent : Asi, attrs : AsiList, signature : Exp[]) {
-        super(parent, attrs);
-        this.signature = signature;
+    constructor (attrs : ExpList, elementType : Exp) {
+        super(attrs);
+        this.elementType = elementType;
     }
 
     public accept<T> (v : AstVisitor<T>) : T {
-        return v.visitTypeFn(this);
-    }
-}
-
-
-
-
-class TypeStruct extends Exp {
-
-    public accept<T> (v : AstVisitor<T>) : T {
-        return v.visitTypeStruct(this);
-    }
-}
-
-
-
-
-class TypeInterface extends Exp {
-
-    public accept<T> (v : AstVisitor<T>) : T {
-        return v.visitTypeInterface(this);
+        return v.visitTypeRef(this);
     }
 }

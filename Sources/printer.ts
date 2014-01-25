@@ -15,14 +15,27 @@ class Printer implements AstVisitor<void> {
 
 
 
+    private writeComaList (items : Exp[]) {
+        this.cw.writeMarkup("(");
+        for (var i = 0; i < items.length; i++) {
+            var t : AstVisitor<void> = this; // TypeScript bug?, cannot pass this directly
+            items[i].accept(t);
+            this.cw.writeMarkup(",").writeSpace();
+        }
+        this.cw.writeMarkup(")");
+    }
+
+
+
+
     // helpers ===============================================
 
 
 
 
-    visitAsiList (al : AsiList) : void {
-        for (var i = 0; i < al.items.length; i++)
-            al[i].accept(this);
+    visitExpList (el : ExpList) : void {
+        for (var i = 0; i < el.items.length; i++)
+            el[i].accept(this);
     }
 
 
@@ -32,34 +45,46 @@ class Printer implements AstVisitor<void> {
 
 
     visitVar (v : Var) : void {
-        if (v.isPublic) {
-            this.cw.writeKey("public");
-            this.cw.writeSpace();
-        }
-        this.cw.writeKey("var");
-        this.cw.writeSpace();
+        this.cw.writeKey("var").writeSpace();
         this.visitIdent(v.ident);
+        if (v.type) {
+            this.cw.writeSpace().writeOp(":").writeSpace();
+            v.type.accept(this);
+        }
+        if (v.constraint) {
+            this.cw.writeSpace().writeKey("of").writeSpace();
+            v.constraint.accept(this);
+        }
+        if (v.value) {
+            this.cw.writeSpace().writeOp("=").writeSpace();
+            v.value.accept(this);
+        }
+        this.cw.writeNewLine();
     }
 
 
 
 
     visitLoop (l : Loop) : void {
-        this.cw.writeComment("");
+        this.cw.writeKey("loop").writeSpace();
+        this.visitScope(l.body);
+        this.cw.writeNewLine();
     }
 
 
 
 
     visitBreak (b : Break) : void {
-        this.cw.writeComment("");
+        this.cw.writeKey("break");
+        this.cw.writeNewLine();
     }
 
 
 
 
     visitContinue (c : Continue) : void {
-        this.cw.writeComment("");
+        this.cw.writeKey("continue");
+        this.cw.writeNewLine();
     }
 
 
@@ -67,10 +92,46 @@ class Printer implements AstVisitor<void> {
 
     visitReturn (r : Return) : void {
         this.cw.writeKey("return");
-        if (r.value != Void.instance) {
+        if (r.value) {
             this.cw.writeSpace();
             r.value.accept(this);
         }
+        this.cw.writeNewLine();
+    }
+
+
+
+
+    visitThrow (th : Throw) : void {
+        this.cw.writeKey("throw");
+        if (th.ex) {
+            this.cw.writeSpace();
+            th.ex.accept(this);
+        }
+        this.cw.writeNewLine();
+    }
+
+
+
+
+    visitTry (tr : Try) : void {
+        this.cw.writeKey("try").writeSpace();
+        this.visitScope(tr.body);
+        for (var i = 0; i < tr.catches.length; i++) {
+            this.cw.writeKey("catch");
+            var c = tr.catches[i];
+            if (c.on) {
+                this.cw.writeSpace().writeMarkup("(")
+                this.visitVar(c.on);
+                this.cw.writeMarkup(")").writeSpace();
+                this.visitScope(c.body);
+            }
+        }
+        if (tr.fin) {
+            this.cw.writeKey("finally").writeSpace();
+            this.visitScope(tr.fin);
+        }
+        this.cw.writeNewLine();
     }
 
 
@@ -82,7 +143,8 @@ class Printer implements AstVisitor<void> {
     visitScope (sc : Scope) : void {
         this.cw.writeMarkup("{");
         this.cw.tab();
-        this.visitAsiList(sc.list);
+        for (var i = 0; i < sc.items.length; i++)
+            sc.items[i].accept(this);
         this.cw.unTab();
         this.cw.writeMarkup("}");
     }
@@ -98,28 +160,57 @@ class Printer implements AstVisitor<void> {
 
 
     visitMember (m : Member) : void {
-        return this.visitIdent(m.ident);
+        this.cw.writeOp(".");
+        this.visitIdent(m.ident);
     }
 
 
 
 
     visitFnApply (fna : FnApply) : void {
-        throw undefined;
+        fna.fn.accept(this);
+        this.writeComaList(fna.args.items);
     }
 
 
 
 
     visitBinOpApply (opa : BinOpApply) : void {
-        throw undefined;
+        opa.op1.accept(this);
+        this.cw.writeSpace();
+        opa.op.accept(this);
+        this.cw.writeSpace();
+        opa.op2.accept(this);
     }
 
 
 
 
     visitIf (i : If) : void {
-        throw undefined;
+        this.cw.writeKey("if").writeSpace();
+        i.test.accept(this);
+        this.cw.writeSpace().writeKey("then").writeSpace();
+        this.visitScope(i.then);
+        if (i.otherwise) {
+            this.cw.writeSpace().writeKey("else").writeSpace();
+            this.visitScope(i.otherwise);
+        }
+    }
+
+
+
+
+    visitNew (nw : New) : void {
+        this.cw.writeKey("new").writeSpace();
+        nw.value.accept(this);
+    }
+
+
+
+
+    visitTypeOf (tof : TypeOf) : void {
+        this.cw.writeKey("typeof").writeSpace();
+        tof.value.accept(this);
     }
 
 
@@ -131,20 +222,23 @@ class Printer implements AstVisitor<void> {
 
 
     visitErr (er : Err) : void {
-        throw undefined;
+        this.cw.writeKey("error").writeSpace().writeMarkup("(");
+        er.item.accept(this);
+        this.cw.writeMarkup(")");
     }
 
 
 
 
     visitVoid (vo : Void) : void {
+        throw "Cannot print void";
     }
 
 
 
 
     visitBool (b : Bool) : void {
-        this.cw.writeComment("");
+        this.cw.writeKey(b.value === true ? "true" : "false");
     }
 
 
@@ -165,113 +259,130 @@ class Printer implements AstVisitor<void> {
 
 
     visitArr (arr : Arr) : void {
-        throw undefined;
+        this.cw.writeMarkup("[");
+        this.writeComaList(arr.list.items);
+        this.cw.writeMarkup("]");
     }
+
+
+
+
+    visitRef (rf : Ref) : void {
+        this.cw.writeKey("ref").writeSpace(); // ?
+        rf.item.accept(this);
+    }
+
+
+
+
+    // values / types ===============================================
 
 
 
 
     visitFn (fn : Fn) : void {
-        throw undefined;
+        this.cw.writeKey("fn").writeSpace();
+        this.writeComaList(fn.params.items);
+        this.cw.writeSpace();
+        if (fn.returnType) {
+            this.cw.writeMarkup("->").writeSpace();
+            fn.returnType.accept(this);
+        }
+        fn.body.accept(this);
     }
+
+
+
+
+    // types (user defined) ===============================================
 
 
 
 
     visitStruct (st : Struct) : void {
-        throw undefined;
+        this.cw.writeKey("struct").writeSpace()
+        st.body.accept(this);
     }
 
 
 
     visitInterface (ifc : Interface) : void {
-        this.cw.writeComment("");
+        this.cw.writeKey("interface").writeSpace()
+        ifc.body.accept(this);
     }
 
 
 
 
-    // types ===============================================
+    // types (built in) ===============================================
 
 
 
 
     visitTypeAny (ta : TypeAny) : void {
-        this.cw.writeComment("");
+        this.cw.writeType("Any");
     }
 
 
 
 
     visitTypeAnyOf (tao : TypeAnyOf) : void {
-        this.cw.writeComment("");
+        this.cw.writeType("AnyOf");
+        this.writeComaList(tao.choices.items);
     }
 
 
 
 
-    // types of values ===============================================
-
-
-
-
     visitTypeErr (te : TypeErr) : void {
-        throw undefined;
+        this.cw.writeType("Error");
     }
 
 
 
 
     visitTypeVoid (tvo : TypeVoid) : void {
-        this.cw.writeComment("");
+        this.cw.writeType("Void");
     }
 
 
 
 
     visitTypeBool (tb : TypeBool) : void {
-        this.cw.writeComment("");
+        this.cw.writeType("Bool");
     }
 
 
 
 
     visitTypeInt (tii : TypeInt) : void {
-        this.cw.writeComment("");
+        this.cw.writeType("Int");
     }
 
 
 
 
     visitTypeFloat (tf : TypeFloat) : void {
-        this.cw.writeComment("");
+        this.cw.writeType("Float");
     }
 
 
 
 
     visitTypeArr (tarr : TypeArr) : void {
-        this.cw.writeComment("");
+        this.cw.writeType("Array").writeMarkup("(");
+        tarr.elementType.accept(this);
+        this.cw.writeType(",").writeSpace();
+        tarr.length.accept(this);
+        this.cw.writeMarkup(")");
     }
 
 
 
 
-    visitTypeFn (tfn : TypeFn) : void {
-        this.cw.writeComment("");
-    }
-
-
-
-
-    visitTypeStruct (ts : TypeStruct) : void {
-        this.cw.writeComment("");
-    }
-
-
-
-
-    visitTypeInterface (tifc : TypeInterface) : void {
-        this.cw.writeComment("");
+    visitTypeRef (trf : TypeRef) : void {
+        this.cw.writeType("Ref").writeMarkup("(");
+        trf.elementType.accept(this);
+        this.cw.writeMarkup(")");
     }
 }

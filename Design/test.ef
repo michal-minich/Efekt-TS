@@ -71,6 +71,9 @@ value (Type)
 value (Array)
   get value at index
   get length value
+value (Ref)
+
+var x = new ref 4;
 
 var Any = struct { all built in }
 var Type = struct (T of Type) { }
@@ -120,7 +123,7 @@ var arr : Array = new Array(Box, 1)
 arr.count
 
 
-var Comparer = interface (in A of Any, in B of Any) {
+var Comparer = interface (in A : Any, in B : Any) {
     var callable = fn (a : A, b : B) -> Int
 }
 
@@ -151,5 +154,96 @@ var first = (arr: Array(any A)) -> A
 var CommonType = fn (a : Numeric, b : Numeric) -> AnyOf(Int, Double) {
     if a.Type.isInt && b.Type.isInt then return Int else return Double
 }
+
+// ==================================
+
+
+var IdentityComparer = interface (in A of Any, in B of Any) {
+    var op== = fn (a : Any, b : Any) -> Bool
+}
+
+
+implicit var AnyIdentityComparer = struct of IdentityComparer (Any, Any) {
+    var op== = fn (a, b) { }
+}
+
+
+implicit var IntIdentityComparer = struct with IdentityComparer (Int, Int) {
+    var op== = fn (a, b) { }
+}
+
+
+implicit var ArrayIdentityComparer = struct of IdentityComparer (Slice, Slice) {
+    var op== = fn (a, b) {
+        var n = 0
+        if a.length != b.length then
+            return false
+        loop {
+            if n == a.length then
+                break
+            n.inc()
+            if a!i != b!i then
+                return false
+        }
+        return true
+    }
+}
+
+var Any = interface {
+}
+
+
+var AnyValue = interface of Any {
+}
+
+
+var AnyType = interface of Any {
+}
+
+
+var Void = struct of Any { }
+
+var Iterator = interface (out T) {
+    property var ElementType = fn () -> Any { T }
+    property var hasNext() -> Bool { ... }
+    property var getNext() -> T { ... }
+    property var reset() -> Void { ... }
+}
+
+var ResetableIterator = interface (out T) Iterator(T) {
+    property var reset() -> Void { ... }
+}
+
+var IteratorWithLegth = interface (out T) of Iterator(T) {
+    property var length = fn () { ... }
+}
+
+var Slice = interface (out T, implicit out S of Slice(T)) of Iterator(T) {
+    property var get (index : Long) -> T { ... }
+    property var slice (index : Long, length : Long) -> S { ... }
+}
+
+var IArray = interface (T) with Slice(T) {
+    property var set (index : Long, in value : T) -> Void { ... }
+}
+
+var Array = struct {
+}
+
+var ArrayIArray = extension (T) of Array(T) with Slice(T) {
+    property var get = fn (index : Long) -> T { }
+}
+
+var List = interface (out T, R) of Array(T) {
+    property var select (selector : fn (T) -> R) -> List(R) { ... }
+}
+
+var Array = (fn (T of Any) {
+    interface of Slice (T) {
+        property var set (index : Long, in value : T) -> Void { ... }
+    }
+}())
+
+
 
 
