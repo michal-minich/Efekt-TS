@@ -81,7 +81,6 @@ class DebugPrinter implements AstVisitor<void> {
 
     visitBreak (b : Break) : void {
         this.cw.writeKey("break");
-        this.cw.writeNewLine();
     }
 
 
@@ -89,7 +88,6 @@ class DebugPrinter implements AstVisitor<void> {
 
     visitContinue (c : Continue) : void {
         this.cw.writeKey("continue");
-        this.cw.writeNewLine();
     }
 
 

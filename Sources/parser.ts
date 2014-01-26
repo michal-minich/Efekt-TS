@@ -84,6 +84,12 @@ class Parser {
         if (this.matchText("loop"))
             return this.parseLoop();
 
+        if (this.matchText("break"))
+            return new Break(undefined);
+
+        if (this.matchText("continue"))
+            return new Continue(undefined);
+
         if (this.match(Parser.isIdent))
             return new Ident(undefined, this.matched);
 

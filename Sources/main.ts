@@ -9,7 +9,9 @@ function start () {
 
     var parser = new Parser();
 
-    var testVar = "var a " +
+    var testAll = "break continue " +
+        "loop { a } " +
+        "var a " +
         "var b : T " +
         "var c : T of Int " +
         "var d : T of Int = 1 " +
@@ -19,9 +21,9 @@ function start () {
         "var h of Int " +
         "var i of Int = 1 ";
 
-    var testStr = "loop { a }";
+    var testStr = "break continue ";
 
-    var sc = parser.parse(testStr);
+    var sc = parser.parse(testAll);
 
     var sw = new StringWriter();
     var cw = new HtmlCodeWriter(sw);
