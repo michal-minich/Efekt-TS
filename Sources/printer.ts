@@ -182,6 +182,7 @@ class Printer implements AstVisitor<void> {
 
 
     visitMember (m : Member) : void {
+        m.bag.accept(this);
         this.cw.writeOp(".");
         this.visitIdent(m.ident);
     }

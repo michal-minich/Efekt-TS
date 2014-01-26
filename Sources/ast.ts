@@ -260,11 +260,14 @@ class Ident extends Exp {
 
 class Member extends Exp {
 
+    public bag : Exp;
     public ident : Ident;
 
-    constructor (attrs : ExpList, ident : Ident) {
+    constructor (attrs : ExpList, bag : Exp, ident : Ident) {
         super(attrs);
+        this.bag = bag
         this.ident = ident;
+        bag.parent = this;
         ident.parent = this;
     }
 

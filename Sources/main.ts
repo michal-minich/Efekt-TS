@@ -9,7 +9,8 @@ function start () {
 
     var parser = new Parser();
 
-    var testAll = "try a finally { b } " +
+    var testAll = "obj.member " +
+        "try a finally { b } " +
         "throw \n throw ex " +
         "return \n return 1 + 2 " +
         "break continue " +
@@ -24,7 +25,7 @@ function start () {
         "var h of Int " +
         "var i of Int = 1 ";
 
-    var testStr = "try a finally { b } ";
+    var testStr = "obj.member";
 
     var sc = parser.parse(testAll);
 

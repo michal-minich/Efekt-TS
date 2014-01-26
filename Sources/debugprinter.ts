@@ -173,8 +173,11 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitMember (m : Member) : void {
-        this.cw.writeOp(".");
+        this.cw.writeKey("Member").tab().writeNewLine().writeMarkup("bag").writeSpace();
+        m.bag.accept(this);
+        this.cw.writeNewLine().writeMarkup("ident").writeSpace();
         this.visitIdent(m.ident);
+        this.cw.unTab();
     }
 
 

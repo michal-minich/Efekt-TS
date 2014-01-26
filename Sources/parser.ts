@@ -43,17 +43,30 @@ class Parser {
     private parseMany () : Asi {
         var asi = this.parseOne();
         var isMatch = true;
-        while (isMatch && asi && this.index !== this.code.length) {
+        while (isMatch && asi) {
             isMatch = false;
-            this.skipWhite();
-            if (this.index !== this.code.length) {
-                var ch = this.code[this.index];
-                if (ch == '(') {
 
-                } else if (this.matchOp()) {
-                    asi = this.parseBinOpApply(asi);
+            if (asi instanceof BinOpApply) {
+                var o = <BinOpApply>asi;
+                if (o.op.name === ".") {
                     isMatch = true;
+                    if (o.op2 instanceof Ident)
+                        asi = new Member(undefined, o.op1, <Ident>o.op2);
+                    else
+                        throw "exptexcted identifier after dot";
                 }
+            }
+
+            this.skipWhite();
+            if (this.index === this.code.length)
+                return asi;
+            var ch = this.code[this.index];
+
+            if (ch == '(') {
+
+            } else if (this.matchOp()) {
+                asi = this.parseBinOpApply(asi);
+                isMatch = true;
             }
         }
 
@@ -103,12 +116,13 @@ class Parser {
         if (this.match(Parser.isIdent))
             return new Ident(undefined, this.matched);
 
-        if (this.code[this.index] == '{') {
+        var ch = this.code[this.index];
+        if (ch === '{') {
             ++this.index;
             return new Scope(undefined, this.parseAsiArray());
         }
 
-        if (this.code[this.index] == '}') {
+        if (ch === '}') {
             ++this.index;
             return undefined;
         }
@@ -250,12 +264,14 @@ class Parser {
     }
 
     public static isOp (ch : string) : boolean {
-        return ch == '+' || ch == '-' || ch == '*' || ch == '\\' || ch == '%' || ch == '='
-            || ch == ':';
+        return ch === '.' || ch === '+' || ch === '-' || ch === '*' || ch === '\\' ||
+            ch === '%' || ch === '=' || ch === ':' || ch === '!' || ch === '~' || ch === '@' ||
+            ch === '#' || ch === '^' || ch === '&' || ch === '/' || ch === '|' || ch === '<' ||
+            ch === '>' || ch === '?' || ch === ',' || ch === '$';
     }
 
     private static isIdent (ch : string) : boolean {
-        return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || ch == '_';
+        return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || ch === '_';
     }
 
 
