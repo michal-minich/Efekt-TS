@@ -1,5 +1,7 @@
 /// <reference path="writer.ts"/>
 /// <reference path="visitor.ts"/>
+/// <reference path="parser.ts"/>
+
 
 class DebugPrinter implements AstVisitor<void> {
 
@@ -45,19 +47,21 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitVar (v : Var) : void {
-        this.cw.writeKey("Var").tab().writeMarkup("ident").writeSpace();
-        this.visitIdent(v.ident);
-        this.cw.writeNewLine();
+        this.cw.writeKey("Var").tab();
+        if (v.ident) {
+            this.cw.writeNewLine().writeMarkup("ident").writeSpace();
+            this.visitIdent(v.ident);
+        }
         if (v.type) {
-            this.cw.writeSpace().writeMarkup("type").writeSpace();
+            this.cw.writeNewLine().writeMarkup("type").writeSpace();
             v.type.accept(this);
         }
         if (v.constraint) {
-            this.cw.writeSpace().writeMarkup("constraint").writeSpace();
+            this.cw.writeNewLine().writeMarkup("constraint").writeSpace();
             v.constraint.accept(this);
         }
         if (v.value) {
-            this.cw.writeMarkup("value").writeSpace();
+            this.cw.writeNewLine().writeMarkup("value").writeSpace();
             v.value.accept(this);
         }
         this.cw.unTab();
@@ -145,9 +149,8 @@ class DebugPrinter implements AstVisitor<void> {
         this.cw.writeKey("Scope");
         this.cw.tab();
         for (var i = 0; i < sc.items.length; i++) {
-            this.cw.writeMarkup("item").writeSpace();
+            this.cw.writeNewLine().writeMarkup("item").writeSpace();
             sc.items[i].accept(this);
-            this.cw.writeNewLine();
         }
         this.cw.unTab();
     }
@@ -156,8 +159,13 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitIdent (i : Ident) : void {
-        this.cw.writeKey("Ident").tab().writeMarkup("name").writeSpace();
-        this.cw.writeIdent(i.name);
+        this.cw.writeKey("Ident").tab().writeNewLine().writeMarkup("name").writeSpace();
+        if (Parser.isOp(i.name[0]))
+            this.cw.writeOp(i.name);
+        if (i.name[0] <= 'Z')
+            this.cw.writeType(i.name);
+        else
+            this.cw.writeIdent(i.name);
         this.cw.unTab();
     }
 
@@ -252,7 +260,7 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitInt (ii : Int) : void {
-        this.cw.writeKey("Int").tab().writeMarkup("value").writeSpace();
+        this.cw.writeKey("Int").tab().writeNewLine().writeMarkup("value").writeSpace();
         this.cw.writeNum(ii.value);
         this.cw.unTab();
     }

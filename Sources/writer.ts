@@ -103,7 +103,6 @@ class HtmlCodeWriter implements CodeWriter {
 
     tab () : CodeWriter {
         this.tabs += "    ";
-        this.writeNewLine();
         return this;
     }
 

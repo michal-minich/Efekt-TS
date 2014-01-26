@@ -1,9 +1,11 @@
 /// <reference path="writer.ts"/>
 /// <reference path="visitor.ts"/>
+/// <reference path="parser.ts"/>
 
 class Printer implements AstVisitor<void> {
 
     private cw : CodeWriter;
+    private lineWritten : boolean;
 
 
 
@@ -45,8 +47,10 @@ class Printer implements AstVisitor<void> {
 
 
     visitVar (v : Var) : void {
-        this.cw.writeKey("var").writeSpace();
-        this.visitIdent(v.ident);
+        this.lineWritten = true;
+        this.cw.writeNewLine().writeKey("var").writeSpace();
+        if (v.ident)
+            this.visitIdent(v.ident);
         if (v.type) {
             this.cw.writeSpace().writeOp(":").writeSpace();
             v.type.accept(this);
@@ -59,63 +63,63 @@ class Printer implements AstVisitor<void> {
             this.cw.writeSpace().writeOp("=").writeSpace();
             v.value.accept(this);
         }
-        this.cw.writeNewLine();
     }
 
 
 
 
     visitLoop (l : Loop) : void {
-        this.cw.writeKey("loop").writeSpace();
+        this.lineWritten = true;
+        this.cw.writeNewLine().writeKey("loop").writeSpace();
         this.visitScope(l.body);
-        this.cw.writeNewLine();
     }
 
 
 
 
     visitBreak (b : Break) : void {
-        this.cw.writeKey("break");
-        this.cw.writeNewLine();
+        this.lineWritten = true;
+        this.cw.writeNewLine().writeKey("break");
     }
 
 
 
 
     visitContinue (c : Continue) : void {
-        this.cw.writeKey("continue");
-        this.cw.writeNewLine();
+        this.lineWritten = true;
+        this.cw.writeNewLine().writeKey("continue");
     }
 
 
 
 
     visitReturn (r : Return) : void {
-        this.cw.writeKey("return");
+        this.lineWritten = true;
+        this.cw.writeNewLine().writeKey("return");
         if (r.value) {
             this.cw.writeSpace();
             r.value.accept(this);
         }
-        this.cw.writeNewLine();
     }
 
 
 
 
     visitThrow (th : Throw) : void {
-        this.cw.writeKey("throw");
+        this.lineWritten = true;
+        this.cw.writeNewLine().writeKey("throw");
         if (th.ex) {
             this.cw.writeSpace();
             th.ex.accept(this);
         }
-        this.cw.writeNewLine();
     }
 
 
 
 
     visitTry (tr : Try) : void {
-        this.cw.writeKey("try").writeSpace();
+        this.lineWritten = true;
+        this.cw.writeNewLine().writeKey("try").writeSpace();
         this.visitScope(tr.body);
         for (var i = 0; i < tr.catches.length; i++) {
             this.cw.writeKey("catch");
@@ -131,7 +135,6 @@ class Printer implements AstVisitor<void> {
             this.cw.writeKey("finally").writeSpace();
             this.visitScope(tr.fin);
         }
-        this.cw.writeNewLine();
     }
 
 
@@ -141,11 +144,16 @@ class Printer implements AstVisitor<void> {
 
 
     visitScope (sc : Scope) : void {
-        this.cw.writeMarkup("{");
+        this.lineWritten = false;
+        this.cw.writeMarkup("{").writeSpace();
         this.cw.tab();
         for (var i = 0; i < sc.items.length; i++)
             sc.items[i].accept(this);
         this.cw.unTab();
+        if (this.lineWritten)
+            this.cw.writeNewLine();
+        else
+            this.cw.writeSpace();
         this.cw.writeMarkup("}");
     }
 
@@ -153,7 +161,12 @@ class Printer implements AstVisitor<void> {
 
 
     visitIdent (i : Ident) : void {
-        this.cw.writeIdent(i.name);
+        if (Parser.isOp(i.name[0]))
+            this.cw.writeOp(i.name);
+        if (i.name[0] <= 'Z')
+            this.cw.writeType(i.name);
+        else
+            this.cw.writeIdent(i.name);
     }
 
 

@@ -73,7 +73,8 @@ value (Array)
   get length value
 value (Ref)
 
-var x = new ref 4;
+var x = new ref Int(3);
+
 
 var Any = struct { all built in }
 var Type = struct (T of Type) { }
@@ -89,6 +90,13 @@ readsMutableGlobal
 writesIO
 readsIO
 modifiesVar
+
+var a
+var a = 1
+var a : A = 1
+var a : A of Any = 1
+var     A = Int
+var     A of Any = Int
 
 
 var @unsafe = attribute (a : A of Any, b : A)

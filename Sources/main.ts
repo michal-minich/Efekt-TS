@@ -8,7 +8,16 @@
 function start () {
 
     var parser = new Parser();
-    var exp = parser.parse("var a=1+2 var b=3+4");
+    var exp = parser.parse("var a " +
+        "var b : T " +
+        "var c : T of Int " +
+        "var d : T of Int = 1 " +
+        "var e : T = 1 " +
+        "var f of Int = 1 " +
+        "var g = 1 " +
+        "var h of Int " +
+        "var i of Int = 1 "
+    );
 
     var sw = new StringWriter();
     var cw = new HtmlCodeWriter(sw);
@@ -16,7 +25,7 @@ function start () {
     var p : AstVisitor<void> = new Printer(cw);
     exp.accept(p);
     var str = sw.getString();
-    console.log(str);
+    //console.log(str);
 
     sw.clear();
     var dp : AstVisitor<void> = new DebugPrinter(cw);
@@ -25,6 +34,4 @@ function start () {
     //console.log(dstr);
 
     document.getElementById("view").innerHTML = str + "<br/><br/>" + dstr;
-
-
 }

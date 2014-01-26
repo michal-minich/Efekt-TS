@@ -79,13 +79,24 @@ class Var extends Stm {
     public constraint : Exp;
     public value : Exp;
 
-    constructor (attrs : ExpList, ident : Ident, value : Exp) {
+    constructor (attrs : ExpList, ident : Ident, type : Exp, constraint : Exp, value : Exp) {
         super(attrs);
-        this.ident = ident;
-        this.value = value;
-        ident.parent = this;
-        value.parent = this;
-
+        if (ident) {
+            this.ident = ident;
+            ident.parent = this;
+        }
+        if (type) {
+            this.type = type;
+            type.parent = this;
+        }
+        if (constraint) {
+            this.constraint = constraint;
+            constraint.parent = this;
+        }
+        if (value) {
+            this.value = value;
+            value.parent = this;
+        }
     }
 
     public accept<T> (v : AstVisitor<T>) : T {

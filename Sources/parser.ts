@@ -41,7 +41,7 @@ class Parser {
                 var ch = this.code[this.index];
                 if (ch == '(') {
 
-                } else if (this.match(Parser.isOp)) {
+                } else if (this.matchOp()) {
                     asi = this.parseBinOpApply(asi);
                     isMatch = true;
                 }
@@ -83,8 +83,57 @@ class Parser {
 
 
     private parseVar () : Var {
-        var o = <BinOpApply>this.parseMany();
-        return new Var(undefined, <Ident>o.op1, o.op2);
+        var ident : Ident = undefined;
+        var type : Exp = undefined;
+        var constraint : Exp = undefined;
+        var value : Exp = undefined;
+        var asi = this.parseMany();
+        if (asi instanceof Ident) {
+            ident = <Ident>asi;
+        } else if (asi instanceof BinOpApply) {
+            var o = <BinOpApply>asi;
+            ident = <Ident>o.op1;
+            if (o.op2 instanceof BinOpApply) {
+                var o2 = <BinOpApply>o.op2;
+                if (o.op.name === ":")
+                    type = o2.op1;
+                else if (o.op.name === "of")
+                    constraint = o2.op1;
+                else
+                    throw "invalid var x";
+
+                if (o2.op2 instanceof BinOpApply) {
+                    var o3 = <BinOpApply>o2.op2;
+                    constraint = o3.op1;
+                    if (o3.op.name === "=") {
+                        value = o3.op2;
+                    } else {
+                        throw "invalid after of"
+                    }
+                } else {
+                    if (o2.op.name === "of") {
+                        constraint = o2.op2;
+                    } else if (o2.op.name === "=") {
+                        value = o2.op2;
+                    } else {
+                        throw "invalid after :";
+                    }
+                }
+            } else {
+                if (o.op.name === ":") {
+                    type = o.op2;
+                } else if (o.op.name === "of") {
+                    constraint = o.op2;
+                } else if (o.op.name === "=") {
+                    value = o.op2;
+                } else {
+                    throw "invalid after ident"
+                }
+            }
+        } else {
+            throw "invalid after var"
+        }
+        return new Var(undefined, ident, type, constraint, value);
     }
 
 
@@ -107,13 +156,31 @@ class Parser {
         return ch >= '0' && ch <= '9';
     }
 
-    private static isOp (ch : string) : boolean {
+    public static isOp (ch : string) : boolean {
         return ch == '+' || ch == '-' || ch == '*' || ch == '\\' || ch == '%' || ch == '='
             || ch == ':';
     }
 
     private static isIdent (ch : string) : boolean {
         return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || ch == '_';
+    }
+
+
+
+
+    private matchOp () : boolean {
+        var m = this.match(Parser.isOp);
+        if (m)
+            return true;
+        if (this.index + 1 < this.code.length) {
+            m = this.code.indexOf("of", this.index) === this.index;
+            if (m) {
+                this.index += 2;
+                this.matched = "of";
+                return true;
+            }
+        }
+        return false;
     }
 
 
