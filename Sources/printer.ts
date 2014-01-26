@@ -5,7 +5,7 @@
 class Printer implements AstVisitor<void> {
 
     private cw : CodeWriter;
-    private lineWritten : boolean;
+    private lineWritten : boolean[] = [];
 
 
 
@@ -30,6 +30,13 @@ class Printer implements AstVisitor<void> {
 
 
 
+    private markLineWritten () : void {
+        this.lineWritten[this.lineWritten.length - 1] = true;
+    }
+
+
+
+
     // helpers ===============================================
 
 
@@ -47,7 +54,7 @@ class Printer implements AstVisitor<void> {
 
 
     visitVar (v : Var) : void {
-        this.lineWritten = true;
+        this.markLineWritten();
         this.cw.writeNewLine().writeKey("var").writeSpace();
         if (v.ident)
             this.visitIdent(v.ident);
@@ -69,7 +76,7 @@ class Printer implements AstVisitor<void> {
 
 
     visitLoop (l : Loop) : void {
-        this.lineWritten = true;
+        this.markLineWritten();
         this.cw.writeNewLine().writeKey("loop").writeSpace();
         this.visitScope(l.body);
     }
@@ -78,7 +85,7 @@ class Printer implements AstVisitor<void> {
 
 
     visitBreak (b : Break) : void {
-        this.lineWritten = true;
+        this.markLineWritten();
         this.cw.writeNewLine().writeKey("break");
     }
 
@@ -86,7 +93,7 @@ class Printer implements AstVisitor<void> {
 
 
     visitContinue (c : Continue) : void {
-        this.lineWritten = true;
+        this.markLineWritten();
         this.cw.writeNewLine().writeKey("continue");
     }
 
@@ -94,7 +101,7 @@ class Printer implements AstVisitor<void> {
 
 
     visitReturn (r : Return) : void {
-        this.lineWritten = true;
+        this.markLineWritten();
         this.cw.writeNewLine().writeKey("return");
         if (r.value) {
             this.cw.writeSpace();
@@ -106,7 +113,7 @@ class Printer implements AstVisitor<void> {
 
 
     visitThrow (th : Throw) : void {
-        this.lineWritten = true;
+        this.markLineWritten();
         this.cw.writeNewLine().writeKey("throw");
         if (th.ex) {
             this.cw.writeSpace();
@@ -118,7 +125,7 @@ class Printer implements AstVisitor<void> {
 
 
     visitTry (tr : Try) : void {
-        this.lineWritten = true;
+        this.markLineWritten();
         this.cw.writeNewLine().writeKey("try").writeSpace();
         this.visitScope(tr.body);
         for (var i = 0; i < tr.catches.length; i++) {
@@ -144,13 +151,13 @@ class Printer implements AstVisitor<void> {
 
 
     visitScope (sc : Scope) : void {
-        this.lineWritten = false;
+        this.lineWritten.push(false);
         this.cw.writeMarkup("{").writeSpace();
         this.cw.tab();
         for (var i = 0; i < sc.items.length; i++)
             sc.items[i].accept(this);
         this.cw.unTab();
-        if (this.lineWritten)
+        if (this.lineWritten.pop())
             this.cw.writeNewLine();
         else
             this.cw.writeSpace();

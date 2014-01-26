@@ -71,7 +71,7 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitLoop (l : Loop) : void {
-        this.cw.writeKey("loop").tab().writeMarkup("body").writeSpace();
+        this.cw.writeKey("loop").tab().writeNewLine().writeMarkup("body").writeSpace();
         this.visitScope(l.body);
         this.cw.writeNewLine();
     }

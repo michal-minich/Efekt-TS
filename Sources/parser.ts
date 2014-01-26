@@ -10,10 +10,22 @@ class Parser {
 
 
 
-    public parse (code : string) : Exp {
+    public parse (code : string) : Scope {
 
         this.code = code;
         this.index = 0;
+        var items = this.parseAsiArray();
+
+        if (code.length !== this.index)
+            throw "not all code parsed. non parsed char coutn: " + (code.length - this.index);
+
+        return new Scope(null, items);
+    }
+
+
+
+
+    private parseAsiArray () : Asi[] {
         var items : Asi[] = [];
         while (true) {
             var item = this.parseMany();
@@ -21,11 +33,7 @@ class Parser {
                 break;
             items.push(item);
         }
-
-        if (code.length !== this.index)
-            throw "not all code parsed";
-
-        return new Scope(null, items);
+        return items;
     }
 
 
@@ -73,12 +81,35 @@ class Parser {
         if (this.matchText("var"))
             return this.parseVar();
 
+        if (this.matchText("loop"))
+            return this.parseLoop();
+
         if (this.match(Parser.isIdent))
             return new Ident(undefined, this.matched);
+
+        if (this.code[this.index] == '{') {
+            ++this.index;
+            return new Scope(undefined, this.parseAsiArray());
+        }
+
+        if (this.code[this.index] == '}') {
+            ++this.index;
+            return undefined;
+        }
 
         return undefined;
     }
 
+
+
+
+    private parseLoop () : Loop {
+        var asi = this.parseOne();
+        if (asi instanceof Scope) {
+            return new Loop(undefined, <Scope>asi);
+        }
+        throw "scope expected after loop";
+    }
 
 
 
