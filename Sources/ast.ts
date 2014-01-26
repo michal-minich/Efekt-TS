@@ -171,8 +171,10 @@ class Throw extends Exp {
 
     constructor (attrs : ExpList, ex : Exp) {
         super(attrs);
-        this.ex = ex;
-        ex.parent = this;
+        if (ex) {
+            this.ex = ex;
+            ex.parent = this;
+        }
     }
 
     public accept<T> (v : AstVisitor<T>) : T {

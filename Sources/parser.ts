@@ -94,6 +94,9 @@ class Parser {
         if (this.matchText("return"))
             return this.parseReturn();
 
+        if (this.matchText("throw"))
+            return this.parseThrow();
+
         if (this.match(Parser.isIdent))
             return new Ident(undefined, this.matched);
 
@@ -108,6 +111,19 @@ class Parser {
         }
 
         return undefined;
+    }
+
+
+
+
+    private parseThrow () : Throw {
+        this.skipWhite();
+        if (this.lineCrossed)
+            return new Throw(undefined, undefined);
+        var asi = this.parseMany();
+        if (asi instanceof Exp)
+            return new Throw (undefined, <Exp>asi);
+        throw "expression expected after throw, not statement";
     }
 
 

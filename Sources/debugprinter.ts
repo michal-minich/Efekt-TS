@@ -108,10 +108,10 @@ class DebugPrinter implements AstVisitor<void> {
     visitThrow (th : Throw) : void {
         this.cw.writeKey("throw");
         if (th.ex) {
-            this.cw.writeSpace();
+            this.cw.tab().writeNewLine().writeMarkup("ex").writeSpace();
             th.ex.accept(this);
+            this.cw.unTab();
         }
-        this.cw.writeNewLine();
     }
 
 
