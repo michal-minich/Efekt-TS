@@ -10,7 +10,7 @@ function start () {
     var parser = new Parser();
 
     var testAll = "obj.member " +
-        "try a finally { b } " +
+        "try a finally { var b } " +
         "throw \n throw ex " +
         "return \n return 1 + 2 " +
         "break continue " +

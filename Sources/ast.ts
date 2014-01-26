@@ -107,7 +107,7 @@ class Var extends Stm {
 
 
 
-class Loop extends Exp {
+class Loop extends Stm {
 
     public body : Scope;
 
@@ -125,7 +125,7 @@ class Loop extends Exp {
 
 
 
-class Break extends Exp {
+class Break extends Stm {
 
     public accept<T> (v : AstVisitor<T>) : T {
         return v.visitBreak(this);
@@ -135,7 +135,7 @@ class Break extends Exp {
 
 
 
-class Continue extends Exp {
+class Continue extends Stm {
 
     public accept<T> (v : AstVisitor<T>) : T {
         return v.visitContinue(this);
@@ -145,7 +145,7 @@ class Continue extends Exp {
 
 
 
-class Return extends Exp {
+class Return extends Stm {
 
     public value : Exp;
 
@@ -165,7 +165,7 @@ class Return extends Exp {
 
 
 
-class Throw extends Exp {
+class Throw extends Stm {
 
     public ex : Exp;
 
@@ -185,7 +185,7 @@ class Throw extends Exp {
 
 
 
-class Try extends Exp {
+class Try extends Stm {
 
     public body : Scope;
     public catches : Catch[];

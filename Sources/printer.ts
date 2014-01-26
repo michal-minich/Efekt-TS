@@ -30,6 +30,16 @@ class Printer implements AstVisitor<void> {
 
 
 
+    private willWriteLine (asis : Asi[]) : boolean {
+        for (var i = 0; i < asis.length; i++)
+            if (asis[i] instanceof Stm)
+                return true;
+        return false;
+    }
+
+
+
+
     private markLineWritten () : void {
         this.lineWritten[this.lineWritten.length - 1] = true;
     }
@@ -156,8 +166,13 @@ class Printer implements AstVisitor<void> {
         this.lineWritten.push(false);
         this.cw.writeMarkup("{").writeSpace();
         this.cw.tab();
-        for (var i = 0; i < sc.items.length; i++)
-            sc.items[i].accept(this);
+        var willNL = this.willWriteLine(sc.items);
+        for (var i = 0; i < sc.items.length; i++) {
+            var item = sc.items[i];
+            if (willNL && item instanceof Exp)
+                this.cw.writeNewLine();
+            item.accept(this);
+        }
         this.cw.unTab();
         if (this.lineWritten.pop())
             this.cw.writeNewLine();
