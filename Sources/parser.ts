@@ -97,6 +97,9 @@ class Parser {
         if (this.matchText("throw"))
             return this.parseThrow();
 
+        if (this.matchText("try"))
+            return this.parseTry();
+
         if (this.match(Parser.isIdent))
             return new Ident(undefined, this.matched);
 
@@ -116,13 +119,38 @@ class Parser {
 
 
 
+    private parseTry () : Try {
+        var asi = this.parseMany();
+        var body : Scope;
+        var fin : Scope = undefined;
+
+        if (asi instanceof Scope)
+            body = <Scope>asi;
+        else
+            body = new Scope(undefined, [asi]);
+
+        this.skipWhite();
+        if (this.matchText("finally")) {
+            asi = this.parseMany();
+            if (asi instanceof Scope)
+                fin = <Scope>asi;
+            else
+                fin = new Scope(undefined, [asi]);
+        }
+
+        return new Try(undefined, body, fin);
+    }
+
+
+
+
     private parseThrow () : Throw {
         this.skipWhite();
         if (this.lineCrossed)
             return new Throw(undefined, undefined);
         var asi = this.parseMany();
         if (asi instanceof Exp)
-            return new Throw (undefined, <Exp>asi);
+            return new Throw(undefined, <Exp>asi);
         throw "expression expected after throw, not statement";
     }
 
@@ -135,7 +163,7 @@ class Parser {
             return new Return(undefined, undefined);
         var asi = this.parseMany();
         if (asi instanceof Exp)
-            return new Return (undefined, <Exp>asi);
+            return new Return(undefined, <Exp>asi);
         throw "expression expected after return, not statement";
     }
 

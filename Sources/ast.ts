@@ -191,10 +191,14 @@ class Try extends Exp {
     public catches : Catch[];
     public fin : Scope;
 
-    constructor (attrs : ExpList, fin : Scope) {
+    constructor (attrs : ExpList, body : Scope, fin : Scope) {
         super(attrs);
-        this.fin = fin;
-        fin.parent = this;
+        this.body = body;
+        body.parent = this;
+        if (fin) {
+            this.fin = fin;
+            fin.parent = this;
+        }
     }
 
     public accept<T> (v : AstVisitor<T>) : T {

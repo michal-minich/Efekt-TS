@@ -80,21 +80,21 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitBreak (b : Break) : void {
-        this.cw.writeKey("break");
+        this.cw.writeKey("Break");
     }
 
 
 
 
     visitContinue (c : Continue) : void {
-        this.cw.writeKey("continue");
+        this.cw.writeKey("Continue");
     }
 
 
 
 
     visitReturn (r : Return) : void {
-        this.cw.writeKey("return");
+        this.cw.writeKey("Return");
         if (r.value) {
             this.cw.tab().writeNewLine().writeMarkup("value").writeSpace();
             r.value.accept(this);
@@ -106,7 +106,7 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitThrow (th : Throw) : void {
-        this.cw.writeKey("throw");
+        this.cw.writeKey("Throw");
         if (th.ex) {
             this.cw.tab().writeNewLine().writeMarkup("ex").writeSpace();
             th.ex.accept(this);
@@ -118,23 +118,25 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitTry (tr : Try) : void {
-        this.cw.writeKey("try").writeSpace();
+        this.cw.writeKey("Try").tab().writeNewLine().writeMarkup("body").writeSpace();
         this.visitScope(tr.body);
-        for (var i = 0; i < tr.catches.length; i++) {
-            this.cw.writeKey("catch");
-            var c = tr.catches[i];
-            if (c.on) {
-                this.cw.writeSpace().writeMarkup("(")
-                this.visitVar(c.on);
-                this.cw.writeMarkup(")").writeSpace();
-                this.visitScope(c.body);
+        if (tr.catches) {
+            for (var i = 0; i < tr.catches.length; i++) {
+                this.cw.writeNewLine().writeMarkup("catch");
+                var c = tr.catches[i];
+                if (c.on) {
+                    this.cw.writeSpace().writeMarkup("(")
+                    this.visitVar(c.on);
+                    this.cw.writeMarkup(")").writeSpace();
+                    this.visitScope(c.body);
+                }
             }
         }
         if (tr.fin) {
-            this.cw.writeKey("finally").writeSpace();
+            this.cw.writeNewLine().writeMarkup("finally").writeSpace();
             this.visitScope(tr.fin);
         }
-        this.cw.writeNewLine();
+        this.cw.unTab();
     }
 
 

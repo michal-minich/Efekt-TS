@@ -128,18 +128,20 @@ class Printer implements AstVisitor<void> {
         this.markLineWritten();
         this.cw.writeNewLine().writeKey("try").writeSpace();
         this.visitScope(tr.body);
-        for (var i = 0; i < tr.catches.length; i++) {
-            this.cw.writeKey("catch");
-            var c = tr.catches[i];
-            if (c.on) {
-                this.cw.writeSpace().writeMarkup("(")
-                this.visitVar(c.on);
-                this.cw.writeMarkup(")").writeSpace();
-                this.visitScope(c.body);
+        if (tr.catches) {
+            for (var i = 0; i < tr.catches.length; i++) {
+                this.cw.writeKey("catch");
+                var c = tr.catches[i];
+                if (c.on) {
+                    this.cw.writeSpace().writeMarkup("(")
+                    this.visitVar(c.on);
+                    this.cw.writeMarkup(")").writeSpace();
+                    this.visitScope(c.body);
+                }
             }
         }
         if (tr.fin) {
-            this.cw.writeKey("finally").writeSpace();
+            this.cw.writeNewLine().writeKey("finally").writeSpace();
             this.visitScope(tr.fin);
         }
     }
