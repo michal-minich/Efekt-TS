@@ -16,6 +16,11 @@ class StringWriter implements TextWriter {
     }
 
 
+    public clear () {
+        this.buffer = [];
+    }
+
+
     write (...values : string[]) : void {
         this.buffer.push.apply(this.buffer, values);
     }
