@@ -9,7 +9,9 @@ function start () {
 
     var parser = new Parser();
 
-    var testAll = "obj.member " +
+    var testAll = "new Int " +
+        "typeof 1 + 2 " +
+        "obj.member " +
         "try a finally { var b } " +
         "throw \n throw ex " +
         "return \n return 1 + 2 " +
@@ -25,7 +27,7 @@ function start () {
         "var h of Int " +
         "var i of Int = 1 ";
 
-    var testStr = "obj.member";
+    var testStr = "new Int typeof 1 + 2";
 
     var sc = parser.parse(testAll);
 

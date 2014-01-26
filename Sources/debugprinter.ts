@@ -219,16 +219,18 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitNew (nw : New) : void {
-        this.cw.writeKey("new").writeSpace();
+        this.cw.writeKey("New").tab().writeNewLine().writeMarkup("value").writeSpace();
         nw.value.accept(this);
+        this.cw.unTab();
     }
 
 
 
 
     visitTypeOf (tof : TypeOf) : void {
-        this.cw.writeKey("typeof").writeSpace();
+        this.cw.writeKey("TypeOf").tab().writeNewLine().writeMarkup("value").writeSpace()
         tof.value.accept(this);
+        this.cw.unTab();
     }
 
 

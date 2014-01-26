@@ -113,6 +113,12 @@ class Parser {
         if (this.matchText("try"))
             return this.parseTry();
 
+        if (this.matchText("new"))
+            return this.parseNew();
+
+        if (this.matchText("typeof"))
+            return this.parseTypeOf();
+
         if (this.match(Parser.isIdent))
             return new Ident(undefined, this.matched);
 
@@ -153,6 +159,32 @@ class Parser {
         }
 
         return new Try(undefined, body, fin);
+    }
+
+
+
+
+    private parseNew () : New {
+        this.skipWhite();
+        if (this.lineCrossed)
+            return new New(undefined, undefined);
+        var asi = this.parseMany();
+        if (asi instanceof Exp)
+            return new New(undefined, <Exp>asi);
+        throw "expression expected after new, not statement";
+    }
+
+
+
+
+    private parseTypeOf () : TypeOf {
+        this.skipWhite();
+        if (this.lineCrossed)
+            return new TypeOf(undefined, undefined);
+        var asi = this.parseMany();
+        if (asi instanceof Exp)
+            return new TypeOf(undefined, <Exp>asi);
+        throw "expression expected after typeof, not statement";
     }
 
 

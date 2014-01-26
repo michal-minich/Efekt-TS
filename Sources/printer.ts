@@ -31,6 +31,8 @@ class Printer implements AstVisitor<void> {
 
 
     private willWriteLine (asis : Asi[]) : boolean {
+        if (asis.length >= 2)
+            return true;
         for (var i = 0; i < asis.length; i++)
             if (asis[i] instanceof Stm)
                 return true;
@@ -174,7 +176,7 @@ class Printer implements AstVisitor<void> {
             item.accept(this);
         }
         this.cw.unTab();
-        if (this.lineWritten.pop())
+        if (willNL || this.lineWritten.pop())
             this.cw.writeNewLine();
         else
             this.cw.writeSpace();
