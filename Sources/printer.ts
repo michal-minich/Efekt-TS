@@ -170,7 +170,7 @@ class Printer implements AstVisitor<void> {
     visitIdent (i : Ident) : void {
         if (Parser.isOp(i.name[0]))
             this.cw.writeOp(i.name);
-        if (i.name[0] <= 'Z')
+        else if (i.name[0] <= 'Z')
             this.cw.writeType(i.name);
         else
             this.cw.writeIdent(i.name);

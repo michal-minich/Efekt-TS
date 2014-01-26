@@ -6,6 +6,7 @@ class Parser {
     private code : string;
     private index : number;
     private matched : string;
+    private lineCrossed : boolean;
 
 
 
@@ -90,6 +91,9 @@ class Parser {
         if (this.matchText("continue"))
             return new Continue(undefined);
 
+        if (this.matchText("return"))
+            return this.parseReturn();
+
         if (this.match(Parser.isIdent))
             return new Ident(undefined, this.matched);
 
@@ -109,11 +113,23 @@ class Parser {
 
 
 
+    private parseReturn () : Return {
+        this.skipWhite();
+        if (this.lineCrossed)
+            return new Return(undefined, undefined);
+        var asi = this.parseMany();
+        if (asi instanceof Exp)
+            return new Return (undefined, <Exp>asi);
+        throw "expression expected after return, not statement";
+    }
+
+
+
+
     private parseLoop () : Loop {
         var asi = this.parseOne();
-        if (asi instanceof Scope) {
+        if (asi instanceof Scope)
             return new Loop(undefined, <Scope>asi);
-        }
         throw "scope expected after loop";
     }
 
@@ -185,10 +201,6 @@ class Parser {
 
 
 
-    private static isWhite (ch : string) : boolean {
-        return ch === ' ' || ch === '\t';
-    }
-
     private static isInt (ch : string) : boolean {
         return ch >= '0' && ch <= '9';
     }
@@ -257,11 +269,17 @@ class Parser {
 
 
     private skipWhite () : void {
+        this.lineCrossed = false;
         while (this.index !== this.code.length) {
-            if (Parser.isWhite(this.code[this.index]))
+            var ch = this.code[this.index];
+            if (ch === ' ' || ch === '\t') {
                 ++this.index;
-            else
+            } else if (ch === '\n' || ch === '\r') {
+                ++this.index;
+                this.lineCrossed = true;
+            } else {
                 return;
+            }
         }
     }
 }

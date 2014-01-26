@@ -9,7 +9,8 @@ function start () {
 
     var parser = new Parser();
 
-    var testAll = "break continue " +
+    var testAll = "return \n return 1 + 2 " +
+        "break continue " +
         "loop { a } " +
         "var a " +
         "var b : T " +
@@ -21,7 +22,7 @@ function start () {
         "var h of Int " +
         "var i of Int = 1 ";
 
-    var testStr = "break continue ";
+    var testStr = "return \n return 1 + 2 ";
 
     var sc = parser.parse(testAll);
 

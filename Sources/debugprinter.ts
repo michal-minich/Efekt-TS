@@ -73,7 +73,7 @@ class DebugPrinter implements AstVisitor<void> {
     visitLoop (l : Loop) : void {
         this.cw.writeKey("loop").tab().writeNewLine().writeMarkup("body").writeSpace();
         this.visitScope(l.body);
-        this.cw.writeNewLine();
+        this.cw.unTab();
     }
 
 
@@ -96,10 +96,10 @@ class DebugPrinter implements AstVisitor<void> {
     visitReturn (r : Return) : void {
         this.cw.writeKey("return");
         if (r.value) {
-            this.cw.writeSpace();
+            this.cw.tab().writeNewLine().writeMarkup("value").writeSpace();
             r.value.accept(this);
+            this.cw.unTab();
         }
-        this.cw.writeNewLine();
     }
 
 
@@ -160,7 +160,7 @@ class DebugPrinter implements AstVisitor<void> {
         this.cw.writeKey("Ident").tab().writeNewLine().writeMarkup("name").writeSpace();
         if (Parser.isOp(i.name[0]))
             this.cw.writeOp(i.name);
-        if (i.name[0] <= 'Z')
+        else if (i.name[0] <= 'Z')
             this.cw.writeType(i.name);
         else
             this.cw.writeIdent(i.name);
@@ -187,7 +187,7 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitBinOpApply (opa : BinOpApply) : void {
-        this.cw.writeKey("BinOpApply").tab().writeMarkup("op").writeSpace();
+        this.cw.writeKey("BinOpApply").tab().writeNewLine().writeMarkup("op").writeSpace();
         opa.op.accept(this);
         this.cw.writeNewLine().writeMarkup("op1").writeSpace();
         opa.op1.accept(this);

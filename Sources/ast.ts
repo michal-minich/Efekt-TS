@@ -151,8 +151,10 @@ class Return extends Exp {
 
     constructor (attrs : ExpList, value : Exp) {
         super(attrs);
-        this.value = value;
-        value.parent = this;
+        if (value) {
+            this.value = value;
+            value.parent = this;
+        }
     }
 
     public accept<T> (v : AstVisitor<T>) : T {
