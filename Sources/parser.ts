@@ -105,19 +105,19 @@ class Parser {
             return new Continue(undefined);
 
         if (this.matchText("return"))
-            return this.parseReturn();
+            return this.parseKeyWithExp<Return>(Return, false);
 
         if (this.matchText("throw"))
-            return this.parseThrow();
+            return this.parseKeyWithExp<Throw>(Throw, false);
 
         if (this.matchText("try"))
             return this.parseTry();
 
         if (this.matchText("new"))
-            return this.parseNew();
+            return this.parseKeyWithExp<New>(New, true);
 
         if (this.matchText("typeof"))
-            return this.parseTypeOf();
+            return this.parseKeyWithExp<TypeOf>(TypeOf, true);
 
         if (this.match(Parser.isIdent))
             return new Ident(undefined, this.matched);
@@ -164,53 +164,17 @@ class Parser {
 
 
 
-    private parseNew () : New {
+    private parseKeyWithExp<T extends Exp> (TType : any, expIsRequired : boolean) : T {
         this.skipWhite();
         if (this.lineCrossed)
-            return new New(undefined, undefined);
+            if (expIsRequired)
+                throw TType.getTypeName() + " requires expression";
+            else
+                return new TType(undefined, undefined);
         var asi = this.parseMany();
         if (asi instanceof Exp)
-            return new New(undefined, <Exp>asi);
-        throw "expression expected after new, not statement";
-    }
-
-
-
-
-    private parseTypeOf () : TypeOf {
-        this.skipWhite();
-        if (this.lineCrossed)
-            return new TypeOf(undefined, undefined);
-        var asi = this.parseMany();
-        if (asi instanceof Exp)
-            return new TypeOf(undefined, <Exp>asi);
-        throw "expression expected after typeof, not statement";
-    }
-
-
-
-
-    private parseThrow () : Throw {
-        this.skipWhite();
-        if (this.lineCrossed)
-            return new Throw(undefined, undefined);
-        var asi = this.parseMany();
-        if (asi instanceof Exp)
-            return new Throw(undefined, <Exp>asi);
-        throw "expression expected after throw, not statement";
-    }
-
-
-
-
-    private parseReturn () : Return {
-        this.skipWhite();
-        if (this.lineCrossed)
-            return new Return(undefined, undefined);
-        var asi = this.parseMany();
-        if (asi instanceof Exp)
-            return new Return(undefined, <Exp>asi);
-        throw "expression expected after return, not statement";
+            return new TType(undefined, <Exp>asi);
+        throw "expression expected after " + TType.getTypeName() + ", not statement";
     }
 
 
@@ -226,7 +190,7 @@ class Parser {
 
 
     private parseVar () : Var {
-        var ident : Ident = undefined;
+        var ident : Ident;
         var type : Exp = undefined;
         var constraint : Exp = undefined;
         var value : Exp = undefined;
