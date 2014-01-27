@@ -205,14 +205,15 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitIf (i : If) : void {
-        this.cw.writeKey("if").writeSpace();
+        this.cw.writeKey("If").tab().writeNewLine().writeMarkup("test").writeSpace();
         i.test.accept(this);
-        this.cw.writeSpace().writeKey("then").writeSpace();
+        this.cw.writeNewLine().writeMarkup("then").writeSpace();
         this.visitScope(i.then);
         if (i.otherwise) {
-            this.cw.writeSpace().writeKey("else").writeSpace();
+            this.cw.writeNewLine().writeMarkup("otherwise").writeSpace();
             this.visitScope(i.otherwise);
         }
+        this.cw.unTab();
     }
 
 

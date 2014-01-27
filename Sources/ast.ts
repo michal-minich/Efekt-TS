@@ -334,10 +334,12 @@ class If extends Exp {
         super(attrs);
         this.test = test;
         this.then = then;
-        this.otherwise = otherwise;
         test.parent = this;
         then.parent = this;
-        otherwise.parent = this;
+        if (otherwise) {
+            this.otherwise = otherwise;
+            otherwise.parent = this;
+        }
     }
 
     public accept<T> (v : AstVisitor<T>) : T {

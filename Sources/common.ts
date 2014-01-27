@@ -33,7 +33,7 @@ interface Object {
     getTypeName () : string;
 }
 
-Object.prototype.getTypeName = function() {
+Object.prototype.getTypeName = function () {
     var str = (this.prototype ? this.prototype.constructor : this.constructor).toString();
     var cname = str.match(/function\s(\w*)/)[1];
     var aliases = ["", "anonymous", "Anonymous"];

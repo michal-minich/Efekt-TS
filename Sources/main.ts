@@ -9,7 +9,9 @@ function start () {
 
     var parser = new Parser();
 
-    var testAll =
+    var testAll = "if 1 then 2 " +
+        "if a then b else c " +
+        "if 1 then 2 else if 3 then 4 else 5 " +
         "struct a " +
         "interface { b }" +
         "new Int " +
@@ -30,7 +32,7 @@ function start () {
         "var h of Int " +
         "var i of Int = 1 ";
 
-    var testStr = "struct a interface { b }";
+    var testStr = "if a then b else c " + "if 1 then 2 " + " if 1 then 2 else if 3 then 4 else 5 ";
 
     var sc = parser.parse(testAll);
 

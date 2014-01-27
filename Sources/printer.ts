@@ -42,6 +42,13 @@ class Printer implements AstVisitor<void> {
 
 
 
+    private itIsExactlyOneExp (asis : Asi[]) : boolean {
+        return asis.length == 1 && asis[0] instanceof Exp;
+    }
+
+
+
+
     private markLineWritten () : void {
         this.lineWritten[this.lineWritten.length - 1] = true;
     }
@@ -165,8 +172,10 @@ class Printer implements AstVisitor<void> {
 
 
     visitScope (sc : Scope) : void {
+        var skipBraces = this.itIsExactlyOneExp(sc.items);
         this.lineWritten.push(false);
-        this.cw.writeMarkup("{").writeSpace();
+        if (!skipBraces)
+            this.cw.writeMarkup("{").writeSpace();
         this.cw.tab();
         var willNL = this.willWriteLine(sc.items);
         for (var i = 0; i < sc.items.length; i++) {
@@ -178,9 +187,10 @@ class Printer implements AstVisitor<void> {
         this.cw.unTab();
         if (willNL || this.lineWritten.pop())
             this.cw.writeNewLine();
-        else
+        else if (!skipBraces)
             this.cw.writeSpace();
-        this.cw.writeMarkup("}");
+        if (!skipBraces)
+            this.cw.writeMarkup("}");
     }
 
 

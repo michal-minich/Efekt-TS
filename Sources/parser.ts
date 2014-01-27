@@ -95,6 +95,9 @@ class Parser {
         if (this.matchText("var"))
             return this.parseVar();
 
+        if (this.matchText("if"))
+            return this.parseIf();
+
         if (this.matchText("loop"))
             return this.parseLoop();
 
@@ -125,6 +128,12 @@ class Parser {
         if (this.matchText("interface"))
             return this.parseInterface();
 
+        if (this.matchText("interface"))
+            return this.parseInterface();
+
+        if (this.matchText("interface"))
+            return this.parseInterface();
+
         if (this.match(Parser.isIdent))
             return new Ident(undefined, this.matched);
 
@@ -145,49 +154,58 @@ class Parser {
 
 
 
+    private parseIf () : If {
+        var test : Exp;
+        var then : Scope;
+        var otherwise : Scope = undefined;
+        var asi = this.parseMany();
+
+        if (asi instanceof Exp)
+            test = <Exp>asi;
+        else
+            throw "test of if stastement msut be expression not statement";
+
+        this.skipWhite();
+        if (this.matchText("then"))
+            then = this.parseScopedExp();
+        if (this.matchText("else"))
+            otherwise = this.parseScopedExp();
+
+        return new If(undefined, test, then, otherwise);
+    }
+
+
+
     private parseStruct () : Struct {
-        var s = this.parseSimpleKeyword<Struct>(Struct, true);
-        if (!(s.body instanceof Scope)) {
-            s.body = new Scope(s.body.attrs, [s.body]);
-            s.body.parent = s;
-        }
-        return s;
+        return new Struct(undefined, this.parseScopedExp());
+    }
+
+
+
+
+    private parseScopedExp () : Scope {
+        var asi = this.parseMany();
+        if (asi instanceof Scope)
+            return <Scope>asi;
+        else
+            return new Scope(undefined, [asi]);
     }
 
 
 
 
     private parseInterface () : Interface {
-        var ifc = this.parseSimpleKeyword<Interface>(Interface, true);
-        if (!(ifc.body instanceof Scope)) {
-            ifc.body = new Scope(ifc.body.attrs, [ifc.body]);
-            ifc.body.parent = ifc;
-        }
-        return ifc;
+        return new Interface(undefined, this.parseScopedExp());
     }
 
 
 
-
     private parseTry () : Try {
-        var asi = this.parseMany();
-        var body : Scope;
+        var body = this.parseScopedExp();
         var fin : Scope = undefined;
-
-        if (asi instanceof Scope)
-            body = <Scope>asi;
-        else
-            body = new Scope(undefined, [asi]);
-
         this.skipWhite();
-        if (this.matchText("finally")) {
-            asi = this.parseMany();
-            if (asi instanceof Scope)
-                fin = <Scope>asi;
-            else
-                fin = new Scope(undefined, [asi]);
-        }
-
+        if (this.matchText("finally"))
+            fin = this.parseScopedExp();
         return new Try(undefined, body, fin);
     }
 
