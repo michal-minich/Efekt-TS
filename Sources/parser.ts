@@ -137,6 +137,7 @@ class Parser {
         if (this.match(Parser.isIdent))
             return new Ident(undefined, this.matched);
 
+        // parse scope
         var ch = this.code[this.index];
         if (ch === '{') {
             ++this.index;
@@ -147,6 +148,7 @@ class Parser {
             ++this.index;
             return undefined;
         }
+        // end parse scope
 
         return undefined;
     }
@@ -176,8 +178,22 @@ class Parser {
 
 
 
+
+    private parseInterface () : Interface {
+        return new Interface(undefined, this.parseScopedExp());
+    }
+
+
+
     private parseStruct () : Struct {
         return new Struct(undefined, this.parseScopedExp());
+    }
+
+
+
+
+    private parseLoop () : Loop {
+        return new Loop(undefined, this.parseScopedExp());
     }
 
 
@@ -189,13 +205,6 @@ class Parser {
             return <Scope>asi;
         else
             return new Scope(undefined, [asi]);
-    }
-
-
-
-
-    private parseInterface () : Interface {
-        return new Interface(undefined, this.parseScopedExp());
     }
 
 
@@ -223,16 +232,6 @@ class Parser {
         if (asi instanceof Exp)
             return new TType(undefined, <Exp>asi);
         throw "expression expected after " + TType.getTypeName() + ", not statement";
-    }
-
-
-
-
-    private parseLoop () : Loop {
-        var asi = this.parseOne();
-        if (asi instanceof Scope)
-            return new Loop(undefined, <Scope>asi);
-        throw "scope expected after loop";
     }
 
 
