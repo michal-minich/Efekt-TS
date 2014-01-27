@@ -9,7 +9,10 @@ function start () {
 
     var parser = new Parser();
 
-    var testAll = "new Int " +
+    var testAll =
+        "struct a " +
+        "interface { b }" +
+        "new Int " +
         "typeof 1 + 2 " +
         "obj.member " +
         "try a finally { var b } " +
@@ -27,7 +30,7 @@ function start () {
         "var h of Int " +
         "var i of Int = 1 ";
 
-    var testStr = "new Int typeof 1 + 2";
+    var testStr = "struct a interface { b }";
 
     var sc = parser.parse(testAll);
 

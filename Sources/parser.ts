@@ -105,19 +105,25 @@ class Parser {
             return new Continue(undefined);
 
         if (this.matchText("return"))
-            return this.parseKeyWithExp<Return>(Return, false);
+            return this.parseSimpleKeyword<Return>(Return, false);
 
         if (this.matchText("throw"))
-            return this.parseKeyWithExp<Throw>(Throw, false);
+            return this.parseSimpleKeyword<Throw>(Throw, false);
 
         if (this.matchText("try"))
             return this.parseTry();
 
         if (this.matchText("new"))
-            return this.parseKeyWithExp<New>(New, true);
+            return this.parseSimpleKeyword<New>(New, true);
 
         if (this.matchText("typeof"))
-            return this.parseKeyWithExp<TypeOf>(TypeOf, true);
+            return this.parseSimpleKeyword<TypeOf>(TypeOf, true);
+
+        if (this.matchText("struct"))
+            return this.parseStruct();
+
+        if (this.matchText("interface"))
+            return this.parseInterface();
 
         if (this.match(Parser.isIdent))
             return new Ident(undefined, this.matched);
@@ -134,6 +140,30 @@ class Parser {
         }
 
         return undefined;
+    }
+
+
+
+
+    private parseStruct () : Struct {
+        var s = this.parseSimpleKeyword<Struct>(Struct, true);
+        if (!(s.body instanceof Scope)) {
+            s.body = new Scope(s.body.attrs, [s.body]);
+            s.body.parent = s;
+        }
+        return s;
+    }
+
+
+
+
+    private parseInterface () : Interface {
+        var ifc = this.parseSimpleKeyword<Interface>(Interface, true);
+        if (!(ifc.body instanceof Scope)) {
+            ifc.body = new Scope(ifc.body.attrs, [ifc.body]);
+            ifc.body.parent = ifc;
+        }
+        return ifc;
     }
 
 
@@ -164,7 +194,7 @@ class Parser {
 
 
 
-    private parseKeyWithExp<T extends Exp> (TType : any, expIsRequired : boolean) : T {
+    private parseSimpleKeyword<T extends Exp> (TType : any, expIsRequired : boolean) : T {
         this.skipWhite();
         if (this.lineCrossed)
             if (expIsRequired)
