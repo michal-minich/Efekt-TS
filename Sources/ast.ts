@@ -78,6 +78,7 @@ class Var extends Stm {
     public type : Exp;
     public constraint : Exp;
     public value : Exp;
+    public skipVarKeyword : boolean;
 
     constructor (attrs : ExpList, ident : Ident, type : Exp, constraint : Exp, value : Exp) {
         super(attrs);

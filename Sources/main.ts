@@ -32,9 +32,28 @@ function start () {
         "var h of Int " +
         "var i of Int = 1 ";
 
-    var testStr = "if a then b else c " + "if 1 then 2 " + " if 1 then 2 else if 3 then 4 else 5 ";
+    var testStr =
+            "a " +
+            "b : T " +
+            "c : T of Int " +
+            "d : T of Int = 1 " +
+            "e : T = 1 " +
+            "f of Int = 1 " +
+            "g = 1 " +
+            "h of Int " +
+            "i of Int = 1 ";
 
-    var sc = parser.parse(testAll);
+    var testStr2 = "2 * 3 + 4 " +
+                   "2 + 3 * 4 " +
+                   "2 + 3 * 4 + 5 " +
+                   "2 + 3 * 4 + 5 + 6 " +
+                   "2 + 3 * 4 + 5 + 6 * 7 " +
+                   "2 + 3 * 4 + 5 + 6 * 7 + 8 " +
+                   "2 + 3 * 4 * 5 * 6 + 7 * 8 " +
+                   "2 + 3 + 4 + 5 + 6 + 7 + 8 " +
+                   "2 * 3 * 4 * 5 * 6 * 7 * 8 ";
+
+    var sc = parser.parse(testStr2);
 
     var sw = new StringWriter();
     var cw = new HtmlCodeWriter(sw);

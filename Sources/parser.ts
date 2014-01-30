@@ -7,8 +7,56 @@ class Parser {
     private index : number;
     private matched : string;
     private lineCrossed : boolean;
+    private opExp : Exp[] = [];
+    private opOp : string[] = [];
+    private opPrecedence = {
 
+        "." : 150,
 
+        ":" : 140,
+
+        "*" : 130,
+        "/" : 130,
+        "%" : 130,
+
+        "+" : 120,
+        "-" : 120,
+
+        "<<" : 110,
+        ">>" : 110,
+
+        "<" : 100,
+        ">" : 90,
+        ">=" : 80,
+        "<=" : 70,
+
+        "==" : 60,
+        "!=" : 60,
+
+        "&" : 50,
+
+        "^" : 40,
+
+        "|" : 30,
+
+        "&&" : 20,
+        "and" : 20,
+
+        "||" : 10,
+        "or" : 10,
+
+        "=" : 0,
+        "*=" : 0,
+        "/=" : 0,
+        "%=" : 0,
+        "+=" : 0,
+        "-=" : 0,
+        "<<=" : 0,
+        ">>=" : 0,
+        "&==" : 0,
+        "^=" : 0,
+        "|=" : 0
+    };
 
 
     public parse (code : string) : Scope {
@@ -64,13 +112,60 @@ class Parser {
 
             if (ch == '(') {
 
-            } else if (this.matchOp()) {
-                asi = this.parseBinOpApply(asi);
-                isMatch = true;
+            } else {
+                if (this.opOp.length === 0) {
+                    while (this.matchOp()) {
+                        this.opExp.push(<Exp>asi);
+                        this.opOp.push(this.matched);
+                        asi = this.parseMany();
+                        isMatch = true;
+                        this.skipWhite();
+                        if (this.index === this.code.length)
+                           break;
+                    }
+
+                    asi = this.parseBinOpApply(asi, this.opExp, this.opOp);
+                    this.opExp = [];
+                    this.opOp = [];
+                }
             }
         }
 
         return asi;
+    }
+
+
+
+
+    private parseBinOpApply (asi : Asi, opExp: Exp[], opOp : string[]) {
+        if (opOp.length === 0)
+            return asi;
+        opExp.push(<Exp>asi);
+        var prec = this.opPrecedence;
+        for (var i = 0; i < opExp.length - 1; i++) {
+            var op = opOp[i];
+            if (i < opOp.length - 1) {
+                var opNext = opOp[i + 1];
+                while (prec[op] < prec[opNext]) {
+                    opExp[i + 1] = new BinOpApply(
+                        undefined,
+                        new Ident(undefined, opNext),
+                        opExp[i + 1],
+                        opExp[i + 2]);
+                    opExp.splice(i + 2, 1);
+                    opOp.splice(i + 1, 1);
+                    if (i >= opOp.length - 1)
+                        break;
+                    opNext = opOp[i + 1];
+                }
+            }
+            opExp[i + 1] = new BinOpApply(
+                undefined,
+                new Ident(undefined, op),
+                opExp[i],
+                opExp[i + 1]);
+        }
+        return opExp[opExp.length - 1];
     }
 
 
@@ -203,8 +298,7 @@ class Parser {
         var asi = this.parseMany();
         if (asi instanceof Scope)
             return <Scope>asi;
-        else
-            return new Scope(undefined, [asi]);
+        return new Scope(undefined, [asi]);
     }
 
 
@@ -223,16 +317,18 @@ class Parser {
 
     private parseSimpleKeyword<T extends Exp> (TType : any, expIsRequired : boolean) : T {
         this.skipWhite();
-        if (this.lineCrossed)
+        if (this.lineCrossed) {
             if (expIsRequired)
                 throw TType.getTypeName() + " requires expression";
             else
                 return new TType(undefined, undefined);
+        }
         var asi = this.parseMany();
         if (asi instanceof Exp)
             return new TType(undefined, <Exp>asi);
         throw "expression expected after " + TType.getTypeName() + ", not statement";
     }
+
 
 
 
@@ -289,16 +385,6 @@ class Parser {
         }
         return new Var(undefined, ident, type, constraint, value);
     }
-
-
-
-
-    private parseBinOpApply (op1 : Asi) : BinOpApply {
-        var op = new Ident(undefined, this.matched);
-        var op2 = this.parseMany();
-        return new BinOpApply(undefined, op, <Exp>op1, op2);
-    }
-
 
 
 

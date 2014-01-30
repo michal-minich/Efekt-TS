@@ -101,6 +101,9 @@ var     A of Any = Int
 
 var @unsafe = attribute (a : A of Any, b : A)
 
+var @safe = attribute
+var @unsafe = attribute not @safe
+
 var Percent = struct () extends Int {
     invariant {
         assert value <= 100 and value >= 0
