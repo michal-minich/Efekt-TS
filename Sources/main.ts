@@ -41,7 +41,8 @@ function start () {
             "f of Int = 1 " +
             "g = 1 " +
             "h of Int " +
-            "i of Int = 1 ";
+            "i of Int = 1 " +
+            "1 + 2 * a : T of Int == 2 * 3 + b : T of Int + 1 ";
 
     var testStr2 = "2 * 3 + 4 " +
                    "2 + 3 * 4 " +
@@ -53,7 +54,9 @@ function start () {
                    "2 + 3 + 4 + 5 + 6 + 7 + 8 " +
                    "2 * 3 * 4 * 5 * 6 * 7 * 8 ";
 
-    var sc = parser.parse(testStr2);
+    var testStr3 = "1 + 2 * a : T of Int == 2 * 3 + b : T of Int + 1";
+
+    var sc = parser.parse(testStr);
 
     var sw = new StringWriter();
     var cw = new HtmlCodeWriter(sw);

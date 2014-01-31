@@ -13,6 +13,8 @@ class Parser {
 
         "." : 150,
 
+        "of" : 145,
+
         ":" : 140,
 
         "*" : 130,
@@ -141,29 +143,25 @@ class Parser {
         if (opOp.length === 0)
             return asi;
         opExp.push(<Exp>asi);
-        var prec = this.opPrecedence;
-        for (var i = 0; i < opExp.length - 1; i++) {
-            var op = opOp[i];
-            if (i < opOp.length - 1) {
-                var opNext = opOp[i + 1];
-                while (prec[op] < prec[opNext]) {
-                    opExp[i + 1] = new BinOpApply(
-                        undefined,
-                        new Ident(undefined, opNext),
-                        opExp[i + 1],
-                        opExp[i + 2]);
-                    opExp.splice(i + 2, 1);
-                    opOp.splice(i + 1, 1);
-                    if (i >= opOp.length - 1)
-                        break;
-                    opNext = opOp[i + 1];
-                }
+        var numChanges = 0;
+        do {
+            numChanges = 0;
+            for (var i = opOp.length - 1; i !== 0; --i) {
+                var op = opOp[i];
+                var opPrev = opOp[i - 1];
+                if (this.opPrecedence[op] <= this.opPrecedence[opPrev])
+                    continue;
+                var ident = new Ident(undefined, op);
+                opExp[i] = new BinOpApply(undefined, ident, opExp[i], opExp[i + 1]);
+                opExp.splice(i + 1, 1);
+                opOp.splice(i, 1);
+                ++numChanges;
             }
-            opExp[i + 1] = new BinOpApply(
-                undefined,
-                new Ident(undefined, op),
-                opExp[i],
-                opExp[i + 1]);
+        } while (numChanges !== 0)
+
+        for (var i = 0; i < opOp.length; ++i) {
+            var ident = new Ident(undefined, opOp[i]);
+            opExp[i + 1] = new BinOpApply(undefined, ident, opExp[i], opExp[i + 1]);
         }
         return opExp[opExp.length - 1];
     }
@@ -392,7 +390,7 @@ class Parser {
         return ch >= '0' && ch <= '9';
     }
 
-    public static isOp (ch : string) : boolean {
+    private static isOp (ch : string) : boolean {
         return ch === '.' || ch === '+' || ch === '-' || ch === '*' || ch === '\\' ||
             ch === '%' || ch === '=' || ch === ':' || ch === '!' || ch === '~' || ch === '@' ||
             ch === '#' || ch === '^' || ch === '&' || ch === '/' || ch === '|' || ch === '<' ||

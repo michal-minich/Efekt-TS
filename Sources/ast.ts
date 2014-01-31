@@ -245,6 +245,7 @@ class Scope extends Exp {
 class Ident extends Exp {
 
     public name : string;
+    public isOp : boolean = false;
 
     constructor (attrs : ExpList, name : string) {
         super(attrs);
@@ -313,6 +314,7 @@ class BinOpApply extends Exp {
         this.op1 = op1;
         this.op2 = op2;
         op.parent = this;
+        op.isOp = true;
         op1.parent = this;
         op2.parent = this;
     }

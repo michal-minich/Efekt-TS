@@ -160,9 +160,12 @@ class DebugPrinter implements AstVisitor<void> {
 
     visitIdent (i : Ident) : void {
         this.cw.writeKey("Ident").tab().writeNewLine().writeMarkup("name").writeSpace();
-        if (Parser.isOp(i.name[0]))
-            this.cw.writeOp(i.name);
-        else if (i.name[0] <= 'Z')
+        if (i.isOp) {
+            if (i.name[0] >= 'a' && i.name <= 'z')
+                this.cw.writeKey(i.name);
+            else
+                this.cw.writeOp(i.name);
+        } else if (i.name[0] <= 'Z')
             this.cw.writeType(i.name);
         else
             this.cw.writeIdent(i.name);
