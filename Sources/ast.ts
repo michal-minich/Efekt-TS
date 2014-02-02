@@ -193,7 +193,7 @@ class Var extends Exp {
     public type : Exp;
     public constraint : Exp;
     public value : Exp;
-    public skipVarKeyword : boolean;
+    public useVarKeyword : boolean;
 
     constructor (attrs : ExpList, ident : Ident, type : Exp, constraint : Exp, value : Exp) {
         super(attrs);
@@ -246,6 +246,7 @@ class Ident extends Exp {
 
     public name : string;
     public isOp : boolean = false;
+    public isKey : boolean = false;
 
     constructor (attrs : ExpList, name : string) {
         super(attrs);
@@ -254,6 +255,10 @@ class Ident extends Exp {
 
     public accept<T> (v : AstVisitor<T>) : T {
         return v.visitIdent(this);
+    }
+
+    get isType () : boolean {
+        return this.name[0] >= 'A' && this.name[0] <= 'Z';
     }
 }
 
@@ -314,7 +319,8 @@ class BinOpApply extends Exp {
         this.op1 = op1;
         this.op2 = op2;
         op.parent = this;
-        op.isOp = true;
+        op.isKey = op.name[0] >= 'a' && op.name[0] <= 'z';
+        op.isOp = !op.isKey;
         op1.parent = this;
         op2.parent = this;
     }

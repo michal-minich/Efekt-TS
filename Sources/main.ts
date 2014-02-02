@@ -30,33 +30,33 @@ function start () {
         "var f of Int = 1 " +
         "var g = 1 " +
         "var h of Int " +
-        "var i of Int = 1 ";
-
-    var testStr =
-            "a " +
-            "b : T " +
-            "c : T of Int " +
-            "d : T of Int = 1 " +
-            "e : T = 1 " +
-            "f of Int = 1 " +
-            "g = 1 " +
-            "h of Int " +
-            "i of Int = 1 " +
-            "1 + 2 * a : T of Int == 2 * 3 + b : T of Int + 1 ";
-
-    var testStr2 = "2 * 3 + 4 " +
-                   "2 + 3 * 4 " +
-                   "2 + 3 * 4 + 5 " +
-                   "2 + 3 * 4 + 5 + 6 " +
-                   "2 + 3 * 4 + 5 + 6 * 7 " +
-                   "2 + 3 * 4 + 5 + 6 * 7 + 8 " +
-                   "2 + 3 * 4 * 5 * 6 + 7 * 8 " +
-                   "2 + 3 + 4 + 5 + 6 + 7 + 8 " +
-                   "2 * 3 * 4 * 5 * 6 * 7 * 8 ";
+        "var i of Int = 1 " +
+        "a " +
+        "b = 1 " +
+        "c : T " +
+        "d of Int " +
+        "D of Int " +
+        "e : T = 1 " +
+        "f : T of Int " +
+        "g of Int = 1 " +
+        "G of Int = 1 " +
+        "h : T of Int = Int " +
+        "1 + 2 * a : T of Int == 2 * 3 + b : T of Int + 1 " +
+        "var a " +
+        "var b = 1 " +
+        "var c : T " +
+        "var d of Int " +
+        "var D of Int " +
+        "var e : T = 1 " +
+        "var f : T of Int " +
+        "var g of Int = 1 " +
+        "var G of Int = 1 " +
+        "var h : T of Int = Int " +
+        "1 + 2 * var a : T of Int == 2 * 3 + var b : T of Int + 1 ";
 
     var testStr3 = "1 + 2 * a : T of Int == 2 * 3 + b : T of Int + 1";
 
-    var sc = parser.parse(testStr);
+    var sc = parser.parse(testAll);
 
     var sw = new StringWriter();
     var cw = new HtmlCodeWriter(sw);

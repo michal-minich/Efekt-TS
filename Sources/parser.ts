@@ -7,57 +7,24 @@ class Parser {
     private index : number;
     private matched : string;
     private lineCrossed : boolean;
+    private useVarKeyword : boolean;
     private opExp : Exp[] = [];
     private opOp : string[] = [];
     private opPrecedence = {
-
         "." : 150,
-
         "of" : 145,
-
         ":" : 140,
-
-        "*" : 130,
-        "/" : 130,
-        "%" : 130,
-
-        "+" : 120,
-        "-" : 120,
-
-        "<<" : 110,
-        ">>" : 110,
-
-        "<" : 100,
-        ">" : 90,
-        ">=" : 80,
-        "<=" : 70,
-
-        "==" : 60,
-        "!=" : 60,
-
+        "*" : 130, "/" : 130, "%" : 130,
+        "+" : 120, "-" : 120,
+        "<<" : 110, ">>" : 110,
+        "<" : 100, ">" : 90, ">=" : 80, "<=" : 70,
+        "==" : 60, "!=" : 60,
         "&" : 50,
-
         "^" : 40,
-
         "|" : 30,
-
-        "&&" : 20,
-        "and" : 20,
-
-        "||" : 10,
-        "or" : 10,
-
-        "=" : 0,
-        "*=" : 0,
-        "/=" : 0,
-        "%=" : 0,
-        "+=" : 0,
-        "-=" : 0,
-        "<<=" : 0,
-        ">>=" : 0,
-        "&==" : 0,
-        "^=" : 0,
-        "|=" : 0
+        "&&" : 20, "and" : 20,
+        "||" : 10, "or" : 10,
+        "=" : 0, "*=" : 0, "/=" : 0, "%=" : 0, "+=" : 0, "-=" : 0, "<<=" : 0, ">>=" : 0, "&==" : 0, "^=" : 0, "|=" : 0
     };
 
 
@@ -125,12 +92,14 @@ class Parser {
                         if (this.index === this.code.length)
                            break;
                     }
-
-                    asi = this.parseBinOpApply(asi, this.opExp, this.opOp);
+                    if (this.opOp.length !== 0)
+                        asi = this.buildBinOpApply(asi, this.opExp, this.opOp);
                     this.opExp = [];
                     this.opOp = [];
                 }
             }
+
+             asi = this.buildVar(asi);
         }
 
         return asi;
@@ -139,9 +108,77 @@ class Parser {
 
 
 
-    private parseBinOpApply (asi : Asi, opExp: Exp[], opOp : string[]) {
-        if (opOp.length === 0)
+    private buildVar (asi : Asi) : any /* Asi|Var */ {
+        if (!(asi instanceof BinOpApply))
             return asi;
+        asi = this.buildOneVar(<BinOpApply>asi)
+        if (!(asi instanceof BinOpApply))
+            return asi;
+        var opa = <BinOpApply>asi;
+        opa.op1 = this.buildVar(opa.op1);
+        opa.op2 = this.buildVar(opa.op2);
+        return opa;
+    }
+
+
+
+
+    private buildOneVar (opa : BinOpApply) : any /* BinOpApply|Var */ {
+        var ident : Ident = undefined;
+        var type : Exp = undefined;
+        var constraint : Exp = undefined;
+        var value : Exp = undefined;
+        if (opa.op.name === "=") {
+            value = opa.op2;
+            if (opa.op1 instanceof BinOpApply)
+                opa = <BinOpApply>opa.op1;
+            else if (opa.op1 instanceof Ident)
+                ident = <Ident>opa.op1;
+            else
+                throw "expected ident before '='";
+        }
+
+        if (opa.op.name === ":") {
+            if (opa.op1 instanceof Ident)
+                ident = <Ident>opa.op1;
+            else
+                throw "expected ident before ':'";
+
+            if (opa.op2 instanceof BinOpApply)
+                opa = <BinOpApply>opa.op2;
+            else
+                type =  opa.op2;
+        }
+
+        if (opa.op.name == "of") {
+            if (ident)
+                type = opa.op1;
+            else if (opa.op1 instanceof Ident) {
+                var i = <Ident>opa.op1;
+                if (i.name[0] >= 'a' && i.name[0] <= 'z')
+                    ident = i;
+                else
+                    type = i;
+            } else
+                throw "type before 'of' must be Ident if var ident is not specified";
+
+            constraint = opa.op2;
+        }
+
+        if (ident || type || constraint || value) {
+            var v = new Var(undefined, ident, type, constraint, value);
+            v.useVarKeyword = this.useVarKeyword;
+            this.useVarKeyword = false;
+            return v;
+        }
+
+        return opa;
+    }
+
+
+
+
+    private buildBinOpApply (asi : Asi, opExp: Exp[], opOp : string[]) : BinOpApply {
         opExp.push(<Exp>asi);
         var numChanges = 0;
         do {
@@ -163,7 +200,7 @@ class Parser {
             var ident = new Ident(undefined, opOp[i]);
             opExp[i + 1] = new BinOpApply(undefined, ident, opExp[i], opExp[i + 1]);
         }
-        return opExp[opExp.length - 1];
+        return <BinOpApply>opExp[opExp.length - 1];
     }
 
 
@@ -249,6 +286,15 @@ class Parser {
 
 
 
+    private parseVar () : Asi {
+        var asi = this.parseMany();
+        this.useVarKeyword = true;
+        return this.buildVar(asi);
+    }
+
+
+
+
     private parseIf () : If {
         var test : Exp;
         var then : Scope;
@@ -325,63 +371,6 @@ class Parser {
         if (asi instanceof Exp)
             return new TType(undefined, <Exp>asi);
         throw "expression expected after " + TType.getTypeName() + ", not statement";
-    }
-
-
-
-
-    private parseVar () : Var {
-        var ident : Ident;
-        var type : Exp = undefined;
-        var constraint : Exp = undefined;
-        var value : Exp = undefined;
-        var asi = this.parseMany();
-        if (asi instanceof Ident) {
-            ident = <Ident>asi;
-        } else if (asi instanceof BinOpApply) {
-            var o = <BinOpApply>asi;
-            ident = <Ident>o.op1;
-            if (o.op2 instanceof BinOpApply) {
-                var o2 = <BinOpApply>o.op2;
-                if (o.op.name === ":")
-                    type = o2.op1;
-                else if (o.op.name === "of")
-                    constraint = o2.op1;
-                else
-                    throw "invalid var x";
-
-                if (o2.op2 instanceof BinOpApply) {
-                    var o3 = <BinOpApply>o2.op2;
-                    constraint = o3.op1;
-                    if (o3.op.name === "=") {
-                        value = o3.op2;
-                    } else {
-                        throw "invalid after of"
-                    }
-                } else {
-                    if (o2.op.name === "of") {
-                        constraint = o2.op2;
-                    } else if (o2.op.name === "=") {
-                        value = o2.op2;
-                    } else {
-                        throw "invalid after :";
-                    }
-                }
-            } else {
-                if (o.op.name === ":") {
-                    type = o.op2;
-                } else if (o.op.name === "of") {
-                    constraint = o.op2;
-                } else if (o.op.name === "=") {
-                    value = o.op2;
-                } else {
-                    throw "invalid after ident"
-                }
-            }
-        } else {
-            throw "invalid after var"
-        }
-        return new Var(undefined, ident, type, constraint, value);
     }
 
 

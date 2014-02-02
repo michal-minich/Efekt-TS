@@ -154,12 +154,13 @@ class Printer implements AstVisitor<void> {
 
 
     visitVar (v : Var) : void {
-        this.markLineWritten();
-        this.cw.writeNewLine().writeKey("var").writeSpace();
+        if (v.useVarKeyword)
+            this.cw.writeKey("var").writeSpace();
         if (v.ident)
             this.visitIdent(v.ident);
         if (v.type) {
-            this.cw.writeSpace().writeOp(":").writeSpace();
+            if (v.ident)
+                this.cw.writeSpace().writeOp(":").writeSpace();
             v.type.accept(this);
         }
         if (v.constraint) {
@@ -201,12 +202,11 @@ class Printer implements AstVisitor<void> {
 
 
     visitIdent (i : Ident) : void {
-        if (i.isOp) {
-            if (i.name[0] >= 'a' && i.name <= 'z')
-                this.cw.writeKey(i.name);
-            else
-                this.cw.writeOp(i.name);
-        } else if (i.name[0] <= 'Z')
+        if (i.isOp)
+            this.cw.writeOp(i.name);
+        else if (i.isKey)
+            this.cw.writeKey(i.name);
+        else if (i.isType)
             this.cw.writeType(i.name);
         else
             this.cw.writeIdent(i.name);
