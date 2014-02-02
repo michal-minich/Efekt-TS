@@ -7,7 +7,6 @@ interface AstVisitor<T> {
     visitExpList (el : ExpList) : T;
 
     // statements
-    visitVar (v : Var) : T;
     visitLoop(l : Loop) : T;
     visitBreak(b : Break) : T;
     visitContinue(c : Continue) : T;
@@ -16,6 +15,7 @@ interface AstVisitor<T> {
     visitTry (tr : Try) : T;
 
     // expresions
+    visitVar (v : Var) : T;
     visitScope (sc : Scope) : T;
     visitIdent (i : Ident) : T;
     visitMember (m : Member) : T;

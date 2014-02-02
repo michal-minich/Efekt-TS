@@ -72,26 +72,6 @@ class Printer implements AstVisitor<void> {
     // statements ===============================================
 
 
-    visitVar (v : Var) : void {
-        this.markLineWritten();
-        this.cw.writeNewLine().writeKey("var").writeSpace();
-        if (v.ident)
-            this.visitIdent(v.ident);
-        if (v.type) {
-            this.cw.writeSpace().writeOp(":").writeSpace();
-            v.type.accept(this);
-        }
-        if (v.constraint) {
-            this.cw.writeSpace().writeKey("of").writeSpace();
-            v.constraint.accept(this);
-        }
-        if (v.value) {
-            this.cw.writeSpace().writeOp("=").writeSpace();
-            v.value.accept(this);
-        }
-    }
-
-
 
 
     visitLoop (l : Loop) : void {
@@ -169,6 +149,30 @@ class Printer implements AstVisitor<void> {
 
 
     // expressions ===============================================
+
+
+
+
+    visitVar (v : Var) : void {
+        this.markLineWritten();
+        this.cw.writeNewLine().writeKey("var").writeSpace();
+        if (v.ident)
+            this.visitIdent(v.ident);
+        if (v.type) {
+            this.cw.writeSpace().writeOp(":").writeSpace();
+            v.type.accept(this);
+        }
+        if (v.constraint) {
+            this.cw.writeSpace().writeKey("of").writeSpace();
+            v.constraint.accept(this);
+        }
+        if (v.value) {
+            this.cw.writeSpace().writeOp("=").writeSpace();
+            v.value.accept(this);
+        }
+    }
+
+
 
 
     visitScope (sc : Scope) : void {

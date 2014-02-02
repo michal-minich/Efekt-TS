@@ -72,42 +72,6 @@ class ExpList extends Asi {
 
 
 
-class Var extends Stm {
-
-    public ident : Ident;
-    public type : Exp;
-    public constraint : Exp;
-    public value : Exp;
-    public skipVarKeyword : boolean;
-
-    constructor (attrs : ExpList, ident : Ident, type : Exp, constraint : Exp, value : Exp) {
-        super(attrs);
-        if (ident) {
-            this.ident = ident;
-            ident.parent = this;
-        }
-        if (type) {
-            this.type = type;
-            type.parent = this;
-        }
-        if (constraint) {
-            this.constraint = constraint;
-            constraint.parent = this;
-        }
-        if (value) {
-            this.value = value;
-            value.parent = this;
-        }
-    }
-
-    public accept<T> (v : AstVisitor<T>) : T {
-        return v.visitVar(this);
-    }
-}
-
-
-
-
 class Loop extends Stm {
 
     public body : Scope;
@@ -219,6 +183,42 @@ class Catch {
 
 
 // expressions ===============================================
+
+
+
+
+class Var extends Exp {
+
+    public ident : Ident;
+    public type : Exp;
+    public constraint : Exp;
+    public value : Exp;
+    public skipVarKeyword : boolean;
+
+    constructor (attrs : ExpList, ident : Ident, type : Exp, constraint : Exp, value : Exp) {
+        super(attrs);
+        if (ident) {
+            this.ident = ident;
+            ident.parent = this;
+        }
+        if (type) {
+            this.type = type;
+            type.parent = this;
+        }
+        if (constraint) {
+            this.constraint = constraint;
+            constraint.parent = this;
+        }
+        if (value) {
+            this.value = value;
+            value.parent = this;
+        }
+    }
+
+    public accept<T> (v : AstVisitor<T>) : T {
+        return v.visitVar(this);
+    }
+}
 
 
 

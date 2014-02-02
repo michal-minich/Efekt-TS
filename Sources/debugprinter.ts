@@ -46,28 +46,6 @@ class DebugPrinter implements AstVisitor<void> {
     // statements ===============================================
 
 
-    visitVar (v : Var) : void {
-        this.cw.writeKey("Var").tab();
-        if (v.ident) {
-            this.cw.writeNewLine().writeMarkup("ident").writeSpace();
-            this.visitIdent(v.ident);
-        }
-        if (v.type) {
-            this.cw.writeNewLine().writeMarkup("type").writeSpace();
-            v.type.accept(this);
-        }
-        if (v.constraint) {
-            this.cw.writeNewLine().writeMarkup("constraint").writeSpace();
-            v.constraint.accept(this);
-        }
-        if (v.value) {
-            this.cw.writeNewLine().writeMarkup("value").writeSpace();
-            v.value.accept(this);
-        }
-        this.cw.unTab();
-    }
-
-
 
 
     visitLoop (l : Loop) : void {
@@ -143,6 +121,32 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     // expressions ===============================================
+
+
+
+
+    visitVar (v : Var) : void {
+        this.cw.writeKey("Var").tab();
+        if (v.ident) {
+            this.cw.writeNewLine().writeMarkup("ident").writeSpace();
+            this.visitIdent(v.ident);
+        }
+        if (v.type) {
+            this.cw.writeNewLine().writeMarkup("type").writeSpace();
+            v.type.accept(this);
+        }
+        if (v.constraint) {
+            this.cw.writeNewLine().writeMarkup("constraint").writeSpace();
+            v.constraint.accept(this);
+        }
+        if (v.value) {
+            this.cw.writeNewLine().writeMarkup("value").writeSpace();
+            v.value.accept(this);
+        }
+        this.cw.unTab();
+    }
+
+
 
 
     visitScope (sc : Scope) : void {
