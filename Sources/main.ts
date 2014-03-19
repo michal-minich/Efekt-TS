@@ -5,11 +5,10 @@
 /// <reference path="parser.ts"/>
 /// <reference path="interpreter.ts"/>
 
+
 function start () {
 
-    var parser = new Parser();
-
-    var testAll = "if 1 then 2 " +
+    var testParseAll = "if 1 then 2 " +
         "if a then b else c " +
         "if 1 then 2 else if 3 then 4 else 5 " +
         "struct a " +
@@ -56,12 +55,25 @@ function start () {
 
     //var testStr3 = "1 + 2 * a : T of Int == 2 * 3 + b : T of Int + 1";
 
-    var sc = parser.parse(testAll);
+    var testEval = "var a = 1 { a var b = a } ";
 
+    var parser = new Parser();
     var sw = new StringWriter();
     var cw = new HtmlCodeWriter(sw);
-
     var p = new Printer(cw);
+
+    var exHandler = function (ex : Asi) {
+        ex.accept(p);
+        var str = sw.getString();
+        document.getElementById("view").innerHTML = "Exception: " + str;
+    };
+
+    var interpreter = new Interpreter(exHandler);
+
+    var sc : Asi = parser.parse(testEval);
+
+    sc = sc.accept(interpreter);
+
     sc.accept(p);
     var str = sw.getString();
     //console.log(str);
