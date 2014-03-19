@@ -1,6 +1,13 @@
 /// <reference path="ast.ts"/>
 
 
+interface Precedence {
+    [operator : string] : number
+}
+
+
+
+
 class Parser {
 
     private code : string;
@@ -10,21 +17,21 @@ class Parser {
     private useVarKeyword : boolean;
     private opExp : Exp[] = [];
     private opOp : string[] = [];
-    private opPrecedence = {
-        "." : 150,
-        "of" : 145,
-        ":" : 140,
-        "*" : 130, "/" : 130, "%" : 130,
-        "+" : 120, "-" : 120,
-        "<<" : 110, ">>" : 110,
-        "<" : 100, ">" : 90, ">=" : 80, "<=" : 70,
-        "==" : 60, "!=" : 60,
-        "&" : 50,
-        "^" : 40,
-        "|" : 30,
-        "&&" : 20, "and" : 20,
-        "||" : 10, "or" : 10,
-        "=" : 0, "*=" : 0, "/=" : 0, "%=" : 0, "+=" : 0, "-=" : 0, "<<=" : 0, ">>=" : 0, "&==" : 0, "^=" : 0, "|=" : 0
+    private opPrecedence : Precedence = {
+        ".": 150,
+        "of": 145,
+        ":": 140,
+        "*": 130, "/": 130, "%": 130,
+        "+": 120, "-": 120,
+        "<<": 110, ">>": 110,
+        "<": 100, ">": 90, ">=": 80, "<=": 70,
+        "==": 60, "!=": 60,
+        "&": 50,
+        "^": 40,
+        "|": 30,
+        "&&": 20, "and": 20,
+        "||": 10, "or": 10,
+        "=": 0, "*=": 0, "/=": 0, "%=": 0, "+=": 0, "-=": 0, "<<=": 0, ">>=": 0, "&==": 0, "^=": 0, "|=": 0
     };
 
 
@@ -35,7 +42,8 @@ class Parser {
         var items = this.parseAsiArray();
 
         if (code.length !== this.index)
-            throw "not all code parsed. non parsed char coutn: " + (code.length - this.index);
+            throw "not all code parsed. non parsed char coutn: " +
+                (code.length - this.index);
 
         return new Scope(null, items);
     }
@@ -90,7 +98,7 @@ class Parser {
                         isMatch = true;
                         this.skipWhite();
                         if (this.index === this.code.length)
-                           break;
+                            break;
                     }
                     if (this.opOp.length !== 0)
                         asi = this.buildBinOpApply(asi, this.opExp, this.opOp);
@@ -99,7 +107,7 @@ class Parser {
                 }
             }
 
-             asi = this.buildVar(asi);
+            asi = this.buildVar(asi);
         }
 
         return asi;
@@ -111,7 +119,7 @@ class Parser {
     private buildVar (asi : Asi) : any /* Asi|Var */ {
         if (!(asi instanceof BinOpApply))
             return asi;
-        asi = this.buildOneVar(<BinOpApply>asi)
+        asi = this.buildOneVar(<BinOpApply>asi);
         if (!(asi instanceof BinOpApply))
             return asi;
         var opa = <BinOpApply>asi;
@@ -147,7 +155,7 @@ class Parser {
             if (opa.op2 instanceof BinOpApply)
                 opa = <BinOpApply>opa.op2;
             else
-                type =  opa.op2;
+                type = opa.op2;
         }
 
         if (opa.op.name == "of") {
@@ -178,7 +186,9 @@ class Parser {
 
 
 
-    private buildBinOpApply (asi : Asi, opExp: Exp[], opOp : string[]) : BinOpApply {
+    private buildBinOpApply (asi : Asi,
+                             opExp : Exp[],
+                             opOp : string[]) : BinOpApply {
         opExp.push(<Exp>asi);
         var numChanges = 0;
         do {
@@ -189,16 +199,18 @@ class Parser {
                 if (this.opPrecedence[op] <= this.opPrecedence[opPrev])
                     continue;
                 var ident = new Ident(undefined, op);
-                opExp[i] = new BinOpApply(undefined, ident, opExp[i], opExp[i + 1]);
+                opExp[i] = new BinOpApply(undefined, ident, opExp[i],
+                                          opExp[i + 1]);
                 opExp.splice(i + 1, 1);
                 opOp.splice(i, 1);
                 ++numChanges;
             }
-        } while (numChanges !== 0)
+        } while (numChanges !== 0);
 
         for (var i = 0; i < opOp.length; ++i) {
             var ident = new Ident(undefined, opOp[i]);
-            opExp[i + 1] = new BinOpApply(undefined, ident, opExp[i], opExp[i + 1]);
+            opExp[i + 1] = new BinOpApply(undefined, ident, opExp[i],
+                                          opExp[i + 1]);
         }
         return <BinOpApply>opExp[opExp.length - 1];
     }
@@ -359,7 +371,8 @@ class Parser {
 
 
 
-    private parseSimpleKeyword<T extends Exp> (TType : any, expIsRequired : boolean) : T {
+    private parseSimpleKeyword<T extends Exp> (TType : any,
+                                               expIsRequired : boolean) : T {
         this.skipWhite();
         if (this.lineCrossed) {
             if (expIsRequired)
@@ -370,7 +383,8 @@ class Parser {
         var asi = this.parseMany();
         if (asi instanceof Exp)
             return new TType(undefined, <Exp>asi);
-        throw "expression expected after " + TType.getTypeName() + ", not statement";
+        throw "expression expected after " + TType.getTypeName() +
+            ", not statement";
     }
 
 
@@ -380,14 +394,17 @@ class Parser {
     }
 
     private static isOp (ch : string) : boolean {
-        return ch === '.' || ch === '+' || ch === '-' || ch === '*' || ch === '\\' ||
-            ch === '%' || ch === '=' || ch === ':' || ch === '!' || ch === '~' || ch === '@' ||
-            ch === '#' || ch === '^' || ch === '&' || ch === '/' || ch === '|' || ch === '<' ||
-            ch === '>' || ch === '?' || ch === ',' || ch === '$';
+        return ch === '.' || ch === '+' || ch === '-' || ch === '*' ||
+            ch === '%' || ch === '=' || ch === ':' || ch === '!' ||
+            ch === '~' || ch === '@' || ch === '#' || ch === '^' ||
+            ch === '&' || ch === '/' || ch === '|' || ch === '<' ||
+            ch === '>' || ch === '?' || ch === ',' || ch === '$' ||
+            ch === '\\';
     }
 
     private static isIdent (ch : string) : boolean {
-        return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || ch === '_';
+        return (ch >= 'a' && ch <= 'z') ||
+            (ch >= 'A' && ch <= 'Z') || ch === '_';
     }
 
 

@@ -16,7 +16,7 @@ function start () {
         "interface { b }" +
         "new Int " +
         "typeof 1 + 2 " +
-        "obj.member " +
+        "obj.member.m " +
         "try a finally { var b } " +
         "throw \n throw ex " +
         "return \n return 1 + 2 " +
@@ -54,20 +54,20 @@ function start () {
         "var h : T of Int = Int " +
         "1 + 2 * var a : T of Int == 2 * 3 + var b : T of Int + 1 ";
 
-    var testStr3 = "1 + 2 * a : T of Int == 2 * 3 + b : T of Int + 1";
+    //var testStr3 = "1 + 2 * a : T of Int == 2 * 3 + b : T of Int + 1";
 
     var sc = parser.parse(testAll);
 
     var sw = new StringWriter();
     var cw = new HtmlCodeWriter(sw);
 
-    var p : AstVisitor<void> = new Printer(cw);
+    var p = new Printer(cw);
     sc.accept(p);
     var str = sw.getString();
     //console.log(str);
 
     sw.clear();
-    var dp : AstVisitor<void> = new DebugPrinter(cw);
+    var dp = new DebugPrinter(cw);
     sc.accept(dp);
     var dstr = sw.getString();
     //console.log(dstr);

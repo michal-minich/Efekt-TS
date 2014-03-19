@@ -37,7 +37,7 @@ class DebugPrinter implements AstVisitor<void> {
 
     visitExpList (el : ExpList) : void {
         for (var i = 0; i < el.items.length; i++)
-            el[i].accept(this);
+            el.items[i].accept(this);
     }
 
 
@@ -103,7 +103,7 @@ class DebugPrinter implements AstVisitor<void> {
                 this.cw.writeNewLine().writeMarkup("catch");
                 var c = tr.catches[i];
                 if (c.on) {
-                    this.cw.writeSpace().writeMarkup("(")
+                    this.cw.writeSpace().writeMarkup("(");
                     this.visitVar(c.on);
                     this.cw.writeMarkup(")").writeSpace();
                     this.visitScope(c.body);
@@ -235,7 +235,7 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitTypeOf (tof : TypeOf) : void {
-        this.cw.writeKey("TypeOf").tab().writeNewLine().writeMarkup("value").writeSpace()
+        this.cw.writeKey("TypeOf").tab().writeNewLine().writeMarkup("value").writeSpace();
         tof.value.accept(this);
         this.cw.unTab();
     }
@@ -329,14 +329,14 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitStruct (st : Struct) : void {
-        this.cw.writeKey("struct").writeSpace()
+        this.cw.writeKey("struct").writeSpace();
         st.body.accept(this);
     }
 
 
 
     visitInterface (ifc : Interface) : void {
-        this.cw.writeKey("interface").writeSpace()
+        this.cw.writeKey("interface").writeSpace();
         ifc.body.accept(this);
     }
 

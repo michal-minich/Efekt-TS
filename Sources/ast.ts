@@ -195,7 +195,11 @@ class Var extends Exp {
     public value : Exp;
     public useVarKeyword : boolean;
 
-    constructor (attrs : ExpList, ident : Ident, type : Exp, constraint : Exp, value : Exp) {
+    constructor (attrs : ExpList,
+                 ident : Ident,
+                 type : Exp,
+                 constraint : Exp,
+                 value : Exp) {
         super(attrs);
         if (ident) {
             this.ident = ident;
@@ -272,7 +276,7 @@ class Member extends Exp {
 
     constructor (attrs : ExpList, bag : Exp, ident : Ident) {
         super(attrs);
-        this.bag = bag
+        this.bag = bag;
         this.ident = ident;
         bag.parent = this;
         ident.parent = this;

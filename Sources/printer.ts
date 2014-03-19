@@ -30,7 +30,7 @@ class Printer implements AstVisitor<void> {
 
 
 
-    private willWriteLine (asis : Asi[]) : boolean {
+    private static willWriteLine (asis : Asi[]) : boolean {
         if (asis.length >= 2)
             return true;
         for (var i = 0; i < asis.length; i++)
@@ -42,7 +42,7 @@ class Printer implements AstVisitor<void> {
 
 
 
-    private itIsExactlyOneExp (asis : Asi[]) : boolean {
+    private static itIsExactlyOneExp (asis : Asi[]) : boolean {
         return asis.length == 1 && asis[0] instanceof Exp;
     }
 
@@ -63,7 +63,7 @@ class Printer implements AstVisitor<void> {
 
     visitExpList (el : ExpList) : void {
         for (var i = 0; i < el.items.length; i++)
-            el[i].accept(this);
+            el.items[i].accept(this);
     }
 
 
@@ -132,7 +132,7 @@ class Printer implements AstVisitor<void> {
                 this.cw.writeKey("catch");
                 var c = tr.catches[i];
                 if (c.on) {
-                    this.cw.writeSpace().writeMarkup("(")
+                    this.cw.writeSpace().writeMarkup("(");
                     this.visitVar(c.on);
                     this.cw.writeMarkup(")").writeSpace();
                     this.visitScope(c.body);
@@ -177,12 +177,12 @@ class Printer implements AstVisitor<void> {
 
 
     visitScope (sc : Scope) : void {
-        var skipBraces = this.itIsExactlyOneExp(sc.items);
+        var skipBraces = Printer.itIsExactlyOneExp(sc.items);
         this.lineWritten.push(false);
         if (!skipBraces)
             this.cw.writeMarkup("{").writeSpace();
         this.cw.tab();
-        var willNL = this.willWriteLine(sc.items);
+        var willNL = Printer.willWriteLine(sc.items);
         for (var i = 0; i < sc.items.length; i++) {
             var item = sc.items[i];
             if (willNL && item instanceof Exp)
@@ -233,7 +233,7 @@ class Printer implements AstVisitor<void> {
 
 
     visitBinOpApply (opa : BinOpApply) : void {
-        this.cw.writeMarkup("(")
+        this.cw.writeMarkup("(");
         opa.op1.accept(this);
         this.cw.writeSpace();
         opa.op.accept(this);
@@ -359,14 +359,14 @@ class Printer implements AstVisitor<void> {
 
 
     visitStruct (st : Struct) : void {
-        this.cw.writeKey("struct").writeSpace()
+        this.cw.writeKey("struct").writeSpace();
         st.body.accept(this);
     }
 
 
 
     visitInterface (ifc : Interface) : void {
-        this.cw.writeKey("interface").writeSpace()
+        this.cw.writeKey("interface").writeSpace();
         ifc.body.accept(this);
     }
 

@@ -34,7 +34,9 @@ interface Object {
 }
 
 Object.prototype.getTypeName = function () {
-    var str = (this.prototype ? this.prototype.constructor : this.constructor).toString();
+    var str = (this.prototype
+        ? this.prototype.constructor
+        : this.constructor).toString();
     var cname = str.match(/function\s(\w*)/)[1];
     var aliases = ["", "anonymous", "Anonymous"];
     return aliases.indexOf(cname) > -1 ? "Function" : cname;
