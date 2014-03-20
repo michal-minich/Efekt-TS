@@ -18,42 +18,10 @@ interface ExceptionHandler {
 
 
 
-class Env {
-
-    private parent : Env;
-    private exceptionHandler : ExceptionHandler;
-    private vars : Vars;
-
-
-    constructor (parent : Env, exceptionHandler : ExceptionHandler) {
-        this.parent = parent;
-        this.exceptionHandler = exceptionHandler;
-        this.vars = {};
-    }
-
-
-    public get (name : string) : Asi {
-        var asi = this.vars[name];
-        if (asi) {
-            return asi;
-        } else if (this.parent) {
-            //noinspection TailRecursionJS
-            return this.parent.get(name);
-        }
-        else {
-            //noinspection UnnecessaryLocalVariableJS
-            var ex = "variable " + name + " is undefined.";
-            //this.exceptionHandler(new Text(ex));
-            throw ex;
-        }
-    }
-
-
-
-
-    public set (name : string, value : Asi) : void {
-        this.vars[name] = value;
-    }
+interface InterpreterScope {
+    vars : Vars;
+    currentAsiIx : number;
+    asisLenght : number;
 }
 
 
@@ -64,13 +32,65 @@ class Interpreter implements AstVisitor<Asi> {
 
 
 
-    private env : Env;
     private exceptionHandler : ExceptionHandler;
+    private scope : InterpreterScope[];
+
 
 
 
     constructor (exceptionHandler : ExceptionHandler) {
         this.exceptionHandler = exceptionHandler;
+        this.scope = [];
+    }
+
+
+
+
+    private push (asisLenght : number) : void {
+        this.scope.push(
+            {
+                vars: {},
+                currentAsiIx: 0,
+                asisLenght: asisLenght
+            }
+        );
+    }
+
+
+
+
+    private pop () : void {
+        this.scope.pop();
+    }
+
+
+
+
+    private current () : InterpreterScope {
+        return this.scope[this.scope.length - 1];
+    }
+
+
+
+
+    public get (name : string) : Asi {
+        for (var i = this.scope.length - 1; i >= 0; --i) {
+            var asi = this.scope[i].vars[name];
+            if (asi)
+                return asi;
+        }
+
+        //noinspection UnnecessaryLocalVariableJS
+        var ex = "variable " + name + " is undefined.";
+        //this.exceptionHandler(new Text(ex));
+        throw ex;
+    }
+
+
+
+
+    public set (name : string, value : Asi) : void {
+        this.current().vars[name] = value;
     }
 
 
@@ -97,6 +117,9 @@ class Interpreter implements AstVisitor<Asi> {
 
 
     visitLoop (l : Loop) : Asi {
+        var ix = 0;
+        while (ix < l.body.items.length)
+            this.visitScope(l.body);
         return undefined;
     }
 
@@ -146,7 +169,7 @@ class Interpreter implements AstVisitor<Asi> {
 
     visitVar (v : Var) : Asi {
         var val = v.value.accept(this);
-        this.env.set(v.ident.name, val);
+        this.set(v.ident.name, val);
         return val;
     }
 
@@ -154,12 +177,11 @@ class Interpreter implements AstVisitor<Asi> {
 
 
     visitScope (sc : Scope) : Asi {
-        var parentEnv = this.env;
-        this.env = new Env(parentEnv, this.exceptionHandler);
+        this.push(sc.items.length);
         for (var i = 0; i < sc.items.length - 1; i++)
             sc.items[i].accept(this);
         var res = sc.items[sc.items.length - 1].accept(this);
-        this.env = parentEnv;
+        this.pop();
         return res;
     }
 
@@ -167,7 +189,7 @@ class Interpreter implements AstVisitor<Asi> {
 
 
     visitIdent (i : Ident) : Asi {
-        return this.env.get(i.name).accept(this);
+        return this.get(i.name).accept(this);
     }
 
 
