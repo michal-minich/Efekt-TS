@@ -300,8 +300,8 @@ class Parser {
 
 
     private parseVar () : Asi {
-        var asi = this.parseMany();
         this.useVarKeyword = true;
+        var asi = this.parseMany();
         return this.buildVar(asi);
     }
 

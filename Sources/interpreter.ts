@@ -50,7 +50,7 @@ class Interpreter implements AstVisitor<Asi> {
         this.scope.push(
             {
                 vars: {},
-                currentAsiIx: 0,
+                currentAsiIx: -1,
                 asisLenght: asisLenght
             }
         );
@@ -89,8 +89,20 @@ class Interpreter implements AstVisitor<Asi> {
 
 
 
-    public set (name : string, value : Asi) : void {
-        this.current().vars[name] = value;
+    public set (name : string, value : Asi, createNewVar : boolean) {
+        if (createNewVar) {
+            this.current().vars[name] = value;
+        } else {
+            for (var i = this.scope.length - 1; i >= 0; --i) {
+                var s = this.scope[i];
+                if (s.vars[name]) {
+                    s.vars[name] = value;
+                    return;
+                }
+            }
+            throw "cannot assign to variable " + name +
+                " becuase it was not declared.";
+        }
     }
 
 
@@ -117,9 +129,7 @@ class Interpreter implements AstVisitor<Asi> {
 
 
     visitLoop (l : Loop) : Asi {
-        var ix = 0;
-        while (ix < l.body.items.length)
-            this.visitScope(l.body);
+        this.visitScope(l.body);
         return undefined;
     }
 
@@ -127,6 +137,8 @@ class Interpreter implements AstVisitor<Asi> {
 
 
     visitBreak (b : Break) : Asi {
+        var cs = this.current();
+        cs.currentAsiIx = cs.asisLenght;
         return undefined;
     }
 
@@ -134,6 +146,8 @@ class Interpreter implements AstVisitor<Asi> {
 
 
     visitContinue (c : Continue) : Asi {
+        var cs = this.current();
+        cs.currentAsiIx = -1;
         return undefined;
     }
 
@@ -169,7 +183,7 @@ class Interpreter implements AstVisitor<Asi> {
 
     visitVar (v : Var) : Asi {
         var val = v.value.accept(this);
-        this.set(v.ident.name, val);
+        this.set(v.ident.name, val, v.useVarKeyword);
         return val;
     }
 
@@ -178,9 +192,11 @@ class Interpreter implements AstVisitor<Asi> {
 
     visitScope (sc : Scope) : Asi {
         this.push(sc.items.length);
-        for (var i = 0; i < sc.items.length - 1; i++)
-            sc.items[i].accept(this);
-        var res = sc.items[sc.items.length - 1].accept(this);
+        var cs = this.current();
+        while (cs.currentAsiIx < cs.asisLenght - 1) {
+            ++cs.currentAsiIx;
+            var res = sc.items[cs.currentAsiIx].accept(this);
+        }
         this.pop();
         return res;
     }

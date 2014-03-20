@@ -55,7 +55,7 @@ function start () {
 
     //var testStr3 = "1 + 2 * a : T of Int == 2 * 3 + b : T of Int + 1";
 
-    var testEval = "var a = 1 { var b = a } var c = a ";
+    var testEval = "var a = 1 loop { a = 2 break } a";
 
     var parser = new Parser();
     var sw = new StringWriter();
