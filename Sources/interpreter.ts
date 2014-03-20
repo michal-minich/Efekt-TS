@@ -1,11 +1,20 @@
 /// <reference path="ast.ts"/>
 /// <reference path="visitor.ts"/>
+/// <reference path="writer.ts"/>
+/// <reference path="printer.ts"/>
 
 
 
 
 interface Vars {
     [name : string] : Asi
+}
+
+
+
+
+interface BinFn {
+    (op1 : Asi, op2 : Asi) : Asi;
 }
 
 
@@ -33,49 +42,45 @@ class Interpreter implements AstVisitor<Asi> {
 
 
     private exceptionHandler : ExceptionHandler;
-    private scope : InterpreterScope[];
+    private scopes : InterpreterScope[];
+    private loopScopes : InterpreterScope[];
+    private currentScope : InterpreterScope;
 
 
 
 
     constructor (exceptionHandler : ExceptionHandler) {
         this.exceptionHandler = exceptionHandler;
-        this.scope = [];
+        this.scopes = [];
+        this.loopScopes = [];
     }
 
 
 
 
     private push (asisLenght : number) : void {
-        this.scope.push(
-            {
-                vars: {},
-                currentAsiIx: -1,
-                asisLenght: asisLenght
-            }
-        );
+        this.currentScope =
+        {
+            vars: {},
+            currentAsiIx: -1,
+            asisLenght: asisLenght
+        };
+        this.scopes.push(this.currentScope);
     }
 
 
 
 
     private pop () : void {
-        this.scope.pop();
-    }
-
-
-
-
-    private current () : InterpreterScope {
-        return this.scope[this.scope.length - 1];
+        this.scopes.pop();
     }
 
 
 
 
     public get (name : string) : Asi {
-        for (var i = this.scope.length - 1; i >= 0; --i) {
-            var asi = this.scope[i].vars[name];
+        for (var i = this.scopes.length - 1; i >= 0; --i) {
+            var asi = this.scopes[i].vars[name];
             if (asi)
                 return asi;
         }
@@ -91,10 +96,10 @@ class Interpreter implements AstVisitor<Asi> {
 
     public set (name : string, value : Asi, createNewVar : boolean) {
         if (createNewVar) {
-            this.current().vars[name] = value;
+            this.currentScope.vars[name] = value;
         } else {
-            for (var i = this.scope.length - 1; i >= 0; --i) {
-                var s = this.scope[i];
+            for (var i = this.scopes.length - 1; i >= 0; --i) {
+                var s = this.scopes[i];
                 if (s.vars[name]) {
                     s.vars[name] = value;
                     return;
@@ -103,6 +108,43 @@ class Interpreter implements AstVisitor<Asi> {
             throw "cannot assign to variable " + name +
                 " becuase it was not declared.";
         }
+    }
+
+
+
+
+    public op (name : string) : BinFn {
+        switch (name) {
+            case '+':
+                return function (a, b) {
+                    return new Int(undefined,
+                                   "" + (+(<Int>a).value + +(<Int>b).value));
+                };
+            case '-':
+                return function (a, b) {
+                    return new Int(undefined,
+                                   "" + (+(<Int>a).value - +(<Int>b).value));
+                };
+            case '==':
+                return function (a, b) {
+                    return new Bool(undefined,
+                                    Interpreter.str(a) == Interpreter.str(b));
+                };
+            default:
+                throw "operator " + name + " is not defined.";
+        }
+    }
+
+
+
+
+    private static str (asi : Asi) : string {
+        var sw = new StringWriter();
+        var cw = new HtmlCodeWriter(sw);
+        var p = new Printer(cw);
+        asi.accept(p);
+        var str = sw.getString();
+        return str;
     }
 
 
@@ -129,7 +171,8 @@ class Interpreter implements AstVisitor<Asi> {
 
 
     visitLoop (l : Loop) : Asi {
-        this.visitScope(l.body);
+        this.walkScope(l.body, true);
+        this.loopScopes.pop();
         return undefined;
     }
 
@@ -137,8 +180,8 @@ class Interpreter implements AstVisitor<Asi> {
 
 
     visitBreak (b : Break) : Asi {
-        var cs = this.current();
-        cs.currentAsiIx = cs.asisLenght;
+        var ls = this.loopScopes[this.loopScopes.length - 1];
+        ls.currentAsiIx = ls.asisLenght;
         return undefined;
     }
 
@@ -146,8 +189,7 @@ class Interpreter implements AstVisitor<Asi> {
 
 
     visitContinue (c : Continue) : Asi {
-        var cs = this.current();
-        cs.currentAsiIx = -1;
+        this.currentScope.currentAsiIx = -1;
         return undefined;
     }
 
@@ -191,13 +233,25 @@ class Interpreter implements AstVisitor<Asi> {
 
 
     visitScope (sc : Scope) : Asi {
+        return this.walkScope(sc, false);
+    }
+
+
+
+
+    private walkScope (sc : Scope, isLoopScope : boolean) : Asi {
         this.push(sc.items.length);
-        var cs = this.current();
+        var cs = this.currentScope;
+        if (isLoopScope)
+            this.loopScopes.push(this.currentScope);
+        console.log("+");
         while (cs.currentAsiIx < cs.asisLenght - 1) {
             ++cs.currentAsiIx;
+            console.log(cs.currentAsiIx, cs.asisLenght);
             var res = sc.items[cs.currentAsiIx].accept(this);
         }
         this.pop();
+        console.log("-");
         return res;
     }
 
@@ -226,7 +280,9 @@ class Interpreter implements AstVisitor<Asi> {
 
 
     visitBinOpApply (opa : BinOpApply) : Asi {
-        return undefined;
+        var o1 = opa.op1.accept(this);
+        var o2 = opa.op2.accept(this);
+        return this.op(opa.op.name)(o1, o2);
     }
 
 
@@ -235,9 +291,10 @@ class Interpreter implements AstVisitor<Asi> {
     visitIf (i : If) : Asi {
         var t = i.test.accept(this);
         if (t instanceof Bool) {
-            return (<Bool>t).value
-                ? i.then.accept(this)
-                : i.otherwise.accept(this);
+            if ((<Bool>t).value)
+                return i.then.accept(this);
+            else if (i.otherwise)
+                return i.otherwise.accept(this);
         }
         else {
             throw "if test must evaluate to Bool";

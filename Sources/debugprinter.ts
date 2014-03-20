@@ -265,7 +265,9 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitBool (b : Bool) : void {
+        this.cw.writeKey("Bool").tab().writeNewLine().writeMarkup("value").writeSpace();
         this.cw.writeKey(b.value === true ? "true" : "false");
+        this.cw.unTab();
     }
 
 
