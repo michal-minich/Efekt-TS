@@ -164,10 +164,7 @@ class Interpreter implements AstVisitor<Asi> {
 
 
     visitAsiList (al : AsiList) : Asi {
-        for (var i = 0; i < al.items.length - 1; i++)
-            al.items[i].accept(this);
-
-        return al.items[al.items.length - 1].accept(this);
+        throw "Intrpreter.visitAsiList";
     }
 
 
@@ -190,7 +187,7 @@ class Interpreter implements AstVisitor<Asi> {
 
     visitLoop (l : Loop) : Asi {
         while (!this.isBreak) {
-            this.walkScope(l.body, true);
+            this.walkAsiList(l.body.list, true);
             this.isContinue = false;
         }
         this.isBreak = false;
@@ -253,21 +250,21 @@ class Interpreter implements AstVisitor<Asi> {
 
 
     visitScope (sc : Scope) : Asi {
-        return this.walkScope(sc, false);
+        return this.walkAsiList(sc.list, false);
     }
 
 
 
 
-    private walkScope (sc : Scope, isLoopScope : boolean) : Asi {
-        this.push(sc.items.length);
+    private walkAsiList (al : AsiList, isLoopScope : boolean) : Asi {
+        this.push(al.items.length);
         var cs = this.currentScope;
         if (isLoopScope)
             this.loopScopes.push(this.currentScope);
         while ((cs.currentAsiIx < cs.asisLenght - 1) && !this.isBreak &&
             !this.isContinue) {
             ++cs.currentAsiIx;
-            var res = sc.items[cs.currentAsiIx].accept(this);
+            var res = al.items[cs.currentAsiIx].accept(this);
         }
         this.pop();
         return res;

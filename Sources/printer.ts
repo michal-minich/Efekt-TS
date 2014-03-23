@@ -30,18 +30,6 @@ class Printer implements AstVisitor<void> {
 
 
 
-    private static willWriteLine (asis : Asi[]) : boolean {
-        if (asis.length >= 2)
-            return true;
-        for (var i = 0; i < asis.length; i++)
-            if (asis[i] instanceof Stm)
-                return true;
-        return false;
-    }
-
-
-
-
     private static itIsExactlyOneExp (asis : Asi[]) : boolean {
         return asis.length == 1 && asis[0] instanceof Exp;
     }
@@ -62,8 +50,12 @@ class Printer implements AstVisitor<void> {
 
 
     visitAsiList (al : AsiList) : void {
-        for (var i = 0; i < al.items.length; i++)
-            al.items[i].accept(this);
+        for (var i = 0; i < al.items.length; i++) {
+            var item = al.items[i];
+            item.accept(this);
+            if (i < al.items.length - 1)
+                this.cw.writeNewLine();
+        }
     }
 
 
@@ -84,7 +76,7 @@ class Printer implements AstVisitor<void> {
 
     visitLoop (l : Loop) : void {
         this.markLineWritten();
-        this.cw.writeNewLine().writeKey("loop").writeSpace();
+        this.cw.writeKey("loop").writeSpace();
         this.visitScope(l.body);
     }
 
@@ -93,7 +85,7 @@ class Printer implements AstVisitor<void> {
 
     visitBreak (b : Break) : void {
         this.markLineWritten();
-        this.cw.writeNewLine().writeKey("break");
+        this.cw.writeKey("break");
     }
 
 
@@ -101,7 +93,7 @@ class Printer implements AstVisitor<void> {
 
     visitContinue (c : Continue) : void {
         this.markLineWritten();
-        this.cw.writeNewLine().writeKey("continue");
+        this.cw.writeKey("continue");
     }
 
 
@@ -109,7 +101,7 @@ class Printer implements AstVisitor<void> {
 
     visitReturn (r : Return) : void {
         this.markLineWritten();
-        this.cw.writeNewLine().writeKey("return");
+        this.cw.writeKey("return");
         if (r.value) {
             this.cw.writeSpace();
             r.value.accept(this);
@@ -121,7 +113,7 @@ class Printer implements AstVisitor<void> {
 
     visitThrow (th : Throw) : void {
         this.markLineWritten();
-        this.cw.writeNewLine().writeKey("throw");
+        this.cw.writeKey("throw");
         if (th.ex) {
             this.cw.writeSpace();
             th.ex.accept(this);
@@ -133,7 +125,7 @@ class Printer implements AstVisitor<void> {
 
     visitTry (tr : Try) : void {
         this.markLineWritten();
-        this.cw.writeNewLine().writeKey("try").writeSpace();
+        this.cw.writeKey("try").writeSpace();
         this.visitScope(tr.body);
         if (tr.catches) {
             for (var i = 0; i < tr.catches.length; i++) {
@@ -185,25 +177,23 @@ class Printer implements AstVisitor<void> {
 
 
     visitScope (sc : Scope) : void {
-        var skipBraces = Printer.itIsExactlyOneExp(sc.items);
+        var skipBraces = Printer.itIsExactlyOneExp(sc.list.items);
         this.lineWritten.push(false);
         if (!skipBraces)
             this.cw.writeMarkup("{").writeSpace();
         this.cw.tab();
-        var willNL = Printer.willWriteLine(sc.items);
-        for (var i = 0; i < sc.items.length; i++) {
-            var item = sc.items[i];
-            if (willNL && item instanceof Exp)
-                this.cw.writeNewLine();
-            item.accept(this);
-        }
+
+        this.visitAsiList(sc.list);
+
         this.cw.unTab();
-        if (willNL || this.lineWritten.pop())
+        if (this.lineWritten.pop())
             this.cw.writeNewLine();
         else if (!skipBraces)
             this.cw.writeSpace();
         if (!skipBraces)
             this.cw.writeMarkup("}");
+
+
     }
 
 

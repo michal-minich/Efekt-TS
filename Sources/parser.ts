@@ -43,18 +43,18 @@ class Parser {
 
         this.code = code;
         this.index = 0;
-        var items = this.parseAsiArray();
+        var al = this.parseAsiList();
 
         if (code.length !== this.index)
             console.log("not all code parsed. not parsed char count: " +
                             (code.length - this.index));
-        return new AsiList(undefined, items);
+        return al;
     }
 
 
 
 
-    private parseAsiArray () : Asi[] {
+    private parseAsiList () : AsiList {
         var items : Asi[] = [];
         while (true) {
             var item = this.parseMany();
@@ -62,7 +62,7 @@ class Parser {
                 break;
             items.push(item);
         }
-        return items;
+        return new AsiList(undefined, items);
     }
 
 
@@ -288,7 +288,7 @@ class Parser {
         var ch = this.code[this.index];
         if (ch === '{') {
             ++this.index;
-            return new Scope(undefined, this.parseAsiArray());
+            return new Scope(undefined, this.parseAsiList());
         }
 
         if (ch === '}') {
@@ -359,7 +359,7 @@ class Parser {
         var asi = this.parseMany();
         if (asi instanceof Scope)
             return <Scope>asi;
-        return new Scope(undefined, [asi]);
+        return new Scope(undefined, new AsiList(undefined, [asi]));
     }
 
 

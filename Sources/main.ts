@@ -9,101 +9,42 @@
 
 function start () {
 
+    //unitTestsSpecific();
     unitTests();
 
-    var testParseAll = "if 1 then 2 " +
-        "if a then b else c " +
-        "if 1 then 2 else if 3 then 4 else 5 " +
-        "struct a " +
-        "interface { b }" +
-        "new Int " +
-        "typeof 1 + 2 " +
-        "obj.member.m " +
-        "try a finally { var b } " +
-        "throw \n throw ex " +
-        "return \n return 1 + 2 " +
-        "break continue " +
-        "loop { a } " +
-        "var a " +
-        "var b : T " +
-        "var c : T of Int " +
-        "var d : T of Int = 1 " +
-        "var e : T = 1 " +
-        "var f of Int = 1 " +
-        "var g = 1 " +
-        "var h of Int " +
-        "var i of Int = 1 " +
-        "a " +
-        "b = 1 " +
-        "c : T " +
-        "d of Int " +
-        "D of Int " +
-        "e : T = 1 " +
-        "f : T of Int " +
-        "g of Int = 1 " +
-        "G of Int = 1 " +
-        "h : T of Int = Int " +
-        "1 + 2 * a : T of Int == 2 * 3 + b : T of Int + 1 " +
-        "var a " +
-        "var b = 1 " +
-        "var c : T " +
-        "var d of Int " +
-        "var D of Int " +
-        "var e : T = 1 " +
-        "var f : T of Int " +
-        "var g of Int = 1 " +
-        "var G of Int = 1 " +
-        "var h : T of Int = Int " +
-        "1 + 2 * var a : T of Int == 2 * 3 + var b : T of Int + 1 " +
-        "a = b = 1" +
-        "var a = b = 1" +
-        "a = var b = 1" +
-        "var a = var b = 1";
+     /*
+     var testCode =
+         "var S = struct { var a = 1 } " +
+         "S";
 
-    //var testStr3 = "1 + 2 * a : T of Int == 2 * 3 + b : T of Int + 1";
+     var parser = new Parser();
+     var sw = new StringWriter();
+     var cw = new HtmlCodeWriter(sw);
+     var p = new Printer(cw);
 
-    var testEval1 =
-        "var a = 0 " +
-        "var b = 5 " +
-        "loop { " +
-        "a = a + 1" +
-        "if a != 10 then continue " +
-        "b = b + 1" +
-        "if a == 10 then break " +
-        "} " +
-        "b";
+     var exHandler = function (ex : Asi) {
+         ex.accept(p);
+         var str = sw.getString();
+         document.getElementById("view").innerHTML = "Exception: " + str;
+     };
 
-    var testEval2 =
-        "var S = struct { var a = 1 } " +
-        "S";
+     var interpreter = new Interpreter(exHandler);
 
-    var parser = new Parser();
-    var sw = new StringWriter();
-    var cw = new HtmlCodeWriter(sw);
-    var p = new Printer(cw);
+     var al = parser.parse(testCode );
+     var sc = new Scope(undefined, al.items);
 
-    var exHandler = function (ex : Asi) {
-        ex.accept(p);
-        var str = sw.getString();
-        document.getElementById("view").innerHTML = "Exception: " + str;
-    };
+     //sc = sc.accept(interpreter);
 
-    var interpreter = new Interpreter(exHandler);
+     sc.accept(p);
+     var str = sw.getString();
+     //console.log(str);
 
-    var al = parser.parse(testParseAll);
-    var sc = new Scope(undefined, al.items);
+     sw.clear();
+     var dp = new DebugPrinter(cw);
+     sc.accept(dp);
+     var dstr = sw.getString();
+     //console.log(dstr);
 
-    //sc = sc.accept(interpreter);
-
-    sc.accept(p);
-    var str = sw.getString();
-    //console.log(str);
-
-    sw.clear();
-    var dp = new DebugPrinter(cw);
-    sc.accept(dp);
-    var dstr = sw.getString();
-    //console.log(dstr);
-
-    document.getElementById("view").innerHTML = str + "<br/><br/>" + dstr;
+     document.getElementById("view").innerHTML = str + "<br/><br/>" + dstr;
+     */
 }

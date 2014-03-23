@@ -249,13 +249,11 @@ class Var extends Exp {
 
 class Scope extends Exp {
 
-    public items : Asi[];
+    public list : AsiList;
 
-    constructor (attrs : ExpList, items : Asi[]) {
+    constructor (attrs : ExpList, list : AsiList) {
         super(attrs);
-        this.items = items;
-        for (var i = 0; i < items.length; i++)
-            items[i].parent = this;
+        this.list = list;
     }
 
     accept<T> (v : AstVisitor<T>) : T {

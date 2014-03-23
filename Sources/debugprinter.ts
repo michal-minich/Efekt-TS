@@ -85,6 +85,8 @@ class DebugPrinter implements AstVisitor<void> {
             this.cw.tab().writeNewLine().writeMarkup("value").writeSpace();
             r.value.accept(this);
             this.cw.unTab();
+        } else {
+            this.cw.writeNewLine();
         }
     }
 
@@ -97,6 +99,8 @@ class DebugPrinter implements AstVisitor<void> {
             this.cw.tab().writeNewLine().writeMarkup("ex").writeSpace();
             th.ex.accept(this);
             this.cw.unTab();
+        } else {
+            this.cw.writeNewLine();
         }
     }
 
@@ -160,9 +164,9 @@ class DebugPrinter implements AstVisitor<void> {
     visitScope (sc : Scope) : void {
         this.cw.writeKey("Scope");
         this.cw.tab();
-        for (var i = 0; i < sc.items.length; i++) {
+        for (var i = 0; i < sc.list.items.length; i++) {
             this.cw.writeNewLine().writeMarkup("item").writeSpace();
-            sc.items[i].accept(this);
+            sc.list.items[i].accept(this);
         }
         this.cw.unTab();
     }

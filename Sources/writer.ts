@@ -91,7 +91,7 @@ class HtmlCodeWriter implements CodeWriter {
     }
 
     writeNewLine () : CodeWriter {
-        this.tw.write("<br/>");
+        this.tw.write("<br>");
         this.tw.write(this.tabs);
         return this;
     }
