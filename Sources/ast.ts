@@ -254,6 +254,7 @@ class Scope extends Exp {
     constructor (attrs : ExpList, list : AsiList) {
         super(attrs);
         this.list = list;
+        list.parent = this;
     }
 
     accept<T> (v : AstVisitor<T>) : T {
@@ -578,6 +579,7 @@ class Struct extends Exp {
     constructor (attrs : ExpList, body : Scope) {
         super(attrs);
         this.body = body;
+        body.parent = this;
     }
 
     accept<T> (v : AstVisitor<T>) : T {
@@ -595,6 +597,7 @@ class Interface extends Exp {
     constructor (attrs : ExpList, body : Scope) {
         super(attrs);
         this.body = body;
+        body.parent = this;
     }
 
     accept<T> (v : AstVisitor<T>) : T {
@@ -627,6 +630,7 @@ class TypeAnyOf extends Exp {
     constructor (attrs : ExpList, choices : ExpList) {
         super(attrs);
         this.choices = choices;
+        choices.parent = this;
     }
 
     accept<T> (v : AstVisitor<T>) : T {
@@ -696,6 +700,8 @@ class TypeArr extends Exp {
         super(attrs);
         this.elementType = elementType;
         this.length = length;
+        elementType.parent = this;
+        length.parent = this;
     }
 
     accept<T> (v : AstVisitor<T>) : T {
@@ -713,6 +719,7 @@ class TypeRef extends Exp {
     constructor (attrs : ExpList, elementType : Exp) {
         super(attrs);
         this.elementType = elementType;
+        elementType.parent = this;
     }
 
     accept<T> (v : AstVisitor<T>) : T {

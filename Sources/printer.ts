@@ -37,6 +37,15 @@ class Printer implements AstVisitor<void> {
 
 
 
+    private static showScopeBraces (asi : Asi) : boolean {
+        return asi instanceof Fn ||
+            asi instanceof Struct ||
+            asi instanceof Interface;
+    }
+
+
+
+
     private markLineWritten () : void {
         this.lineWritten[this.lineWritten.length - 1] = true;
     }
@@ -178,6 +187,8 @@ class Printer implements AstVisitor<void> {
 
     visitScope (sc : Scope) : void {
         var skipBraces = Printer.itIsExactlyOneExp(sc.list.items);
+        if (skipBraces)
+            skipBraces = !Printer.showScopeBraces(sc.parent);
         this.lineWritten.push(false);
         if (!skipBraces)
             this.cw.writeMarkup("{").writeSpace();
