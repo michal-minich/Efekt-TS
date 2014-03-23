@@ -51,11 +51,12 @@ function start () {
         "var g of Int = 1 " +
         "var G of Int = 1 " +
         "var h : T of Int = Int " +
-        "1 + 2 * var a : T of Int == 2 * 3 + var b : T of Int + 1 ";
+        "1 + 2 * var a : T of Int == 2 * 3 + var b : T of Int + 1 " +
+        "a = b = 1";
 
     //var testStr3 = "1 + 2 * a : T of Int == 2 * 3 + b : T of Int + 1";
 
-    var testEval =
+    var testEval1 =
         "var a = 0 " +
         "var b = 5 " +
         "loop { " +
@@ -65,6 +66,10 @@ function start () {
             "if a == 10 then break " +
         "} " +
         "b";
+
+    var testEval2 =
+        "var S = struct { var a = 1 } " +
+        "S";
 
     var parser = new Parser();
     var sw = new StringWriter();
@@ -79,9 +84,9 @@ function start () {
 
     var interpreter = new Interpreter(exHandler);
 
-    var sc : Asi = parser.parse(testEval);
+    var sc : Asi = parser.parse(testEval2);
 
-    sc = sc.accept(interpreter);
+    //sc = sc.accept(interpreter);
 
     sc.accept(p);
     var str = sw.getString();

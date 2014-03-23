@@ -17,6 +17,7 @@ class Parser {
     private useVarKeyword : boolean;
     private opExp : Exp[] = [];
     private opOp : string[] = [];
+    private rightAssociativeOps = ["=", ":", "of"];
     private opPrecedence : Precedence = {
         ".": 150,
         "of": 145,
@@ -43,8 +44,8 @@ class Parser {
         var items = this.parseAsiArray();
 
         if (code.length !== this.index)
-            throw "not all code parsed. non parsed char coutn: " +
-                (code.length - this.index);
+            console.log("not all code parsed. not parsed char count: " +
+                            (code.length - this.index));
 
         return new Scope(null, items);
     }
@@ -197,7 +198,9 @@ class Parser {
             for (var i = opOp.length - 1; i !== 0; --i) {
                 var op = opOp[i];
                 var opPrev = opOp[i - 1];
-                if (this.opPrecedence[op] <= this.opPrecedence[opPrev])
+                if (this.opPrecedence[op] <= this.opPrecedence[opPrev]
+                    && !(op === opPrev &&
+                        this.rightAssociativeOps.indexOf(op) !== -1))
                     continue;
                 var ident = new Ident(undefined, op);
                 opExp[i] = new BinOpApply(undefined, ident, opExp[i],
