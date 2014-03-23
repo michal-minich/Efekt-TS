@@ -138,7 +138,7 @@ function unitTestsSpecific () {
         return new Test(code, parsed);
     }
 
-    t("var a").parse();
+    t("1 + 2").parse();
 
     document.getElementById("testReport").innerHTML =
         testReport.getReportString();
@@ -170,7 +170,7 @@ function unitTests () {
         t("new Int").parse();
         //t("typeof 1 + 2").parse("typeof (1 + 2)");
         t("obj.member").parse();
-        //t("a.b.c.d").parse();
+        t("a.b.c.d").parse();
         t("try a finally { var b }").parse("try a\nfinally var b");
         t("throw \n throw ex").parse("throw\nthrow ex");
         //t("return \n return 1 + 2").parse("return\nreturn 1 + 2");
@@ -208,10 +208,10 @@ function unitTests () {
         t("var h : T of Int = Int").parse();
         //t("1 + 2 * var a : T of Int == 2 * 3 + var b : T of Int + 1").parse(
         //    "((1 + (2 * var a : T of Int)) == (((2 * 3) + b : T of Int) + 1))");
-        //t("a = b = 1").parse();
-        //t("var a = b = 1").parse();
-        //t("a = var b = 1").parse();
-        //t("var a = var b = 1").parse();
+        t("a = b = 1").parse();
+        t("var a = b = 1").parse();
+        t("a = var b = 1").parse();
+        t("var a = var b = 1").parse();
     }
 
 

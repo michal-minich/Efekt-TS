@@ -68,23 +68,33 @@ class Parser {
 
 
 
+    private static getMember (asi : Asi) : Asi {
+        if (asi instanceof BinOpApply) {
+            var o = <BinOpApply>asi;
+            if (o.op.name === ".") {
+                if (o.op2 instanceof Ident)
+                    asi = new Member(undefined,
+                                     Parser.getMember(o.op1),
+                                     <Ident>o.op2);
+                else
+                    throw "expected identifier after dot.";
+            }
+        }
+
+        return asi;
+    }
+
+
+
+
     private parseMany () : Asi {
         var asi = this.parseOne();
         var isMatch = true;
         while (isMatch && asi) {
             isMatch = false;
-
-            if (asi instanceof BinOpApply) {
-                var o = <BinOpApply>asi;
-                if (o.op.name === ".") {
-                    isMatch = true;
-                    if (o.op2 instanceof Ident)
-                        asi = new Member(undefined, o.op1, <Ident>o.op2);
-                    else
-                        throw "expected identifier after dot.";
-                }
-            }
-
+            asi = Parser.getMember(asi);
+            if (asi instanceof Member)
+                isMatch = true;
             this.skipWhite();
             if (this.index === this.code.length)
                 return asi;
