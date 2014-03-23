@@ -9,7 +9,6 @@
 
 function start () {
 
-    //unitTestsSpecific();
     unitTests();
 
      /*

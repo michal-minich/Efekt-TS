@@ -10,7 +10,8 @@
 class TestReprot {
 
     private table : string[] = [];
-    private counter : number = 0;
+    public failedCount = 0;
+    private testCount = 0;
 
     constructor () {
         this.table.push("<table class='testReport'><thead><tr>",
@@ -47,6 +48,8 @@ class TestReprot {
                  expected : string,
                  actualAsi : Asi) : void {
 
+        ++this.testCount;
+
         var actualPlain = asiToString(actualAsi);
         var actualHtml = asiToHtmlString(actualAsi);
         var codeAst = codeToAstString(code);
@@ -63,7 +66,7 @@ class TestReprot {
             return;
 
         this.table.push("<tr>",
-                        "<td>", "" + (++this.counter), "</td>",
+                        "<td>", "" + (++this.failedCount), "</td>",
                         "<td>", category, "</td>",
                         "<td>", code, "</td>",
                         "<td>", expected, "</td>",
@@ -78,17 +81,14 @@ class TestReprot {
 
 
     getReportString () : string {
-        if (this.counter === 0)
-            return "All Tests OK";
+        if (this.failedCount === 0)
+            return "All " + this.testCount + " Tests OK";
         this.table.push("</tbody></table>");
-        return this.table.join("");
+        return "" + this.failedCount + " of " + this.testCount +
+            " Tests Failed" +
+            this.table.join("");
     }
 }
-
-
-
-
-var testReport = new TestReprot();
 
 
 
@@ -130,15 +130,31 @@ class Test {
 
 
 
-function unitTestsSpecific () {
+function t (code : string) : Test {
+    var parser = new Parser();
+    var parsed = parser.parse(code);
+    return new Test(code, parsed);
+}
 
-    function t (code : string) : Test {
-        var parser = new Parser();
-        var parsed = parser.parse(code);
-        return new Test(code, parsed);
+
+
+
+var testReport = new TestReprot();
+
+
+
+
+function unitTests () {
+
+    testSpecific();
+
+    if (testReport.failedCount === 0) {
+        parseTests();
     }
 
-    t("1 + 2").parse();
+    if (testReport.failedCount === 0) {
+        interpreterTests();
+    }
 
     document.getElementById("testReport").innerHTML =
         testReport.getReportString();
@@ -147,98 +163,82 @@ function unitTestsSpecific () {
 
 
 
-function unitTests () {
+function testSpecific () : void {
+
+    //t("a = var b = 1").parse();
+}
 
 
 
 
-    function t (code : string) : Test {
-        var parser = new Parser();
-        var parsed = parser.parse(code);
-        return new Test(code, parsed);
-    }
+function parseTests () : void {
+
+    t("if 1 then 2").parse();
+    t("if a then b else c").parse();
+    t("if 1 then 2 else if 3 then 4 else 5").parse();
+    t("struct a").parse("struct { a }");
+    t("interface { b }").parse();
+    t("new Int").parse();
+    //t("typeof 1 + 2").parse("typeof (1 + 2)");
+    t("obj.member").parse();
+    t("a.b.c.d").parse();
+    t("try a finally { var b }").parse("try a\nfinally var b");
+    t("throw \n throw ex").parse("throw\nthrow ex");
+    //t("return \n return 1 + 2").parse("return\nreturn 1 + 2");
+    t("break continue").parse("break\ncontinue");
+    t("loop { a }").parse("loop a");
+    t("var a").parse();
+    t("var b : T").parse();
+    t("var c : T of Int").parse();
+    t("var d : T of Int = 1").parse();
+    t("var e : T = 1").parse();
+    t("var f of Int = 1").parse();
+    t("var g = 1").parse();
+    t("var h of Int").parse();
+    t("var i of Int = 1").parse();
+    t("a").parse();
+    t("b = 1").parse();
+    t("c : T").parse();
+    t("d of Int").parse();
+    t("D of Int").parse();
+    t("e : T = 1").parse();
+    t("f : T of Int").parse();
+    t("g of Int = 1").parse();
+    t("G of Int = 1").parse();
+    t("h : T of Int = Int").parse();
+    //t("1 + 2 * a : T of Int == 2 * 3 + b : T of Int + 1").parse(
+    //    "((1 + (2 * a : T of Int)) == (((2 * 3) + b : T of Int) + 1))");
+    t("var b = 1").parse();
+    t("var c : T").parse();
+    t("var d of Int").parse();
+    t("var D of Int").parse();
+    t("var e : T = 1").parse();
+    t("var f : T of Int").parse();
+    t("var g of Int = 1").parse();
+    t("var G of Int = 1").parse();
+    t("var h : T of Int = Int").parse();
+    //t("1 + 2 * var a : T of Int == 2 * 3 + var b : T of Int + 1").parse(
+    //    "((1 + (2 * var a : T of Int)) == (((2 * 3) + b : T of Int) + 1))");
+    t("a = b = 1").parse();
+    t("var a = b = 1").parse();
+    t("a = var b = 1").parse();
+    t("var a = var b = 1").parse();
+
+}
 
 
 
 
-    function parseTests () {
-        t("if 1 then 2").parse();
-        t("if a then b else c").parse();
-        t("if 1 then 2 else if 3 then 4 else 5").parse();
-        t("struct a").parse("struct { a }");
-        t("interface { b }").parse();
-        t("new Int").parse();
-        //t("typeof 1 + 2").parse("typeof (1 + 2)");
-        t("obj.member").parse();
-        t("a.b.c.d").parse();
-        t("try a finally { var b }").parse("try a\nfinally var b");
-        t("throw \n throw ex").parse("throw\nthrow ex");
-        //t("return \n return 1 + 2").parse("return\nreturn 1 + 2");
-        t("break continue").parse("break\ncontinue");
-        t("loop { a }").parse("loop a");
-        t("var a").parse();
-        t("var b : T").parse();
-        t("var c : T of Int").parse();
-        t("var d : T of Int = 1").parse();
-        t("var e : T = 1").parse();
-        t("var f of Int = 1").parse();
-        t("var g = 1").parse();
-        t("var h of Int").parse();
-        t("var i of Int = 1").parse();
-        t("a").parse();
-        t("b = 1").parse();
-        t("c : T").parse();
-        t("d of Int").parse();
-        t("D of Int").parse();
-        t("e : T = 1").parse();
-        t("f : T of Int").parse();
-        t("g of Int = 1").parse();
-        t("G of Int = 1").parse();
-        t("h : T of Int = Int").parse();
-        //t("1 + 2 * a : T of Int == 2 * 3 + b : T of Int + 1").parse(
-        //    "((1 + (2 * a : T of Int)) == (((2 * 3) + b : T of Int) + 1))");
-        t("var b = 1").parse();
-        t("var c : T").parse();
-        t("var d of Int").parse();
-        t("var D of Int").parse();
-        t("var e : T = 1").parse();
-        t("var f : T of Int").parse();
-        t("var g of Int = 1").parse();
-        t("var G of Int = 1").parse();
-        t("var h : T of Int = Int").parse();
-        //t("1 + 2 * var a : T of Int == 2 * 3 + var b : T of Int + 1").parse(
-        //    "((1 + (2 * var a : T of Int)) == (((2 * 3) + b : T of Int) + 1))");
-        t("a = b = 1").parse();
-        t("var a = b = 1").parse();
-        t("a = var b = 1").parse();
-        t("var a = var b = 1").parse();
-    }
+function interpreterTests () : void {
 
-
-
-
-    function interpreterTests () {
-        t("1 + 2").evalTo("3");
-        t("var a = 0 " +
-              "var b = 5 " +
-              "loop { " +
-              "a = a + 1" +
-              "if a != 10 then continue " +
-              "b = b + 1" +
-              "if a == 10 then break " +
-              "} " +
-              "b").evalTo("6");
-    }
-
-
-
-
-    parseTests();
-    interpreterTests();
-
-
-
-
-    document.getElementById("testReport").innerHTML =
-        testReport.getReportString();
+    t("1 + 2").evalTo("3");
+    t("var a = 0 " +
+          "var b = 5 " +
+          "loop { " +
+          "a = a + 1" +
+          "if a != 10 then continue " +
+          "b = b + 1" +
+          "if a == 10 then break " +
+          "} " +
+          "b").evalTo("6");
 }

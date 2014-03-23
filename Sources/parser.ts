@@ -393,19 +393,19 @@ class Parser {
 
 
 
-    private parseSimpleKeyword<T extends Exp> (TType : any,
+    private parseSimpleKeyword<T extends Exp> (TConstructor : any,
                                                expIsRequired : boolean) : T {
         this.skipWhite();
         if (this.lineCrossed) {
             if (expIsRequired)
-                throw TType.getTypeName() + " requires expression";
+                throw TConstructor.getTypeName() + " requires expression";
             else
-                return new TType(undefined, undefined);
+                return new TConstructor(undefined, undefined);
         }
         var asi = this.parseMany();
         if (asi instanceof Exp)
-            return new TType(undefined, <Exp>asi);
-        throw "expression expected after " + TType.getTypeName() +
+            return new TConstructor(undefined, <Exp>asi);
+        throw "expression expected after " + TConstructor.getTypeName() +
             ", not statement";
     }
 
