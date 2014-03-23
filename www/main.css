@@ -1,4 +1,36 @@
-.efektCode {
+body {
+    background-color: white;
+    color: black;
+    font: normal 10pt 'Segoe UI';
+}
+
+table {
+    border-collapse: collapse;
+    border: 1px solid lightgray;
+}
+
+td, th {
+    border: 1px solid lightgray;
+    padding: 3px 7px;
+}
+
+tr:nth-child(even) {
+    background-color: #eee;
+}
+
+.testReport td {
+    white-space: pre-wrap;
+}
+
+.testReport th {
+    background-color: #e8abab;
+}
+
+pre {
+    margin: 0;
+}
+
+.efektCode, pre {
     font: bold 10pt Consolas, sans-serif;
 }
 

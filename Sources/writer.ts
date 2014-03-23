@@ -111,3 +111,79 @@ class HtmlCodeWriter implements CodeWriter {
         return this;
     }
 }
+
+
+
+
+class PlainTextCodeWriter implements CodeWriter {
+
+    private tw : TextWriter;
+    private tabs : string;
+
+
+    constructor (tw : TextWriter) {
+        this.tw = tw;
+        this.tabs = "";
+    }
+
+    writeKey (value : string) : CodeWriter {
+        this.tw.write(value);
+        return this;
+    }
+
+    writeIdent (value : string) : CodeWriter {
+        this.tw.write(value);
+        return this;
+    }
+
+    writeType (value : string) : CodeWriter {
+        this.tw.write(value);
+        return this;
+    }
+
+    writeMarkup (value : string) : CodeWriter {
+        this.tw.write(value);
+        return this;
+    }
+
+    writeComment (value : string) : CodeWriter {
+        this.tw.write(value);
+        return this;
+    }
+
+    writeText (value : string) : CodeWriter {
+        this.tw.write(value);
+        return this;
+    }
+
+    writeNum (value : string) : CodeWriter {
+        this.tw.write(value);
+        return this;
+    }
+
+    writeOp (value : string) : CodeWriter {
+        this.tw.write(value);
+        return this;
+    }
+
+    writeNewLine () : CodeWriter {
+        this.tw.write("\n");
+        this.tw.write(this.tabs);
+        return this;
+    }
+
+    writeSpace () : CodeWriter {
+        this.tw.write(" ");
+        return this;
+    }
+
+    tab () : CodeWriter {
+        this.tabs += "    ";
+        return this;
+    }
+
+    unTab () : CodeWriter {
+        this.tabs = this.tabs.substr(0, this.tabs.length - 4);
+        return this;
+    }
+}

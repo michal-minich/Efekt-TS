@@ -37,7 +37,9 @@ class Parser {
     };
 
 
-    public parse (code : string) : Scope {
+
+
+    public parse (code : string) : AsiList {
 
         this.code = code;
         this.index = 0;
@@ -46,8 +48,7 @@ class Parser {
         if (code.length !== this.index)
             console.log("not all code parsed. not parsed char count: " +
                             (code.length - this.index));
-
-        return new Scope(null, items);
+        return new AsiList(undefined, items);
     }
 
 

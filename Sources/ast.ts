@@ -16,7 +16,7 @@ class Asi {
         }
     }
 
-    public accept<T> (v : AstVisitor<T>) : T {
+    accept<T> (v : AstVisitor<T>) : T {
         throw undefined;
     }
 }
@@ -26,7 +26,7 @@ class Asi {
 
 class Exp extends Asi {
 
-    public accept<T> (v : AstVisitor<T>) : T {
+    accept<T> (v : AstVisitor<T>) : T {
         throw undefined;
     }
 }
@@ -36,7 +36,7 @@ class Exp extends Asi {
 
 class Stm extends Asi {
 
-    public accept<T> (v : AstVisitor<T>) : T {
+    accept<T> (v : AstVisitor<T>) : T {
         throw undefined;
     }
 }
@@ -49,17 +49,37 @@ class Stm extends Asi {
 
 
 
+class AsiList extends Asi {
+
+    public items : Asi[];
+
+    constructor (attrs : ExpList, items : Asi[]) {
+        super(attrs);
+        this.items = items;
+        for (var i = 0; i < items.length; i++)
+            items[i].parent = this;
+    }
+
+    accept<T> (v : AstVisitor<T>) : T {
+        return v.visitAsiList(this);
+    }
+}
+
+
+
+
 class ExpList extends Asi {
 
     public items : Exp[];
 
     constructor (attrs : ExpList, items : Exp[]) {
         super(attrs);
+        this.items = items;
         for (var i = 0; i < items.length; i++)
             items[i].parent = this;
     }
 
-    public accept<T> (v : AstVisitor<T>) : T {
+    accept<T> (v : AstVisitor<T>) : T {
         return v.visitExpList(this);
     }
 }
@@ -82,7 +102,7 @@ class Loop extends Stm {
         body.parent = this;
     }
 
-    public accept<T> (v : AstVisitor<T>) : T {
+    accept<T> (v : AstVisitor<T>) : T {
         return v.visitLoop(this);
     }
 }
@@ -92,7 +112,7 @@ class Loop extends Stm {
 
 class Break extends Stm {
 
-    public accept<T> (v : AstVisitor<T>) : T {
+    accept<T> (v : AstVisitor<T>) : T {
         return v.visitBreak(this);
     }
 }
@@ -102,7 +122,7 @@ class Break extends Stm {
 
 class Continue extends Stm {
 
-    public accept<T> (v : AstVisitor<T>) : T {
+    accept<T> (v : AstVisitor<T>) : T {
         return v.visitContinue(this);
     }
 }
@@ -122,7 +142,7 @@ class Return extends Stm {
         }
     }
 
-    public accept<T> (v : AstVisitor<T>) : T {
+    accept<T> (v : AstVisitor<T>) : T {
         return v.visitReturn(this);
     }
 }
@@ -142,7 +162,7 @@ class Throw extends Stm {
         }
     }
 
-    public accept<T> (v : AstVisitor<T>) : T {
+    accept<T> (v : AstVisitor<T>) : T {
         return v.visitThrow(this);
     }
 }
@@ -166,7 +186,7 @@ class Try extends Stm {
         }
     }
 
-    public accept<T> (v : AstVisitor<T>) : T {
+    accept<T> (v : AstVisitor<T>) : T {
         return v.visitTry(this);
     }
 }
@@ -219,7 +239,7 @@ class Var extends Exp {
         }
     }
 
-    public accept<T> (v : AstVisitor<T>) : T {
+    accept<T> (v : AstVisitor<T>) : T {
         return v.visitVar(this);
     }
 }
@@ -238,7 +258,7 @@ class Scope extends Exp {
             items[i].parent = this;
     }
 
-    public accept<T> (v : AstVisitor<T>) : T {
+    accept<T> (v : AstVisitor<T>) : T {
         return v.visitScope(this);
     }
 }
@@ -257,7 +277,7 @@ class Ident extends Exp {
         this.name = name;
     }
 
-    public accept<T> (v : AstVisitor<T>) : T {
+    accept<T> (v : AstVisitor<T>) : T {
         return v.visitIdent(this);
     }
 
@@ -282,7 +302,7 @@ class Member extends Exp {
         ident.parent = this;
     }
 
-    public accept<T> (v : AstVisitor<T>) : T {
+    accept<T> (v : AstVisitor<T>) : T {
         return v.visitMember(this);
     }
 }
@@ -303,7 +323,7 @@ class FnApply extends Exp {
         fn.parent = this;
     }
 
-    public accept<T> (v : AstVisitor<T>) : T {
+    accept<T> (v : AstVisitor<T>) : T {
         return v.visitFnApply(this);
     }
 }
@@ -329,7 +349,7 @@ class BinOpApply extends Exp {
         op2.parent = this;
     }
 
-    public accept<T> (v : AstVisitor<T>) : T {
+    accept<T> (v : AstVisitor<T>) : T {
         return v.visitBinOpApply(this);
     }
 }
@@ -355,7 +375,7 @@ class If extends Exp {
         }
     }
 
-    public accept<T> (v : AstVisitor<T>) : T {
+    accept<T> (v : AstVisitor<T>) : T {
         return v.visitIf(this);
     }
 }
@@ -373,7 +393,7 @@ class New extends Exp {
         value.parent = this;
     }
 
-    public accept<T> (v : AstVisitor<T>) : T {
+    accept<T> (v : AstVisitor<T>) : T {
         return v.visitNew(this);
     }
 }
@@ -391,7 +411,7 @@ class TypeOf extends Exp {
         value.parent = this;
     }
 
-    public accept<T> (v : AstVisitor<T>) : T {
+    accept<T> (v : AstVisitor<T>) : T {
         return v.visitTypeOf(this);
     }
 }
@@ -414,7 +434,7 @@ class Err extends Exp {
         item.parent = this;
     }
 
-    public accept<T> (v : AstVisitor<T>) : T {
+    accept<T> (v : AstVisitor<T>) : T {
         return v.visitErr(this);
     }
 }
@@ -424,7 +444,7 @@ class Err extends Exp {
 
 class Void extends Exp {
 
-    public accept<T> (v : AstVisitor<T>) : T {
+    accept<T> (v : AstVisitor<T>) : T {
         return v.visitVoid(this);
     }
 
@@ -443,7 +463,7 @@ class Bool extends Exp {
         this.value = value;
     }
 
-    public accept<T> (v : AstVisitor<T>) : T {
+    accept<T> (v : AstVisitor<T>) : T {
         return v.visitBool(this);
     }
 }
@@ -460,7 +480,7 @@ class Int extends Exp {
         this.value = value;
     }
 
-    public accept<T> (v : AstVisitor<T>) : T {
+    accept<T> (v : AstVisitor<T>) : T {
         return v.visitInt(this);
     }
 }
@@ -477,7 +497,7 @@ class Float extends Exp {
         this.value = value;
     }
 
-    public accept<T> (v : AstVisitor<T>) : T {
+    accept<T> (v : AstVisitor<T>) : T {
         return v.visitFloat(this);
     }
 }
@@ -495,7 +515,7 @@ class Arr extends Exp {
         list.parent = this;
     }
 
-    public accept<T> (v : AstVisitor<T>) : T {
+    accept<T> (v : AstVisitor<T>) : T {
         return v.visitArr(this);
     }
 }
@@ -513,7 +533,7 @@ class Ref extends Exp {
         item.parent = this;
     }
 
-    public accept<T> (v : AstVisitor<T>) : T {
+    accept<T> (v : AstVisitor<T>) : T {
         return v.visitRef(this);
     }
 }
@@ -540,7 +560,7 @@ class Fn extends Exp {
         body.parent = this;
     }
 
-    public accept<T> (v : AstVisitor<T>) : T {
+    accept<T> (v : AstVisitor<T>) : T {
         return v.visitFn(this);
     }
 }
@@ -562,7 +582,7 @@ class Struct extends Exp {
         this.body = body;
     }
 
-    public accept<T> (v : AstVisitor<T>) : T {
+    accept<T> (v : AstVisitor<T>) : T {
         return v.visitStruct(this);
     }
 }
@@ -579,7 +599,7 @@ class Interface extends Exp {
         this.body = body;
     }
 
-    public accept<T> (v : AstVisitor<T>) : T {
+    accept<T> (v : AstVisitor<T>) : T {
         return v.visitInterface(this);
     }
 }
@@ -594,7 +614,7 @@ class Interface extends Exp {
 
 class TypeAny extends Exp {
 
-    public accept<T> (v : AstVisitor<T>) : T {
+    accept<T> (v : AstVisitor<T>) : T {
         return v.visitTypeAny(this);
     }
 }
@@ -611,7 +631,7 @@ class TypeAnyOf extends Exp {
         this.choices = choices;
     }
 
-    public accept<T> (v : AstVisitor<T>) : T {
+    accept<T> (v : AstVisitor<T>) : T {
         return v.visitTypeAnyOf(this);
     }
 }
@@ -621,7 +641,7 @@ class TypeAnyOf extends Exp {
 
 class TypeErr extends Exp {
 
-    public accept<T> (v : AstVisitor<T>) : T {
+    accept<T> (v : AstVisitor<T>) : T {
         return v.visitTypeErr(this);
     }
 }
@@ -631,7 +651,7 @@ class TypeErr extends Exp {
 
 class TypeVoid extends Exp {
 
-    public accept<T> (v : AstVisitor<T>) : T {
+    accept<T> (v : AstVisitor<T>) : T {
         return v.visitTypeVoid(this);
     }
 }
@@ -641,7 +661,7 @@ class TypeVoid extends Exp {
 
 class TypeBool extends Exp {
 
-    public accept<T> (v : AstVisitor<T>) : T {
+    accept<T> (v : AstVisitor<T>) : T {
         return v.visitTypeBool(this);
     }
 }
@@ -651,7 +671,7 @@ class TypeBool extends Exp {
 
 class TypeInt extends Exp {
 
-    public accept<T> (v : AstVisitor<T>) : T {
+    accept<T> (v : AstVisitor<T>) : T {
         return v.visitTypeInt(this);
     }
 }
@@ -661,7 +681,7 @@ class TypeInt extends Exp {
 
 class TypeFloat extends Exp {
 
-    public accept<T> (v : AstVisitor<T>) : T {
+    accept<T> (v : AstVisitor<T>) : T {
         return v.visitTypeFloat(this);
     }
 }
@@ -680,7 +700,7 @@ class TypeArr extends Exp {
         this.length = length;
     }
 
-    public accept<T> (v : AstVisitor<T>) : T {
+    accept<T> (v : AstVisitor<T>) : T {
         return v.visitTypeArr(this);
     }
 }
@@ -697,7 +717,7 @@ class TypeRef extends Exp {
         this.elementType = elementType;
     }
 
-    public accept<T> (v : AstVisitor<T>) : T {
+    accept<T> (v : AstVisitor<T>) : T {
         return v.visitTypeRef(this);
     }
 }

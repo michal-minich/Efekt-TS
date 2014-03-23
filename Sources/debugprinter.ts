@@ -35,6 +35,14 @@ class DebugPrinter implements AstVisitor<void> {
 
 
 
+    visitAsiList (al : AsiList) : void {
+        for (var i = 0; i < al.items.length; i++)
+            al.items[i].accept(this);
+    }
+
+
+
+
     visitExpList (el : ExpList) : void {
         for (var i = 0; i < el.items.length; i++)
             el.items[i].accept(this);

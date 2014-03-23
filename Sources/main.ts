@@ -1,3 +1,4 @@
+/// <reference path="tests.ts"/>
 /// <reference path="common.ts"/>
 /// <reference path="debugprinter.ts"/>
 /// <reference path="writer.ts"/>
@@ -7,6 +8,8 @@
 
 
 function start () {
+
+    unitTests();
 
     var testParseAll = "if 1 then 2 " +
         "if a then b else c " +
@@ -52,7 +55,10 @@ function start () {
         "var G of Int = 1 " +
         "var h : T of Int = Int " +
         "1 + 2 * var a : T of Int == 2 * 3 + var b : T of Int + 1 " +
-        "a = b = 1";
+        "a = b = 1" +
+        "var a = b = 1" +
+        "a = var b = 1" +
+        "var a = var b = 1";
 
     //var testStr3 = "1 + 2 * a : T of Int == 2 * 3 + b : T of Int + 1";
 
@@ -60,10 +66,10 @@ function start () {
         "var a = 0 " +
         "var b = 5 " +
         "loop { " +
-            "a = a + 1" +
-            "if a != 10 then continue " +
-            "b = b + 1" +
-            "if a == 10 then break " +
+        "a = a + 1" +
+        "if a != 10 then continue " +
+        "b = b + 1" +
+        "if a == 10 then break " +
         "} " +
         "b";
 
@@ -84,7 +90,8 @@ function start () {
 
     var interpreter = new Interpreter(exHandler);
 
-    var sc : Asi = parser.parse(testEval2);
+    var al = parser.parse(testParseAll);
+    var sc = new Scope(undefined, al.items);
 
     //sc = sc.accept(interpreter);
 

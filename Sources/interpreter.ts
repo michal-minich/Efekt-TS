@@ -1,3 +1,4 @@
+/// <reference path="common.ts"/>
 /// <reference path="ast.ts"/>
 /// <reference path="visitor.ts"/>
 /// <reference path="writer.ts"/>
@@ -82,7 +83,7 @@ class Interpreter implements AstVisitor<Asi> {
 
 
 
-    public get (name : string) : Asi {
+    get (name : string) : Asi {
         for (var i = this.scopes.length - 1; i >= 0; --i) {
             var asi = this.scopes[i].vars[name];
             if (asi)
@@ -98,7 +99,7 @@ class Interpreter implements AstVisitor<Asi> {
 
 
 
-    public set (name : string, value : Asi, createNewVar : boolean) {
+    set (name : string, value : Asi, createNewVar : boolean) {
         if (createNewVar) {
             this.currentScope.vars[name] = value;
         } else {
@@ -117,7 +118,7 @@ class Interpreter implements AstVisitor<Asi> {
 
 
 
-    public op (name : string) : BinFn {
+    op (name : string) : BinFn {
         switch (name) {
             case '+':
                 return function (a, b) {
@@ -142,12 +143,12 @@ class Interpreter implements AstVisitor<Asi> {
             case '==':
                 return function (a, b) {
                     return new Bool(undefined,
-                                    Interpreter.str(a) == Interpreter.str(b));
+                                    asiToString(a) == asiToString(b));
                 };
             case '!=':
                 return function (a, b) {
                     return new Bool(undefined,
-                                    Interpreter.str(a) != Interpreter.str(b));
+                                    asiToString(a) != asiToString(b));
                 };
             default:
                 throw "operator " + name + " is not defined.";
@@ -157,19 +158,17 @@ class Interpreter implements AstVisitor<Asi> {
 
 
 
-    private static str (asi : Asi) : string {
-        var sw = new StringWriter();
-        var cw = new HtmlCodeWriter(sw);
-        var p = new Printer(cw);
-        asi.accept(p);
-        var str = sw.getString();
-        return str;
-    }
-
-
-
-
     // helpers ===============================================
+
+
+
+
+    visitAsiList (al : AsiList) : Asi {
+        for (var i = 0; i < al.items.length - 1; i++)
+            al.items[i].accept(this);
+
+        return al.items[al.items.length - 1].accept(this);
+    }
 
 
 
@@ -265,8 +264,8 @@ class Interpreter implements AstVisitor<Asi> {
         var cs = this.currentScope;
         if (isLoopScope)
             this.loopScopes.push(this.currentScope);
-        while ((cs.currentAsiIx < cs.asisLenght - 1) &&
-            !this.isBreak && !this.isContinue) {
+        while ((cs.currentAsiIx < cs.asisLenght - 1) && !this.isBreak &&
+            !this.isContinue) {
             ++cs.currentAsiIx;
             var res = sc.items[cs.currentAsiIx].accept(this);
         }

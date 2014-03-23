@@ -4,6 +4,7 @@
 interface AstVisitor<T> {
 
     // helpers
+    visitAsiList (al : AsiList) : T;
     visitExpList (el : ExpList) : T;
 
     // statements
