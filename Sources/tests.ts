@@ -78,6 +78,8 @@ class TestReprot {
 
 
     getReportString () : string {
+        if (this.counter === 0)
+            return "All Tests OK";
         this.table.push("</tbody></table>");
         return this.table.join("");
     }
@@ -136,7 +138,7 @@ function unitTestsSpecific () {
         return new Test(code, parsed);
     }
 
-    t("throw \n throw ex").parse("throw\nthrow ex");
+    t("var a").parse();
 
     document.getElementById("testReport").innerHTML =
         testReport.getReportString();
@@ -158,7 +160,7 @@ function unitTests () {
 
 
 
-    //noinspection FunctionTooLongJS
+
     function parseTests () {
         t("if 1 then 2").parse();
         t("if a then b else c").parse();
@@ -167,7 +169,8 @@ function unitTests () {
         t("interface { b }").parse();
         t("new Int").parse();
         //t("typeof 1 + 2").parse("typeof (1 + 2)");
-        //t("obj.member.m").parse();
+        t("obj.member").parse();
+        //t("a.b.c.d").parse();
         t("try a finally { var b }").parse("try a\nfinally var b");
         t("throw \n throw ex").parse("throw\nthrow ex");
         //t("return \n return 1 + 2").parse("return\nreturn 1 + 2");
@@ -214,7 +217,6 @@ function unitTests () {
 
 
 
-    //noinspection FunctionTooLongJS
     function interpreterTests () {
         t("1 + 2").evalTo("3");
         t("var a = 0 " +

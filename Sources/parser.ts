@@ -81,7 +81,7 @@ class Parser {
                     if (o.op2 instanceof Ident)
                         asi = new Member(undefined, o.op1, <Ident>o.op2);
                     else
-                        throw "exptexcted identifier after dot";
+                        throw "expected identifier after dot.";
                 }
             }
 
@@ -306,7 +306,14 @@ class Parser {
     private parseVar () : Asi {
         this.useVarKeyword = true;
         var asi = this.parseMany();
-        return this.buildVar(asi);
+        if (this.useVarKeyword && asi instanceof Ident) {
+            var v = new Var(undefined, <Ident>asi, undefined, undefined,
+                            undefined);
+            v.useVarKeyword = true;
+            return v;
+        } else {
+            return this.buildVar(asi);
+        }
     }
 
 

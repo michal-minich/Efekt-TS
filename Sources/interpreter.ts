@@ -241,7 +241,7 @@ class Interpreter implements AstVisitor<Asi> {
 
 
     visitVar (v : Var) : Asi {
-        var val = v.value.accept(this);
+        var val = v.value ? v.value.accept(this) : Void.instance;
         this.set(v.ident.name, val, v.useVarKeyword);
         return val;
     }

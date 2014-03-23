@@ -270,7 +270,7 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitVoid (vo : Void) : void {
-        throw "Cannot print void";
+        this.cw.writeKey("void");
     }
 
 
