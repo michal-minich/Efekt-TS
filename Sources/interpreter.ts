@@ -31,6 +31,7 @@ interface InterpreterScope {
     vars : Vars;
     currentAsiIx : number;
     asisLenght : number;
+    parent : InterpreterScope;
 }
 
 
@@ -45,6 +46,8 @@ class Interpreter implements AstVisitor<Asi> {
     private scopes : InterpreterScope[];
     private loopScopes : InterpreterScope[];
     private currentScope : InterpreterScope;
+    private isBreak : boolean;
+    private isContinue : boolean;
 
 
 
@@ -63,7 +66,8 @@ class Interpreter implements AstVisitor<Asi> {
         {
             vars: {},
             currentAsiIx: -1,
-            asisLenght: asisLenght
+            asisLenght: asisLenght,
+            parent: this.currentScope
         };
         this.scopes.push(this.currentScope);
     }
@@ -125,10 +129,25 @@ class Interpreter implements AstVisitor<Asi> {
                     return new Int(undefined,
                                    "" + (+(<Int>a).value - +(<Int>b).value));
                 };
+            case '<':
+                return function (a, b) {
+                    return new Int(undefined,
+                                   "" + (+(<Int>a).value < +(<Int>b).value));
+                };
+            case '>':
+                return function (a, b) {
+                    return new Int(undefined,
+                                   "" + (+(<Int>a).value > +(<Int>b).value));
+                };
             case '==':
                 return function (a, b) {
                     return new Bool(undefined,
                                     Interpreter.str(a) == Interpreter.str(b));
+                };
+            case '!=':
+                return function (a, b) {
+                    return new Bool(undefined,
+                                    Interpreter.str(a) != Interpreter.str(b));
                 };
             default:
                 throw "operator " + name + " is not defined.";
@@ -171,8 +190,11 @@ class Interpreter implements AstVisitor<Asi> {
 
 
     visitLoop (l : Loop) : Asi {
-        this.walkScope(l.body, true);
-        this.loopScopes.pop();
+        while (!this.isBreak) {
+            this.walkScope(l.body, true);
+            this.isContinue = false;
+        }
+        this.isBreak = false;
         return undefined;
     }
 
@@ -180,8 +202,7 @@ class Interpreter implements AstVisitor<Asi> {
 
 
     visitBreak (b : Break) : Asi {
-        var ls = this.loopScopes[this.loopScopes.length - 1];
-        ls.currentAsiIx = ls.asisLenght;
+        this.isBreak = true;
         return undefined;
     }
 
@@ -189,7 +210,7 @@ class Interpreter implements AstVisitor<Asi> {
 
 
     visitContinue (c : Continue) : Asi {
-        this.currentScope.currentAsiIx = -1;
+        this.isContinue = true;
         return undefined;
     }
 
@@ -244,14 +265,12 @@ class Interpreter implements AstVisitor<Asi> {
         var cs = this.currentScope;
         if (isLoopScope)
             this.loopScopes.push(this.currentScope);
-        console.log("+");
-        while (cs.currentAsiIx < cs.asisLenght - 1) {
+        while ((cs.currentAsiIx < cs.asisLenght - 1) &&
+            !this.isBreak && !this.isContinue) {
             ++cs.currentAsiIx;
-            console.log(cs.currentAsiIx, cs.asisLenght);
             var res = sc.items[cs.currentAsiIx].accept(this);
         }
         this.pop();
-        console.log("-");
         return res;
     }
 
