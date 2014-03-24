@@ -187,6 +187,8 @@ function parseTests () : void {
     t("return \n return 1 + 2").parse("return\nreturn 1 + 2");
     t("break continue").parse("break\ncontinue");
     t("loop { a }").parse("loop a");
+    t("true").parse();
+    t("false").parse();
     t("var a").parse();
     t("var b : T").parse();
     t("var c : T of Int").parse();

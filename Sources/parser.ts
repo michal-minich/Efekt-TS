@@ -7,6 +7,11 @@ interface Precedence {
 
 
 
+interface TextToAsiFn {
+    [match : string] : () => Asi;
+}
+
+
 
 class BinOpBuilder {
 
@@ -242,61 +247,37 @@ class Parser {
 
 
 
+    private matchTextToFn : TextToAsiFn = {
+        "true": () => new Bool(undefined, true),
+        "false": () => new Bool(undefined, false),
+        "var": () => this.parseVar(),
+        "if": () => this.parseIf(),
+        "loop": () => this.parseLoop(),
+        "break": () => new Break(undefined),
+        "continue": () => new Continue(undefined),
+        "return": () => this.parseSimpleKeyword<Return>(Return, false),
+        "throw": () => this.parseSimpleKeyword<Throw>(Throw, false),
+        "try": () => this.parseTry(),
+        "new": () => this.parseSimpleKeyword<New>(New, true),
+        "typeof": () => this.parseSimpleKeyword<TypeOf>(TypeOf, true),
+        "struct": () => this.parseStruct(),
+        "interface": () => this.parseInterface()
+    };
+
+
+
+
     private parseOne () : Asi {
 
         if (this.finished())
             return undefined;
 
+        for (var m in this.matchTextToFn)
+            if (this.matchText(m))
+                return this.matchTextToFn[m]();
+
         if (this.match(Parser.isInt))
             return new Int(undefined, this.matched);
-
-        if (this.matchText("true"))
-            return new Bool(undefined, true);
-
-        if (this.matchText("false"))
-            return new Bool(undefined, false);
-
-        if (this.matchText("var"))
-            return this.parseVar();
-
-        if (this.matchText("if"))
-            return this.parseIf();
-
-        if (this.matchText("loop"))
-            return this.parseLoop();
-
-        if (this.matchText("break"))
-            return new Break(undefined);
-
-        if (this.matchText("continue"))
-            return new Continue(undefined);
-
-        if (this.matchText("return"))
-            return this.parseSimpleKeyword<Return>(Return, false);
-
-        if (this.matchText("throw"))
-            return this.parseSimpleKeyword<Throw>(Throw, false);
-
-        if (this.matchText("try"))
-            return this.parseTry();
-
-        if (this.matchText("new"))
-            return this.parseSimpleKeyword<New>(New, true);
-
-        if (this.matchText("typeof"))
-            return this.parseSimpleKeyword<TypeOf>(TypeOf, true);
-
-        if (this.matchText("struct"))
-            return this.parseStruct();
-
-        if (this.matchText("interface"))
-            return this.parseInterface();
-
-        if (this.matchText("interface"))
-            return this.parseInterface();
-
-        if (this.matchText("interface"))
-            return this.parseInterface();
 
         if (this.match(Parser.isIdent))
             return new Ident(undefined, this.matched);
@@ -385,6 +366,7 @@ class Parser {
             return <Scope>asi;
         return new Scope(undefined, new AsiList(undefined, [asi]));
     }
+
 
 
 
