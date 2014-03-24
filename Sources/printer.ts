@@ -242,13 +242,13 @@ class Printer implements AstVisitor<void> {
 
 
     visitBinOpApply (opa : BinOpApply) : void {
-        this.cw.writeMarkup("(");
+        //this.cw.writeMarkup("(");
         opa.op1.accept(this);
         this.cw.writeSpace();
         opa.op.accept(this);
         this.cw.writeSpace();
         opa.op2.accept(this);
-        this.cw.writeMarkup(")")
+        //this.cw.writeMarkup(")")
     }
 
 

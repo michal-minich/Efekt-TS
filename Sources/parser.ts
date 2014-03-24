@@ -6,19 +6,13 @@ interface Precedence {
 }
 
 
+class BinOpBuilder {
 
-
-class Parser {
-
-    private code : string;
-    private index : number;
-    private matched : string;
-    private lineCrossed : boolean;
-    private useVarKeyword : boolean;
     private opExp : Exp[] = [];
     private opOp : string[] = [];
-    private rightAssociativeOps = ["=", ":", "of"];
-    private opPrecedence : Precedence = {
+
+    private static rightAssociativeOps = ["=", ":", "of"];
+    private static opPrecedence : Precedence = {
         ".": 150,
         "of": 145,
         ":": 140,
@@ -39,12 +33,94 @@ class Parser {
 
 
 
-    public parse (code : string) : AsiList {
+    public addExpAndOpToSequence (asi : Exp, op : string) : void {
+        this.opExp.push(asi);
+        this.opOp.push(op);
+    }
 
+
+
+
+    public addExpToSequence (asi : Exp) {
+        this.opExp.push(asi);
+    }
+
+
+
+
+    public isEmpty () : boolean {
+        return this.opExp.length === 0;
+    }
+
+
+
+
+
+    public buildBinOpApplyTreeFromSequence () : BinOpApply {
+        BinOpBuilder.reorderBinOpsSequence(this.opExp, this.opOp);
+        var res = BinOpBuilder.joinBinOpsSequence(this.opExp, this.opOp);
+        this.opExp = [];
+        this.opOp = [];
+        return res;
+    }
+
+
+
+
+    private static reorderBinOpsSequence (opExp : Exp[],
+                                          opOp : string[]) : void {
+        var prec = BinOpBuilder.opPrecedence;
+        var right = BinOpBuilder.rightAssociativeOps;
+        do {
+            var numChanges = 0;
+            for (var i = opOp.length - 1; i !== 0; --i) {
+                var op = opOp[i];
+                var opPrev = opOp[i - 1];
+                if (!(op === opPrev && right.contains(op)) &&
+                    prec[op] <= prec[opPrev])
+                    continue;
+                opExp[i] = new BinOpApply(undefined,
+                                          new Ident(undefined, op),
+                                          opExp[i],
+                                          opExp[i + 1]);
+                opExp.removeAt(i + 1);
+                opOp.removeAt(i);
+                ++numChanges;
+            }
+        } while (numChanges !== 0);
+    }
+
+
+
+
+    private static joinBinOpsSequence (opExp : Exp[],
+                                       opOp : string[]) : BinOpApply {
+        for (var i = 0; i < opOp.length; ++i)
+            opExp[i + 1] = new BinOpApply(undefined,
+                                          new Ident(undefined, opOp[i]),
+                                          opExp[i],
+                                          opExp[i + 1]);
+        return <BinOpApply>opExp.last();
+    }
+}
+
+
+
+
+class Parser {
+
+    private code : string;
+    private index : number;
+    private matched : string;
+
+    private useVarKeyword : boolean;
+    private binOpBuilder = new BinOpBuilder();
+
+
+    public parse (code : string) : AsiList {
         this.code = code;
         this.index = 0;
         var al = this.parseAsiList();
-
         if (code.length !== this.index)
             console.log("not all code parsed. not parsed char count: " +
                             (code.length - this.index));
@@ -56,12 +132,10 @@ class Parser {
 
     private parseAsiList () : AsiList {
         var items : Asi[] = [];
-        while (true) {
-            var item = this.parseMany();
-            if (!item)
-                break;
+        var item : Asi;
+        //noinspection AssignmentResultUsedJS
+        while (item = this.parseMany())
             items.push(item);
-        }
         return new AsiList(undefined, items);
     }
 
@@ -69,61 +143,38 @@ class Parser {
 
 
     private static getMember (asi : Asi) : Asi {
-        if (asi instanceof BinOpApply) {
-            var o = <BinOpApply>asi;
-            if (o.op.name === ".") {
-                if (o.op2 instanceof Ident)
-                    asi = new Member(undefined,
-                                     Parser.getMember(o.op1),
-                                     <Ident>o.op2);
-                else
-                    throw "expected identifier after dot.";
-            }
-        }
-
-        return asi;
+        if (!(asi instanceof BinOpApply))
+            return asi;
+        var o = <BinOpApply>asi;
+        if (o.op.name !== ".")
+            return asi;
+        if (o.op2 instanceof Ident)
+            return new Member(undefined, Parser.getMember(o.op1), <Ident>o.op2);
+        else
+            throw "expected identifier after dot.";
     }
 
 
 
 
     private parseMany () : Asi {
-        var asi = this.parseOne();
-        var isMatch = true;
-        while (isMatch && asi) {
-            isMatch = false;
-            asi = Parser.getMember(asi);
-            if (asi instanceof Member)
-                isMatch = true;
+        while (true) {
+            var asi = this.parseOne();
+
+            if (!asi)
+                return undefined;
+
             this.skipWhite();
-            if (this.index === this.code.length)
-                return asi;
-            var ch = this.code[this.index];
 
-            if (ch == '(') {
-
+            if (this.matchOp()) {
+                this.binOpBuilder.addExpAndOpToSequence(<Exp>asi, this.matched);
+            } else if (!this.binOpBuilder.isEmpty()) {
+                this.binOpBuilder.addExpToSequence(<Exp>asi);
+                return this.binOpBuilder.buildBinOpApplyTreeFromSequence();
             } else {
-                if (this.opOp.length === 0) {
-                    while (this.matchOp()) {
-                        this.opExp.push(<Exp>asi);
-                        this.opOp.push(this.matched);
-                        asi = this.parseMany();
-                        isMatch = true;
-                        this.skipWhite();
-                        if (this.index === this.code.length)
-                            break;
-                    }
-                    if (this.opOp.length !== 0)
-                        asi = this.buildBinOpApply(asi, this.opExp, this.opOp);
-                    this.opExp = [];
-                    this.opOp = [];
-                }
+                return asi;
             }
-
-            asi = this.buildVar(asi);
         }
-
-        return asi;
     }
 
 
@@ -199,45 +250,9 @@ class Parser {
 
 
 
-    private buildBinOpApply (asi : Asi,
-                             opExp : Exp[],
-                             opOp : string[]) : BinOpApply {
-        opExp.push(<Exp>asi);
-        var numChanges = 0;
-        do {
-            numChanges = 0;
-            for (var i = opOp.length - 1; i !== 0; --i) {
-                var op = opOp[i];
-                var opPrev = opOp[i - 1];
-                if (this.opPrecedence[op] <= this.opPrecedence[opPrev]
-                    && !(op === opPrev &&
-                        this.rightAssociativeOps.indexOf(op) !== -1))
-                    continue;
-                var ident = new Ident(undefined, op);
-                opExp[i] = new BinOpApply(undefined, ident, opExp[i],
-                                          opExp[i + 1]);
-                opExp.splice(i + 1, 1);
-                opOp.splice(i, 1);
-                ++numChanges;
-            }
-        } while (numChanges !== 0);
-
-        for (var i = 0; i < opOp.length; ++i) {
-            var ident = new Ident(undefined, opOp[i]);
-            opExp[i + 1] = new BinOpApply(undefined, ident, opExp[i],
-                                          opExp[i + 1]);
-        }
-        return <BinOpApply>opExp[opExp.length - 1];
-    }
-
-
-
-
     private parseOne () : Asi {
 
-        this.skipWhite();
-
-        if (this.index === this.code.length)
+        if (this.finished())
             return undefined;
 
         if (this.match(Parser.isInt))
@@ -294,20 +309,22 @@ class Parser {
         if (this.match(Parser.isIdent))
             return new Ident(undefined, this.matched);
 
-        // parse scope
         var ch = this.code[this.index];
-        if (ch === '{') {
-            ++this.index;
-            return new Scope(undefined, this.parseAsiList());
-        }
 
-        if (ch === '}') {
+        if (ch === '{')
+            return this.parseScopeStart();
+        else if (ch === '}')
             ++this.index;
-            return undefined;
-        }
-        // end parse scope
 
         return undefined;
+    }
+
+
+
+
+    private parseScopeStart () : Scope {
+        ++this.index;
+        return new Scope(undefined, this.parseAsiList());
     }
 
 
@@ -335,18 +352,16 @@ class Parser {
         var otherwise : Scope = undefined;
         var asi = this.parseMany();
 
-        if (asi instanceof Exp)
-            test = <Exp>asi;
-        else
+        if (!(asi instanceof Exp))
             throw "test of if stastement msut be expression not statement";
 
-        this.skipWhite();
         if (this.matchText("then"))
             then = this.parseScopedExp();
+
         if (this.matchText("else"))
             otherwise = this.parseScopedExp();
 
-        return new If(undefined, test, then, otherwise);
+        return new If(undefined, <Exp>asi, then, otherwise);
     }
 
 
@@ -395,8 +410,7 @@ class Parser {
 
     private parseSimpleKeyword<T extends Exp> (TConstructor : any,
                                                expIsRequired : boolean) : T {
-        this.skipWhite();
-        if (this.lineCrossed) {
+        if (this.skipWhite()) {
             if (expIsRequired)
                 throw TConstructor.getTypeName() + " requires expression";
             else
@@ -483,17 +497,25 @@ class Parser {
 
 
 
-    private skipWhite () : void {
-        this.lineCrossed = false;
+    private finished () : boolean {
+        this.skipWhite();
+        return this.index === this.code.length;
+    }
+
+
+
+
+    // Return value identifies if white space skipped contained a new line
+    private skipWhite () : boolean {
         while (this.index !== this.code.length) {
             var ch = this.code[this.index];
             if (ch === ' ' || ch === '\t') {
                 ++this.index;
             } else if (ch === '\n' || ch === '\r') {
                 ++this.index;
-                this.lineCrossed = true;
+                return true
             } else {
-                return;
+                return false;
             }
         }
     }

@@ -101,11 +101,41 @@ interface Object {
 
 
 
-Object.prototype.getTypeName = function () {
+Object.prototype.getTypeName = function () : string {
     var str = (this.prototype
         ? this.prototype.constructor
         : this.constructor).toString();
     var cname = str.match(/function\s(\w*)/)[1];
     var aliases = ["", "anonymous", "Anonymous"];
     return aliases.indexOf(cname) > -1 ? "Function" : cname;
+};
+
+
+
+
+interface Array<T> {
+    contains (item : T) : boolean;
+    removeAt (index : number) : void;
+    last () : T;
+}
+
+
+
+
+Array.prototype.contains = function<T> (item : T) : boolean {
+    return this.indexOf(item) !== -1;
+};
+
+
+
+
+Array.prototype.removeAt = function (index : number) : void {
+    this.splice(index, 1);
+};
+
+
+
+
+Array.prototype.last = function<T> () : T {
+    return this[this.length - 1];
 };
