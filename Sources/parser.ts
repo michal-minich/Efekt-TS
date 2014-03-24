@@ -6,6 +6,8 @@ interface Precedence {
 }
 
 
+
+
 class BinOpBuilder {
 
     private opExp : Exp[] = [];
@@ -13,8 +15,8 @@ class BinOpBuilder {
 
     private static rightAssociativeOps = ["=", ":", "of"];
     private static opPrecedence : Precedence = {
-        ".": 150,
-        "of": 145,
+        ".": 160,
+        "of": 150,
         ":": 140,
         "*": 130, "/": 130, "%": 130,
         "+": 120, "-": 120,
@@ -55,8 +57,7 @@ class BinOpBuilder {
 
 
 
-
-    public buildBinOpApplyTreeFromSequence () : BinOpApply {
+    public buildBinOpApplyTreeFromSequence () : Exp {
         BinOpBuilder.reorderBinOpsSequence(this.opExp, this.opOp);
         var res = BinOpBuilder.joinBinOpsSequence(this.opExp, this.opOp);
         this.opExp = [];
@@ -93,14 +94,20 @@ class BinOpBuilder {
 
 
 
-    private static joinBinOpsSequence (opExp : Exp[],
-                                       opOp : string[]) : BinOpApply {
-        for (var i = 0; i < opOp.length; ++i)
-            opExp[i + 1] = new BinOpApply(undefined,
-                                          new Ident(undefined, opOp[i]),
-                                          opExp[i],
-                                          opExp[i + 1]);
-        return <BinOpApply>opExp.last();
+    private static joinBinOpsSequence (opExp : Exp[], opOp : string[]) : Exp {
+        for (var i = 0; i < opOp.length; ++i) {
+            var op = opOp[i];
+            var op2 = opExp[i + 1];
+            if (op === ".") {
+                if (!(op2 instanceof Ident))
+                    throw "expected identifier after dot.";
+                opExp[i + 1] = new Member(undefined, opExp[i], <Ident>op2);
+            } else {
+                opExp[i + 1] = new BinOpApply(
+                    undefined, new Ident(undefined, op), opExp[i], op2);
+            }
+        }
+        return opExp.last();
     }
 }
 
@@ -137,21 +144,6 @@ class Parser {
         while (item = this.parseMany())
             items.push(item);
         return new AsiList(undefined, items);
-    }
-
-
-
-
-    private static getMember (asi : Asi) : Asi {
-        if (!(asi instanceof BinOpApply))
-            return asi;
-        var o = <BinOpApply>asi;
-        if (o.op.name !== ".")
-            return asi;
-        if (o.op2 instanceof Ident)
-            return new Member(undefined, Parser.getMember(o.op1), <Ident>o.op2);
-        else
-            throw "expected identifier after dot.";
     }
 
 
