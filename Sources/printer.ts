@@ -163,23 +163,35 @@ class Printer implements AstVisitor<void> {
 
 
     visitVar (v : Var) : void {
-        if (v.useVarKeyword)
-            this.cw.writeKey("var").writeSpace();
-        if (v.ident)
-            this.visitIdent(v.ident);
-        if (v.type) {
-            if (v.ident)
-                this.cw.writeSpace().writeOp(":").writeSpace();
-            v.type.accept(this);
-        }
-        if (v.constraint) {
-            this.cw.writeSpace().writeKey("of").writeSpace();
-            v.constraint.accept(this);
-        }
-        if (v.value) {
-            this.cw.writeSpace().writeOp("=").writeSpace();
-            v.value.accept(this);
-        }
+        this.cw.writeKey("var").writeSpace();
+        v.exp.accept(this);
+    }
+
+
+
+
+    visitValueVar (vv : ValueVar) : void {
+        vv.ident.accept(this);
+        this.cw.writeSpace().writeOp(":").writeSpace();
+        vv.type.accept(this);
+    }
+
+
+
+
+    visitTypeVar (tv : TypeVar) : void {
+        tv.type.accept(this);
+        this.cw.writeSpace().writeOp("of").writeSpace();
+        tv.constraint.accept(this);
+    }
+
+
+
+
+    visitAssign (a : Assign) : void {
+        a.slot.accept(this);
+        this.cw.writeSpace().writeOp("=").writeSpace();
+        a.value.accept(this);
     }
 
 

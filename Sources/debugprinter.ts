@@ -139,22 +139,43 @@ class DebugPrinter implements AstVisitor<void> {
 
     visitVar (v : Var) : void {
         this.cw.writeKey("Var").tab();
-        if (v.ident) {
-            this.cw.writeNewLine().writeMarkup("ident").writeSpace();
-            this.visitIdent(v.ident);
-        }
-        if (v.type) {
-            this.cw.writeNewLine().writeMarkup("type").writeSpace();
-            v.type.accept(this);
-        }
-        if (v.constraint) {
-            this.cw.writeNewLine().writeMarkup("constraint").writeSpace();
-            v.constraint.accept(this);
-        }
-        if (v.value) {
-            this.cw.writeNewLine().writeMarkup("value").writeSpace();
-            v.value.accept(this);
-        }
+        this.cw.tab().writeNewLine().writeMarkup("exp").writeSpace();
+        v.exp.accept(this);
+    }
+
+
+
+
+    visitValueVar (vv : ValueVar) : void {
+        this.cw.writeKey("ValueVar").tab();
+        this.cw.writeNewLine().writeMarkup("ident").writeSpace();
+        vv.ident.accept(this);
+        this.cw.writeNewLine().writeMarkup("type").writeSpace();
+        vv.type.accept(this);
+        this.cw.unTab();
+    }
+
+
+
+
+    visitTypeVar (tv : TypeVar) : void {
+        this.cw.writeKey("TypeVar").tab();
+        this.cw.writeNewLine().writeMarkup("type").writeSpace();
+        tv.type.accept(this);
+        this.cw.writeNewLine().writeMarkup("constraint").writeSpace();
+        tv.constraint.accept(this);
+        this.cw.unTab();
+    }
+
+
+
+
+    visitAssign (a : Assign) : void {
+        this.cw.writeKey("Assign").tab();
+        this.cw.writeNewLine().writeMarkup("slot").writeSpace();
+        a.slot.accept(this);
+        this.cw.writeNewLine().writeMarkup("value").writeSpace();
+        a.value.accept(this);
         this.cw.unTab();
     }
 

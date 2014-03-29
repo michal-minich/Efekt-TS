@@ -72,7 +72,6 @@ class BinOpBuilder {
 
 
 
-
     private static reorderBinOpsSequence (opExp : Exp[],
                                           opOp : string[]) : void {
         var prec = BinOpBuilder.opPrecedence;
@@ -85,10 +84,10 @@ class BinOpBuilder {
                 if (!(op === opPrev && right.contains(op)) &&
                     prec[op] <= prec[opPrev])
                     continue;
-                opExp[i] = new BinOpApply(undefined,
-                                          new Ident(undefined, op),
-                                          opExp[i],
-                                          opExp[i + 1]);
+                var exp = opExp[i];
+                var expNext = opExp[i + 1];
+                opExp[i] = new BinOpApply(
+                    undefined, new Ident(undefined, op), exp, expNext);
                 opExp.removeAt(i + 1);
                 opOp.removeAt(i);
                 ++numChanges;
@@ -102,15 +101,24 @@ class BinOpBuilder {
     private static joinBinOpsSequence (opExp : Exp[], opOp : string[]) : Exp {
         for (var i = 0; i < opOp.length; ++i) {
             var op = opOp[i];
+            var op1 = opExp[i];
             var op2 = opExp[i + 1];
+            var asi : Asi;
             if (op === ".") {
                 if (!(op2 instanceof Ident))
-                    throw "expected identifier after dot.";
-                opExp[i + 1] = new Member(undefined, opExp[i], <Ident>op2);
+                    throw "expected identifier after '.'.";
+                asi = new Member(undefined, op1, <Ident>op2);
+            } else if (op === "=") {
+                asi = new Assign(undefined, op1, op2);
+            } else if (op === ":") {
+                asi = new ValueVar(undefined, op1, op2);
+            } else if (op === "of") {
+                asi = new TypeVar(undefined, op1, op2);
             } else {
-                opExp[i + 1] = new BinOpApply(
-                    undefined, new Ident(undefined, op), opExp[i], op2);
+                asi = new BinOpApply(
+                    undefined, new Ident(undefined, op), op1, op2);
             }
+            opExp[i + 1] = asi;
         }
         return opExp.last();
     }
@@ -158,9 +166,6 @@ class Parser {
         while (true) {
             var asi = this.parseOne();
 
-            if (!asi)
-                return undefined;
-
             this.skipWhite();
 
             if (this.matchOp()) {
@@ -177,80 +182,10 @@ class Parser {
 
 
 
-    private buildVar (asi : Asi) : any /* Asi|Var */ {
-        if (!(asi instanceof BinOpApply))
-            return asi;
-        asi = this.buildOneVar(<BinOpApply>asi);
-        if (!(asi instanceof BinOpApply))
-            return asi;
-        var opa = <BinOpApply>asi;
-        opa.op1 = this.buildVar(opa.op1);
-        opa.op2 = this.buildVar(opa.op2);
-        return opa;
-    }
-
-
-
-
-    private buildOneVar (opa : BinOpApply) : any /* BinOpApply|Var */ {
-        var ident : Ident = undefined;
-        var type : Exp = undefined;
-        var constraint : Exp = undefined;
-        var value : Exp = undefined;
-        if (opa.op.name === "=") {
-            value = opa.op2;
-            if (opa.op1 instanceof BinOpApply)
-                opa = <BinOpApply>opa.op1;
-            else if (opa.op1 instanceof Ident)
-                ident = <Ident>opa.op1;
-            else
-                throw "expected ident before '='";
-        }
-
-        if (opa.op.name === ":") {
-            if (opa.op1 instanceof Ident)
-                ident = <Ident>opa.op1;
-            else
-                throw "expected ident before ':'";
-
-            if (opa.op2 instanceof BinOpApply)
-                opa = <BinOpApply>opa.op2;
-            else
-                type = opa.op2;
-        }
-
-        if (opa.op.name == "of") {
-            if (ident)
-                type = opa.op1;
-            else if (opa.op1 instanceof Ident) {
-                var i = <Ident>opa.op1;
-                if (i.name[0] >= 'a' && i.name[0] <= 'z')
-                    ident = i;
-                else
-                    type = i;
-            } else
-                throw "type before 'of' must be Ident if var ident is not specified";
-
-            constraint = opa.op2;
-        }
-
-        if (ident || type || constraint || value) {
-            var v = new Var(undefined, ident, type, constraint, value);
-            v.useVarKeyword = this.useVarKeyword;
-            this.useVarKeyword = false;
-            return v;
-        }
-
-        return opa;
-    }
-
-
-
-
     private matchTextToFn : TextToAsiFn = {
         "true": () => new Bool(undefined, true),
         "false": () => new Bool(undefined, false),
-        "var": () => this.parseVar(),
+        "var": () => this.parseSimpleKeyword<Var>(Var, true),
         "if": () => this.parseIf(),
         "loop": () => this.parseLoop(),
         "break": () => new Break(undefined),
@@ -279,7 +214,7 @@ class Parser {
         if (this.match(Parser.isInt))
             return new Int(undefined, this.matched);
 
-        if (this.match(Parser.isIdent))
+        else if (this.match(Parser.isIdent))
             return new Ident(undefined, this.matched);
 
         var ch = this.code[this.index];
@@ -303,22 +238,6 @@ class Parser {
 
 
 
-    private parseVar () : Asi {
-        this.useVarKeyword = true;
-        var asi = this.parseMany();
-        if (this.useVarKeyword && asi instanceof Ident) {
-            var v = new Var(undefined, <Ident>asi, undefined, undefined,
-                            undefined);
-            v.useVarKeyword = true;
-            return v;
-        } else {
-            return this.buildVar(asi);
-        }
-    }
-
-
-
-
     private parseIf () : If {
         var test : Exp;
         var then : Scope;
@@ -326,7 +245,7 @@ class Parser {
         var asi = this.parseMany();
 
         if (!(asi instanceof Exp))
-            throw "test of if stastement msut be expression not statement";
+            throw "test of if statement must be expression not statement.";
 
         if (this.matchText("then"))
             then = this.parseScopedExp();

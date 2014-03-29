@@ -17,6 +17,9 @@ interface AstVisitor<T> {
 
     // expresions
     visitVar (v : Var) : T;
+    visitValueVar (tv : ValueVar) : T;
+    visitTypeVar (vv : TypeVar) : T;
+    visitAssign (a : Assign) : T;
     visitScope (sc : Scope) : T;
     visitIdent (i : Ident) : T;
     visitMember (m : Member) : T;

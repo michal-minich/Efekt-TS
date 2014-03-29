@@ -209,38 +209,79 @@ class Catch {
 
 class Var extends Exp {
 
-    public ident : Ident;
-    public type : Exp;
-    public constraint : Exp;
-    public value : Exp;
-    public useVarKeyword : boolean;
+    public exp : Exp;
 
-    constructor (attrs : ExpList,
-                 ident : Ident,
-                 type : Exp,
-                 constraint : Exp,
-                 value : Exp) {
+    constructor (attrs : ExpList, exp : Exp) {
         super(attrs);
-        if (ident) {
-            this.ident = ident;
-            ident.parent = this;
-        }
-        if (type) {
-            this.type = type;
-            type.parent = this;
-        }
-        if (constraint) {
-            this.constraint = constraint;
-            constraint.parent = this;
-        }
-        if (value) {
-            this.value = value;
-            value.parent = this;
-        }
+        this.exp = exp;
+        exp.parent = this;
     }
 
     accept<T> (v : AstVisitor<T>) : T {
         return v.visitVar(this);
+    }
+}
+
+
+
+
+class ValueVar extends Exp {
+
+    public ident : Exp;
+    public type : Exp;
+
+    constructor (attrs : ExpList, ident : Exp, type : Exp) {
+        super(attrs);
+        this.ident = ident;
+        this.type = type;
+        ident.parent = this;
+        type.parent = this;
+    }
+
+    accept<T> (v : AstVisitor<T>) : T {
+        return v.visitValueVar(this);
+    }
+}
+
+
+
+
+class TypeVar extends Exp {
+
+    public type : Exp;
+    public constraint : Exp;
+
+    constructor (attrs : ExpList, type : Exp, constraint : Exp) {
+        super(attrs);
+        this.type = type;
+        this.constraint = constraint;
+        type.parent = this;
+        constraint.parent = this;
+    }
+
+    accept<T> (v : AstVisitor<T>) : T {
+        return v.visitTypeVar(this);
+    }
+}
+
+
+
+
+class Assign extends Exp {
+
+    public slot : Exp;
+    public value : Exp;
+
+    constructor (attrs : ExpList, slot : Exp, value : Exp) {
+        super(attrs);
+        this.slot = slot;
+        this.value = value;
+        slot.parent = this;
+        value.parent = this;
+    }
+
+    accept<T> (v : AstVisitor<T>) : T {
+        return v.visitAssign(this);
     }
 }
 
