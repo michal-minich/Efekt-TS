@@ -225,6 +225,13 @@ class Parser {
         else if (ch === '}')
             ++this.index;
 
+        else if (ch === '(') {
+            ++this.index;
+            return this.parseMany();
+        } else if (ch === ')') {
+            ++this.index;
+        }
+
         return undefined;
     }
 

@@ -130,6 +130,11 @@ class Interpreter implements AstVisitor<Asi> {
                     return new Int(undefined,
                                    "" + (+(<Int>a).value - +(<Int>b).value));
                 };
+            case '*':
+                return function (a, b) {
+                    return new Int(undefined,
+                                   "" + (+(<Int>a).value * +(<Int>b).value));
+                };
             case '<':
                 return function (a, b) {
                     return new Int(undefined,

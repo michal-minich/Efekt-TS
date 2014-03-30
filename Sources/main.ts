@@ -20,17 +20,36 @@ function start () {
 
     codeScratchpad.value = codeInput.value;
 
-    parseButton.addEventListener('click', () => {
+    function parse () {
         codeView.innerHTML = codeToHtmlString(codeInput.value);
         astView.innerHTML = codeToAstString(codeInput.value);
+    }
+
+    function interpret () {
+
+        function exHandler (ex : Asi) {
+            codeView.innerHTML = "Exception: <br>" + asiToHtmlString(ex);
+            codeView.innerHTML = "Exception: <br>" + asiToHtmlAstString(ex);
+        }
+
+        var parser = new Parser();
+        var al = parser.parse(codeInput.value);
+        var i = new Interpreter(exHandler);
+        var res = al.items[0].accept(i);
+        codeView.innerHTML = asiToHtmlString(res);
+        astView.innerHTML = asiToHtmlAstString(res);
+    }
+
+    parseButton.addEventListener('click', () => {
+        parse();
     });
 
-    /*
-        var exHandler = function (ex : Asi) {
-            ex.accept(p);
-            var str = sw.getString();
-            document.getElementById("view").innerHTML = "Exception: " + str;
-        };
-    */
+    evalButton.addEventListener('click', () => {
+        interpret();
+    });
+
+    parse();
+
+
 }
 

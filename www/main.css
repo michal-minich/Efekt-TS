@@ -79,6 +79,17 @@ pre {
     height: 200px;
 }
 
+#codeView, #astView {
+    display: table-cell;
+    margin: 5px;
+    padding: 5px;
+}
+
 #codeView {
+    float: left;
+}
+
+#astView {
+    border-left: 1px solid lightgray;
     float: left;
 }
