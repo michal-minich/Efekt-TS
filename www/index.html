@@ -18,7 +18,17 @@
 </head>
 <body onload="start();">
 <div id="testReport"></div>
-<pre id="view" class="efektCode">
+<textarea id="codeInput">
+var a = 1
+</textarea>
+<textarea id="codeScratchpad">
+</textarea>
+<br>
+<button type="button" id="parseButton">Parse</button>
+<button type="button" id="evalButton">Eval</button>
+<br>
+<pre id="codeView" class="efektCode"></pre>
+<pre id="astView" class="efektCode">
 </pre>
 </body>
 </html>

@@ -73,3 +73,12 @@ pre {
 .efektOp {
     color: #000000;
 }
+
+#codeInput, #codeScratchpad {
+    width: 400px;
+    height: 200px;
+}
+
+#codeView {
+    float: left;
+}

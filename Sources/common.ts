@@ -74,6 +74,15 @@ function codeToAstString (code : string) : string {
 
 
 
+function codeToHtmlString (code : string) : string {
+    var parser = new Parser();
+    var al = parser.parse(code);
+    return asiToHtmlAstString(al);
+}
+
+
+
+
 function asiToAstString (asi : Asi) : string {
     var sw = new StringWriter();
     var cw = new HtmlCodeWriter(sw);
