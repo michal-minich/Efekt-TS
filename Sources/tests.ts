@@ -62,10 +62,16 @@ class TestReprot {
 
         var actualAst = asiToHtmlAstString(actualAsi);
 
-        if (expected === actualPlain && expectedAst === actualAst)
-            return;
+        var ok = expected === actualPlain && expectedAst === actualAst;
 
-        this.table.push("<tr>",
+        var rowClass = "class='test" + (ok ? "Successful" : "Failed") + "'";
+
+        if (ok) {
+            //var rowClass = "";
+            return;
+        }
+
+        this.table.push("<tr", rowClass, ">",
                         "<td>", "" + (++this.failedCount), "</td>",
                         "<td>", category, "</td>",
                         "<td>", code, "</td>",
@@ -153,7 +159,7 @@ function unitTests () {
     }
 
     if (testReport.failedCount === 0) {
-        interpreterTests();
+        //interpreterTests();
     }
 
     document.getElementById("testReport").innerHTML =
@@ -165,7 +171,7 @@ function unitTests () {
 
 function testSpecific () : void {
 
-    t("if 1 then 2").parse();
+    t("a = var b = 1 + 2").parse();
 }
 
 
@@ -209,7 +215,7 @@ function parseTests () : void {
     t("G of Int = 1").parse();
     t("h : T of Int = Int").parse();
     t("1 + 2 * a : T of Int == 2 * 3 + b : T of Int + 1").parse();
-        //"((1 + (2 * a : T of Int)) == (((2 * 3) + b : T of Int) + 1))");
+    //"((1 + (2 * a : T of Int)) == (((2 * 3) + b : T of Int) + 1))");
     t("var b = 1").parse();
     t("var c : T").parse();
     t("var d of Int").parse();
@@ -221,10 +227,10 @@ function parseTests () : void {
     t("var h : T of Int = Int").parse();
     //t("1 + 2 * var a : T of Int == 2 * 3 + var b : T of Int + 1").parse();
     //    "((1 + (2 * var a : T of Int)) == (((2 * 3) + b : T of Int) + 1))");
-    t("a = b = 1").parse();
-    t("var a = b = 1").parse();
-    t("a = var b = 1").parse();
-    t("var a = var b = 1").parse();
+    t("a = b = 1 + 2").parse();
+    t("var a = b = 1 + 2").parse();
+    t("a = var b = 1 + 2").parse();
+    t("var a = var b = 1 + 2").parse();
 
 }
 

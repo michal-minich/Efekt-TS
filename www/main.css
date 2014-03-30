@@ -26,6 +26,14 @@ tr:nth-child(even) {
     background-color: #e8abab;
 }
 
+.testSuccessful td {
+    background-color: #d4e8d3;
+}
+
+.testFailed td {
+    background-color: #f4c9c5;
+}
+
 pre {
     margin: 0;
 }

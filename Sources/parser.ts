@@ -84,10 +84,7 @@ class BinOpBuilder {
                 if (!(op === opPrev && right.contains(op)) &&
                     prec[op] <= prec[opPrev])
                     continue;
-                var exp = opExp[i];
-                var expNext = opExp[i + 1];
-                opExp[i] = new BinOpApply(
-                    undefined, new Ident(undefined, op), exp, expNext);
+                opExp[i] = BinOpBuilder.combineExp(op, opExp[i], opExp[i + 1]);
                 opExp.removeAt(i + 1);
                 opOp.removeAt(i);
                 ++numChanges;
@@ -99,28 +96,30 @@ class BinOpBuilder {
 
 
     private static joinBinOpsSequence (opExp : Exp[], opOp : string[]) : Exp {
-        for (var i = 0; i < opOp.length; ++i) {
-            var op = opOp[i];
-            var op1 = opExp[i];
-            var op2 = opExp[i + 1];
-            var asi : Asi;
-            if (op === ".") {
-                if (!(op2 instanceof Ident))
-                    throw "expected identifier after '.'.";
-                asi = new Member(undefined, op1, <Ident>op2);
-            } else if (op === "=") {
-                asi = new Assign(undefined, op1, op2);
-            } else if (op === ":") {
-                asi = new ValueVar(undefined, op1, op2);
-            } else if (op === "of") {
-                asi = new TypeVar(undefined, op1, op2);
-            } else {
-                asi = new BinOpApply(
-                    undefined, new Ident(undefined, op), op1, op2);
-            }
-            opExp[i + 1] = asi;
-        }
+        for (var i = 0; i < opOp.length; ++i)
+            opExp[i + 1] = BinOpBuilder.combineExp(
+                opOp[i], opExp[i], opExp[i + 1]);
         return opExp.last();
+    }
+
+
+
+
+    private static combineExp (op : string, op1 : Exp, op2 : Exp) : Exp {
+        if (op === ".") {
+            if (!(op2 instanceof Ident))
+                throw "expected identifier after '.'.";
+            return new Member(undefined, op1, <Ident>op2);
+        } else if (op === "=") {
+            return new Assign(undefined, op1, op2);
+        } else if (op === ":") {
+            return new ValueVar(undefined, op1, op2);
+        } else if (op === "of") {
+            return new TypeVar(undefined, op1, op2);
+        } else {
+            return new BinOpApply(undefined, new Ident(undefined, op), op1,
+                                  op2);
+        }
     }
 }
 
@@ -133,8 +132,8 @@ class Parser {
     private index : number;
     private matched : string;
 
-    private useVarKeyword : boolean;
-    private binOpBuilder = new BinOpBuilder();
+    private binOpBuilders : BinOpBuilder[] = [];
+
 
 
     public parse (code : string) : AsiList {
@@ -163,17 +162,19 @@ class Parser {
 
 
     private parseMany () : Asi {
+        this.binOpBuilders.push(new BinOpBuilder());
         while (true) {
             var asi = this.parseOne();
-
+            var b = this.binOpBuilders.last();
             this.skipWhite();
-
             if (this.matchOp()) {
-                this.binOpBuilder.addExpAndOpToSequence(<Exp>asi, this.matched);
-            } else if (!this.binOpBuilder.isEmpty()) {
-                this.binOpBuilder.addExpToSequence(<Exp>asi);
-                return this.binOpBuilder.buildBinOpApplyTreeFromSequence();
+                b.addExpAndOpToSequence(<Exp>asi, this.matched);
+            } else if (!b.isEmpty()) {
+                this.binOpBuilders.pop();
+                b.addExpToSequence(<Exp>asi);
+                return b.buildBinOpApplyTreeFromSequence();
             } else {
+                this.binOpBuilders.pop();
                 return asi;
             }
         }
@@ -315,6 +316,7 @@ class Parser {
         throw "expression expected after " + TConstructor.getTypeName() +
             ", not statement";
     }
+
 
 
 
