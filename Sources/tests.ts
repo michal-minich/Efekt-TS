@@ -171,7 +171,7 @@ function unitTests () {
 
 function testSpecific () : void {
 
-    t("a = var b = 1 + 2").parse();
+    t("(1 + 2) + 3").parse("((1 + 2) + 3)");
 }
 
 
@@ -185,12 +185,12 @@ function parseTests () : void {
     t("struct a").parse("struct { a }");
     t("interface { b }").parse();
     t("new Int").parse();
-    t("typeof 1 + 2").parse();//"typeof (1 + 2)");
+    t("typeof 1 + 2").parse("typeof (1 + 2)");
     t("obj.member").parse();
     t("a.b.c.d").parse();
     t("try a finally { var b }").parse("try a\nfinally var b");
     t("throw \n throw ex").parse("throw\nthrow ex");
-    t("return \n return 1 + 2").parse("return\nreturn 1 + 2");
+    t("return \n return 1 + 2").parse("return\nreturn (1 + 2)");
     t("break continue").parse("break\ncontinue");
     t("loop { a }").parse("loop a");
     t("true").parse();
@@ -214,8 +214,8 @@ function parseTests () : void {
     t("g of Int = 1").parse();
     t("G of Int = 1").parse();
     t("h : T of Int = Int").parse();
-    t("1 + 2 * a : T of Int == 2 * 3 + b : T of Int + 1").parse();
-    //"((1 + (2 * a : T of Int)) == (((2 * 3) + b : T of Int) + 1))");
+    t("1 + 2 * a : T of Int == 2 * 3 + b : T of Int + 1").parse(
+        "((1 + (2 * a : T of Int)) == (((2 * 3) + b : T of Int) + 1))");
     t("var b = 1").parse();
     t("var c : T").parse();
     t("var d of Int").parse();
@@ -225,12 +225,13 @@ function parseTests () : void {
     t("var g of Int = 1").parse();
     t("var G of Int = 1").parse();
     t("var h : T of Int = Int").parse();
-    //t("1 + 2 * var a : T of Int == 2 * 3 + var b : T of Int + 1").parse();
-    //    "((1 + (2 * var a : T of Int)) == (((2 * 3) + b : T of Int) + 1))");
-    t("a = b = 1 + 2").parse();
-    t("var a = b = 1 + 2").parse();
-    t("a = var b = 1 + 2").parse();
-    t("var a = var b = 1 + 2").parse();
+    //t("1 + 2 * var a : T of Int == 2 * 3 + var b : T of Int + 1").parse(
+        //"((1 + (2 * var a : T of Int)) == (((2 * 3) + b : T of Int) + 1))");
+    t("a = b = 1 + 2").parse("a = b = (1 + 2)");
+    t("var a = b = 1 + 2").parse("var a = b = (1 + 2)");
+    t("a = var b = 1 + 2").parse("a = var b = (1 + 2)");
+    t("var a = var b = 1 + 2").parse("var a = var b = (1 + 2)");
+    t("(1 + 2) + 3").parse("((1 + 2) + 3)");
 
 }
 

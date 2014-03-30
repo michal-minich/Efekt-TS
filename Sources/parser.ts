@@ -167,6 +167,17 @@ class Parser {
             var asi = this.parseOne();
             var b = this.binOpBuilders.last();
             this.skipWhite();
+
+            var ch = this.code[this.index];
+            if (ch === '}' || ch === ')') {
+                ++this.index;
+                if (!b.isEmpty()) {
+                    b.addExpToSequence(<Exp>asi);
+                    asi = b.buildBinOpApplyTreeFromSequence();
+                }
+            }
+
+            this.skipWhite();
             if (this.matchOp()) {
                 b.addExpAndOpToSequence(<Exp>asi, this.matched);
             } else if (!b.isEmpty()) {
@@ -220,16 +231,11 @@ class Parser {
 
         var ch = this.code[this.index];
 
-        if (ch === '{')
+        if (ch === '{') {
             return this.parseScopeStart();
-        else if (ch === '}')
-            ++this.index;
-
-        else if (ch === '(') {
+        } else if (ch === '(') {
             ++this.index;
             return this.parseMany();
-        } else if (ch === ')') {
-            ++this.index;
         }
 
         return undefined;
