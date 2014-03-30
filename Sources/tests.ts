@@ -179,22 +179,53 @@ function testSpecific () : void {
 
 function parseTests () : void {
 
+    // if
     t("if 1 then 2").parse();
     t("if a then b else c").parse();
     t("if 1 then 2 else if 3 then 4 else 5").parse();
+    t("if a then { struct b } else { interface c }").parse();
+    t("if a then { struct { b } } else { interface { c } }").parse();
+
+    // struct
     t("struct a").parse("struct { a }");
-    t("interface { b }").parse();
+    t("struct { a } struct b").parse("struct { a } struct { b }");
+
+    // interface
+    t("var I = interface { b }").parse();
+
+    // new
     t("new Int").parse();
+
+    // typeof
     t("typeof 1 + 2").parse("typeof (1 + 2)");
+    t("typeof var a = 1").parse();
+
+    // member access
     t("obj.member").parse();
     t("a.b.c.d").parse();
+    t("((x.y).z).q").parse("x.y.z.q");
+
+    // try finally
     t("try a finally { var b }").parse("try a\nfinally var b");
+
+    // throw
+    t("throw 1 + 2").parse("throw (1 + 2)");
     t("throw \n throw ex").parse("throw\nthrow ex");
+
+    // return
     t("return \n return 1 + 2").parse("return\nreturn (1 + 2)");
+
+    // break
     t("break continue").parse("break\ncontinue");
+
+    // loop
     t("loop { a }").parse("loop a");
-    t("true").parse();
+
+    // true false
+    t("if true then false").parse();
     t("false").parse();
+
+    // var
     t("var a").parse();
     t("var b : T").parse();
     t("var c : T of Int").parse();
@@ -204,6 +235,7 @@ function parseTests () : void {
     t("var g = 1").parse();
     t("var h of Int").parse();
     t("var i of Int = 1").parse();
+
     t("a").parse();
     t("b = 1").parse();
     t("c : T").parse();
@@ -214,8 +246,7 @@ function parseTests () : void {
     t("g of Int = 1").parse();
     t("G of Int = 1").parse();
     t("h : T of Int = Int").parse();
-    t("1 + 2 * a : T of Int == 2 * 3 + b : T of Int + 1").parse(
-        "((1 + (2 * a : T of Int)) == (((2 * 3) + b : T of Int) + 1))");
+
     t("var b = 1").parse();
     t("var c : T").parse();
     t("var d of Int").parse();
@@ -225,14 +256,44 @@ function parseTests () : void {
     t("var g of Int = 1").parse();
     t("var G of Int = 1").parse();
     t("var h : T of Int = Int").parse();
-    //t("1 + 2 * var a : T of Int == 2 * 3 + var b : T of Int + 1").parse(
-        //"((1 + (2 * var a : T of Int)) == (((2 * 3) + b : T of Int) + 1))");
+
+    // var & op priority and precednce
     t("a = b = 1 + 2").parse("a = b = (1 + 2)");
     t("var a = b = 1 + 2").parse("var a = b = (1 + 2)");
     t("a = var b = 1 + 2").parse("a = var b = (1 + 2)");
     t("var a = var b = 1 + 2").parse("var a = var b = (1 + 2)");
-    t("(1 + 2) + 3").parse("((1 + 2) + 3)");
+    t("1 + 2 * a : T of Int == 2 * 3 + b : T of Int + 1").parse(
+        "((1 + (2 * a : T of Int)) == (((2 * 3) + b : T of Int) + 1))");
 
+    t("var b : T of Int + 1").parse("(var b : T of Int + 1)");
+    t("1 + var a = 2 + 3").parse("(1 + var a = (2 + 3))");
+    t("1 + var a : T.U of X.Addable + 2").parse(
+        "(1 + var a : T.U of X.Addable + 2)");
+
+
+    //t("1 + 2 * var a : T of Int == 2 * 3 + var b : T of Int + 1").parse(
+    //"((1 + (2 * var a : T of Int)) == (((2 * 3) + b : T of Int) + 1))");
+
+    // braces and op priority and precednce
+    t("2 + 3 + 4").parse("((2 + 3) + 4)");
+    t("(2 + 3) + 4").parse("((2 + 3) + 4)");
+    t("1 + (2 + 3) + 4").parse("(1 + (2 + 3) + 4)");
+    t("1 + (2 + 3)").parse("(1 + (2 + 3))");
+
+    t("2 * 3 + 4").parse("((2 * 3) + 4)");
+    t("(2 * 3) + 4").parse("((2 * 3) + 4)");
+    t("1 * (2 + 3) + 4").parse("(1 * (2 + 3) + 4)");
+    t("1 * (2 + 3)").parse("(1 * (2 + 3))");
+
+    t("2 + 3 * 4").parse("(2 + (3 * 4))");
+    t("(2 + 3) * 4").parse("((2 + 3) * 4)");
+    t("1 + (2 * 3) + 4").parse("(1 + (2 * 3) + 4)");
+    t("1 + (2 * 3)").parse("(1 + (2 * 3))");
+
+    t("((2 + 3)) * 4").parse("((2 + 3) * 4)");
+    t("1 + (((2 * 3))) + 4").parse("(1 + (2 * 3) + 4)");
+    t("1 + ((((2 * 3))))").parse("(1 + (2 * 3))");
+    t("1 * ((((2 + 3)))) + 4").parse("(1 * (2 + 3) + 4)");
 }
 
 
