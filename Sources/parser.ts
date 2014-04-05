@@ -173,6 +173,8 @@ class Parser {
                     b.addExpToSequence(<Exp>asi);
                     asi = b.buildBinOpApplyTreeFromSequence();
                 }
+                this.binOpBuilders.pop();
+                return asi;
             }
 
             this.skipWhite();
