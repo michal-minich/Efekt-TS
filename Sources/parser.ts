@@ -18,7 +18,10 @@ class BinOpBuilder {
     private opExp : Exp[] = [];
     private opOp : string[] = [];
 
-    private static rightAssociativeOps = ["=", ":", "of"];
+    private static rightAssociativeOps =
+        [":", "of", "=", "*=", "/=", "%=", "+=", "-=", "<<=", ">>=", "&==",
+         "^=", "|="];
+
     private static opPrecedence : Precedence = {
         ".": 160,
         "of": 150,
@@ -81,13 +84,13 @@ class BinOpBuilder {
             for (var i = opOp.length - 1; i !== 0; --i) {
                 var op = opOp[i];
                 var opPrev = opOp[i - 1];
-                if (!(op === opPrev && right.contains(op)) &&
-                    prec[op] <= prec[opPrev])
+                if (!right.contains(opPrev) && prec[op] <= prec[opPrev])
                     continue;
                 opExp[i] = BinOpBuilder.combineExp(op, opExp[i], opExp[i + 1]);
                 opExp.removeAt(i + 1);
                 opOp.removeAt(i);
                 ++numChanges;
+                i = opOp.length;
             }
         } while (numChanges !== 0);
     }

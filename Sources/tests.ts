@@ -171,7 +171,7 @@ function unitTests () {
 
 function testSpecific () : void {
 
-    t("(1 + 2) + 3").parse("((1 + 2) + 3)");
+    t("a = 301 == 10 * 3 + 1").parse("a = (301 == ((10 * 3) + 1))");
 }
 
 
@@ -263,18 +263,17 @@ function parseTests () : void {
     t("a = var b = 1 + 2").parse("a = var b = (1 + 2)");
     t("var a = var b = 1 + 2").parse("var a = var b = (1 + 2)");
     t("1 + 2 * a : T of Int == 2 * 3 + b : T of Int + 1").parse(
-        "((1 + (2 * a : T of Int)) == (((2 * 3) + b : T of Int) + 1))");
-
-    t("var b : T of Int + 1").parse("(var b : T of Int + 1)");
+        "(1 + (2 * a : T of (Int == ((2 * 3) + b : T of (Int + 1)))))");
+    t("1 + 2 * var a : T of Int == 2 * 3 + var b : T of Int + 1").parse(
+        "(1 + (2 * var a : T of (Int == ((2 * 3) + var b : T of (Int + 1)))))");
+    t("var b : T of Int + 1").parse("var b : T of (Int + 1)");
     t("1 + var a = 2 + 3").parse("(1 + var a = (2 + 3))");
     t("1 + var a : T.U of X.Addable + 2").parse(
-        "(1 + var a : T.U of X.Addable + 2)");
-
-
-    //t("1 + 2 * var a : T of Int == 2 * 3 + var b : T of Int + 1").parse(
-    //"((1 + (2 * var a : T of Int)) == (((2 * 3) + b : T of Int) + 1))");
+        "(1 + var a : T.U of (X.Addable + 2))");
 
     // braces and op priority and precednce
+    t("a = 301 == 10 * 3 + 1").parse("a = (301 == ((10 * 3) + 1))");
+
     t("2 + 3 + 4").parse("((2 + 3) + 4)");
     t("(2 + 3) + 4").parse("((2 + 3) + 4)");
     t("1 + (2 + 3) + 4").parse("((1 + (2 + 3)) + 4)");
