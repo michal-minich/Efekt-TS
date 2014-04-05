@@ -152,11 +152,12 @@ class Parser {
 
 
 
-    private parseAsiList () : AsiList {
+    private parseAsiList (startsWithCurly : boolean = false) : AsiList {
         var items : Asi[] = [];
         var item : Asi;
         //noinspection AssignmentResultUsedJS
-        while ((item = this.parseMany()))
+        while (this.code[this.index - 1] !== '}' &&
+            (item = this.parseMany(startsWithCurly)))
             items.push(item);
         return new AsiList(undefined, items);
     }
@@ -164,7 +165,7 @@ class Parser {
 
 
 
-    private parseMany () : Asi {
+    private parseMany (startsWithCurly : boolean = false) : Asi {
         this.binOpBuilders.push(new BinOpBuilder());
         while (true) {
             var asi = this.parseOne();
@@ -177,6 +178,8 @@ class Parser {
                     asi = b.buildBinOpApplyTreeFromSequence();
                 }
                 this.binOpBuilders.pop();
+                if (this.code[this.index - 1] === '}' && !startsWithCurly)
+                    --this.index;
                 return asi;
             }
 
@@ -233,7 +236,7 @@ class Parser {
             return new Ident(undefined, this.matched);
 
         if (this.matchText('{'))
-            return new Scope(undefined, this.parseAsiList());
+            return new Scope(undefined, this.parseAsiList(true));
         else if (this.matchText('('))
             return this.parseMany();
 
@@ -419,9 +422,8 @@ class Parser {
 
     // Return value identifies if white space skipped contained a new line
     private skipWhite () : boolean {
-        while (this.index !== this.code.length)
-            if (!this.matchChar(' ') && !this.matchChar('\t'))
-                return this.matchChar('\n') || this.matchChar('\r');
-        return false;
+        while (this.matchChar(' ') || this.matchChar('\t')) {
+        }
+        return this.matchChar('\n') || this.matchChar('\r');
     }
 }

@@ -372,7 +372,7 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitInterface (ifc : Interface) : void {
-        this.cw.writeKey("Snterface").tab().writeNewLine().writeMarkup("body")
+        this.cw.writeKey("Interface").tab().writeNewLine().writeMarkup("body")
             .writeSpace();
         ifc.body.accept(this);
         this.cw.unTab();

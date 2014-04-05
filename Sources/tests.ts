@@ -112,9 +112,7 @@ class Test {
 
 
 
-    parse (expected? : string) : Test {
-        if (!expected)
-            expected = this.code;
+    parse (expected : string = this.code) : Test {
         testReport.addParse(this.code, expected, this.parsed);
         return this;
     }
@@ -171,7 +169,7 @@ function unitTests () {
 
 function testSpecific () : void {
 
-    t("a = 301 == 10 * 3 + 1").parse("a = (301 == ((10 * 3) + 1))");
+    //t("if a then struct b else struct c").parse("if a then struct b else struct { c }");
 }
 
 
@@ -183,12 +181,17 @@ function parseTests () : void {
     t("if 1 then 2").parse();
     t("if a then b else c").parse();
     t("if 1 then 2 else if 3 then 4 else 5").parse();
-    t("if a then { struct b } else { interface c }").parse();
-    t("if a then { struct { b } } else { interface { c } }").parse();
+    t("if a then { struct b } else { interface c }").parse(
+        "if a then struct { b } else interface { c }");
+    t("if a then { struct { b } } else { interface { c } }").parse(
+        "if a then struct { b } else interface { c }");
 
     // struct
     t("struct a").parse("struct { a }");
-    t("struct { a } struct b").parse("struct { a } struct { b }");
+    t("struct struct a").parse("struct { struct { a } }");
+    t("struct struct { a } ").parse("struct { struct { a } }");
+    t("struct { struct { a } } ").parse("struct { struct { a } }");
+    t("struct { a } struct b").parse("struct { a }\nstruct { b }");
 
     // interface
     t("var I = interface { b }").parse();
