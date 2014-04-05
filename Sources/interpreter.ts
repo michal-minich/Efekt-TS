@@ -337,6 +337,8 @@ class Interpreter implements AstVisitor<Asi> {
                 return i.then.accept(this);
             else if (i.otherwise)
                 return i.otherwise.accept(this);
+            else
+                return Void.instance;
         }
         else {
             throw "if test must evaluate to Bool";

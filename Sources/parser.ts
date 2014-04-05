@@ -153,7 +153,7 @@ class Parser {
         var items : Asi[] = [];
         var item : Asi;
         //noinspection AssignmentResultUsedJS
-        while (item = this.parseMany())
+        while ((item = this.parseMany()))
             items.push(item);
         return new AsiList(undefined, items);
     }
@@ -359,6 +359,8 @@ class Parser {
 
 
     private match (isMatch : (ch : string) => boolean) : boolean {
+        if (this.index >= this.code.length)
+            return false;
         this.matched = undefined;
         var i = this.index;
         do
@@ -381,7 +383,7 @@ class Parser {
 
 
     private matchChar (ch : string) : boolean {
-        if (this.code[this.index] === ch) {
+        if (this.index < this.code.length && this.code[this.index] === ch) {
             ++this.index;
             return true;
         }
@@ -415,5 +417,6 @@ class Parser {
         while (this.index !== this.code.length)
             if (!this.matchChar(' ') && !this.matchChar('\t'))
                 return this.matchChar('\n') || this.matchChar('\r');
+        return false;
     }
 }
