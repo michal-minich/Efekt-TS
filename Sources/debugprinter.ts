@@ -331,7 +331,7 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitRef (rf : Ref) : void {
-        this.cw.writeKey("ref").writeSpace(); // ?
+        this.cw.writeKey("Ref").writeSpace(); // ?
         rf.item.accept(this);
     }
 
@@ -344,7 +344,7 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitFn (fn : Fn) : void {
-        this.cw.writeKey("fn").writeSpace();
+        this.cw.writeKey("Fn").writeSpace();
         this.writeComaList(fn.params.items);
         this.cw.writeSpace();
         if (fn.returnType) {
@@ -363,15 +363,19 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitStruct (st : Struct) : void {
-        this.cw.writeKey("struct").writeSpace();
+        this.cw.writeKey("Struct").tab().writeNewLine().writeMarkup("body")
+            .writeSpace();
         st.body.accept(this);
+        this.cw.unTab();
     }
 
 
 
     visitInterface (ifc : Interface) : void {
-        this.cw.writeKey("interface").writeSpace();
+        this.cw.writeKey("Snterface").tab().writeNewLine().writeMarkup("body")
+            .writeSpace();
         ifc.body.accept(this);
+        this.cw.unTab();
     }
 
 

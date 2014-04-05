@@ -168,9 +168,7 @@ class Parser {
             var b = this.binOpBuilders.last();
             this.skipWhite();
 
-            var ch = this.code[this.index];
-            if (ch === '}' || ch === ')') {
-                ++this.index;
+            if (this.matchChar('}') || this.matchChar(')')) {
                 if (!b.isEmpty()) {
                     b.addExpToSequence(<Exp>asi);
                     asi = b.buildBinOpApplyTreeFromSequence();
@@ -229,24 +227,12 @@ class Parser {
         else if (this.match(Parser.isIdent))
             return new Ident(undefined, this.matched);
 
-        var ch = this.code[this.index];
-
-        if (ch === '{') {
-            return this.parseScopeStart();
-        } else if (ch === '(') {
-            ++this.index;
+        if (this.matchText('{'))
+            return new Scope(undefined, this.parseAsiList());
+        else if (this.matchText('('))
             return this.parseMany();
-        }
 
         return undefined;
-    }
-
-
-
-
-    private parseScopeStart () : Scope {
-        ++this.index;
-        return new Scope(undefined, this.parseAsiList());
     }
 
 
@@ -394,6 +380,17 @@ class Parser {
 
 
 
+    private matchChar (ch : string) : boolean {
+        if (this.code[this.index] === ch) {
+            ++this.index;
+            return true;
+        }
+        return false;
+    }
+
+
+
+
     private matchText (text : string) : boolean {
         var isMatch = this.index + text.length <= this.code.length
             && this.code.indexOf(text, this.index) === this.index;
@@ -415,16 +412,8 @@ class Parser {
 
     // Return value identifies if white space skipped contained a new line
     private skipWhite () : boolean {
-        while (this.index !== this.code.length) {
-            var ch = this.code[this.index];
-            if (ch === ' ' || ch === '\t') {
-                ++this.index;
-            } else if (ch === '\n' || ch === '\r') {
-                ++this.index;
-                return true
-            } else {
-                return false;
-            }
-        }
+        while (this.index !== this.code.length)
+            if (!this.matchChar(' ') && !this.matchChar('\t'))
+                return this.matchChar('\n') || this.matchChar('\r');
     }
 }
