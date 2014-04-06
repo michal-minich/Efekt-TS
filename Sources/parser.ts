@@ -121,6 +121,11 @@ class BinOpBuilder {
         } else if (op === "of") {
             return new TypeVar(undefined, op1, op2);
         } else if (op === ",") {
+            if (op1 instanceof ExpList) {
+                var el = <ExpList>op1;
+                el.add(op2);
+                return el;
+            }
             return new ExpList(undefined, [op1, op2]);
         } else {
             return new BinOpApply(undefined, new Ident(undefined, op), op1,

@@ -37,22 +37,28 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitAsiList (al : AsiList) : void {
+        this.cw.writeKey("AsiList").tab().writeNewLine()
+            .writeMarkup("items").writeSpace().tab().writeNewLine();
         for (var i = 0; i < al.items.length; i++) {
             al.items[i].accept(this);
             if (i < al.items.length - 1)
                 this.cw.writeNewLine();
         }
+        this.cw.unTab().unTab();
     }
 
 
 
 
     visitExpList (el : ExpList) : void {
+        this.cw.writeKey("ExpList").tab().writeNewLine()
+            .writeMarkup("items").writeSpace().tab().writeNewLine();;
         for (var i = 0; i < el.items.length; i++) {
             el.items[i].accept(this);
             if (i < el.items.length - 1)
                 this.cw.writeNewLine();
         }
+        this.cw.unTab().unTab();
     }
 
 

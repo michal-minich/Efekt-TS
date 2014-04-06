@@ -82,6 +82,11 @@ class ExpList extends Asi {
     accept<T> (v : AstVisitor<T>) : T {
         return v.visitExpList(this);
     }
+
+    add(item : Exp) : void {
+        this.items.push(item);
+        item.parent = this;
+    }
 }
 
 
