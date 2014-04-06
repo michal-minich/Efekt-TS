@@ -18,14 +18,22 @@ class Printer implements AstVisitor<void> {
 
 
     private writeComaList (items : Exp[]) {
-        this.cw.writeMarkup("(");
         for (var i = 0; i < items.length; i++) {
-            var t : AstVisitor<void> = this; // TypeScript bug?, cannot pass this directly
-            items[i].accept(t);
-            this.cw.writeMarkup(",").writeSpace();
+            items[i].accept(this);
+            if (i + 1 !== items.length)
+                this.cw.writeMarkup(",").writeSpace();
         }
+    }
+
+
+
+
+    private writeBracedComaList (items : Exp[]) {
+        this.cw.writeMarkup("(");
+        this.writeComaList(items);
         this.cw.writeMarkup(")");
     }
+
 
 
 
@@ -247,7 +255,7 @@ class Printer implements AstVisitor<void> {
 
     visitFnApply (fna : FnApply) : void {
         fna.fn.accept(this);
-        this.writeComaList(fna.args.items);
+        this.writeBracedComaList(fna.args.items);
     }
 
 
@@ -338,6 +346,13 @@ class Printer implements AstVisitor<void> {
 
 
 
+    visitChar (ch : Char) : void {
+        this.cw.writeText("'").writeText(ch.value).writeText("'");
+    }
+
+
+
+
     visitArr (arr : Arr) : void {
         this.cw.writeMarkup("[");
         this.writeComaList(arr.list.items);
@@ -362,7 +377,7 @@ class Printer implements AstVisitor<void> {
 
     visitFn (fn : Fn) : void {
         this.cw.writeKey("fn").writeSpace();
-        this.writeComaList(fn.params.items);
+        this.writeBracedComaList(fn.params.items);
         this.cw.writeSpace();
         if (fn.returnType) {
             this.cw.writeMarkup("->").writeSpace();
@@ -408,7 +423,7 @@ class Printer implements AstVisitor<void> {
 
     visitTypeAnyOf (tao : TypeAnyOf) : void {
         this.cw.writeType("AnyOf");
-        this.writeComaList(tao.choices.items);
+        this.writeBracedComaList(tao.choices.items);
     }
 
 

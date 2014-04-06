@@ -235,12 +235,30 @@ class Parser {
         else if (this.match(Parser.isIdent))
             return new Ident(undefined, this.matched);
 
-        if (this.matchText('{'))
+        if (this.matchChar('{'))
             return new Scope(undefined, this.parseAsiList(true));
-        else if (this.matchText('('))
+        else if (this.matchChar('('))
             return this.parseMany();
+        else if (this.matchChar('"'))
+            return this.parseString();
 
         return undefined;
+    }
+
+
+
+
+    private parseString () : Arr {
+        var chars : Char[] = [];
+        while (true) {
+            var ch = this.code[this.index];
+            ++this.index;
+            if (ch === '"')
+                return new Arr(undefined, new ExpList(undefined, chars));
+            if (this.index >= this.code.length)
+                return new Arr(undefined, new ExpList(undefined, chars));
+            chars.push(new Char(undefined, ch));
+        }
     }
 
 

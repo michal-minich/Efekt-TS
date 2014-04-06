@@ -18,13 +18,14 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     private writeComaList (items : Exp[]) {
-        this.cw.writeMarkup("(");
+        this.cw.tab().writeNewLine();
         for (var i = 0; i < items.length; i++) {
-            var t : AstVisitor<void> = this; // TypeScript bug?, cannot pass this directly
-            items[i].accept(t);
-            this.cw.writeMarkup(",").writeSpace();
+            this.cw.writeMarkup("" + i).writeSpace();
+            items[i].accept(this);
+            if (i + 1 !== items.length)
+                this.cw.writeNewLine();
         }
-        this.cw.writeMarkup(")");
+        this.cw.unTab();
     }
 
 
@@ -306,25 +307,33 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitInt (ii : Int) : void {
-        this.cw.writeKey("Int").tab().writeNewLine().writeMarkup("value").writeSpace();
-        this.cw.writeNum(ii.value);
-        this.cw.unTab();
+        this.cw.writeKey("Int").tab().writeNewLine().writeMarkup("value")
+            .writeSpace().writeNum(ii.value).unTab();
     }
 
 
 
 
     visitFloat (f : Float) : void {
-        this.cw.writeNum(f.value);
+        this.cw.writeKey("Char").tab().writeNewLine().writeMarkup("value")
+            .writeText(f.value).unTab();
+    }
+
+
+
+
+    visitChar (ch : Char) : void {
+        this.cw.writeKey("Char").tab().writeNewLine().writeMarkup("value")
+            .writeText("'").writeText(ch.value).writeText("'").unTab();
     }
 
 
 
 
     visitArr (arr : Arr) : void {
-        this.cw.writeMarkup("[");
+        this.cw.writeKey("Arr").tab().writeNewLine().writeMarkup("list.items");
         this.writeComaList(arr.list.items);
-        this.cw.writeMarkup("]");
+        this.cw.unTab();
     }
 
 

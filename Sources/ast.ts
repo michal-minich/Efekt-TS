@@ -545,6 +545,23 @@ class Float extends Exp {
 
 
 
+class Char extends Exp {
+
+    public value : string;
+
+    constructor (attrs : ExpList, value : string) {
+        super(attrs);
+        this.value = value;
+    }
+
+    accept<T> (v : AstVisitor<T>) : T {
+        return v.visitChar(this);
+    }
+}
+
+
+
+
 class Arr extends Exp {
 
     public list : ExpList;

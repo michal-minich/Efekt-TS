@@ -401,6 +401,13 @@ class Interpreter implements AstVisitor<Asi> {
 
 
 
+    visitChar (ch : Char) : Asi {
+        return ch;
+    }
+
+
+
+
     visitArr (arr : Arr) : Asi {
         return arr;
     }

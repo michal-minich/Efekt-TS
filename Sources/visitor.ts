@@ -35,6 +35,7 @@ interface AstVisitor<T> {
     visitBool(b : Bool) : T;
     visitInt (ii : Int) : T;
     visitFloat (f : Float) : T;
+    visitChar (ch : Char) : T;
     visitArr(arr : Arr) : T;
     visitRef(rf : Ref) : T;
 
