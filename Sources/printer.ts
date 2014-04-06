@@ -79,8 +79,11 @@ class Printer implements AstVisitor<void> {
 
 
     visitExpList (el : ExpList) : void {
-        for (var i = 0; i < el.items.length; i++)
+        for (var i = 0; i < el.items.length; i++) {
             el.items[i].accept(this);
+            if (i < el.items.length - 1)
+                this.cw.writeMarkup(',').writeSpace();
+        }
     }
 
 

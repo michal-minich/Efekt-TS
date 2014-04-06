@@ -36,6 +36,7 @@ class BinOpBuilder {
         "|": 30,
         "&&": 20, "and": 20,
         "||": 10, "or": 10,
+        "," : 5,
         "=": 0, "*=": 0, "/=": 0, "%=": 0, "+=": 0, "-=": 0, "<<=": 0, ">>=": 0,
         "&==": 0, "^=": 0, "|=": 0
     };
@@ -119,6 +120,8 @@ class BinOpBuilder {
             return new ValueVar(undefined, op1, op2);
         } else if (op === "of") {
             return new TypeVar(undefined, op1, op2);
+        } else if (op === ",") {
+            return new ExpList(undefined, [op1, op2]);
         } else {
             return new BinOpApply(undefined, new Ident(undefined, op), op1,
                                   op2);
@@ -172,7 +175,7 @@ class Parser {
             var b = this.binOpBuilders.last();
             this.skipWhite();
 
-            if (this.matchChar('}') || this.matchChar(')')) {
+            if (this.matchChar(']') || this.matchChar('}') || this.matchChar(')')) {
                 if (!b.isEmpty()) {
                     b.addExpToSequence(<Exp>asi);
                     asi = b.buildBinOpApplyTreeFromSequence();
@@ -241,8 +244,26 @@ class Parser {
             return this.parseMany();
         else if (this.matchChar('"'))
             return this.parseString();
+        else if (this.matchChar('['))
+            return this.parseArray();
 
         return undefined;
+    }
+
+
+
+
+    private parseArray () : Arr {
+        var exps : Exp[] = [];
+        while (true) {
+            var exp = this.parseMany();
+            var ch = this.code[this.index];
+            if (ch === ']')
+                return new Arr(undefined, new ExpList(undefined, exps));
+            if (this.index >= this.code.length)
+                return new Arr(undefined, new ExpList(undefined, exps));
+            exps.push(exp);
+        }
     }
 
 
