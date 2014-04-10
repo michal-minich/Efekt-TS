@@ -21,23 +21,28 @@ function start () {
     codeScratchpad.value = codeInput.value;
 
     function parse () {
+        clear();
         codeView.innerHTML = codeToHtmlString(codeInput.value);
         astView.innerHTML = codeToAstString(codeInput.value);
     }
 
     function interpret () {
-
+        clear();
         function exHandler (ex : Asi) {
             codeView.innerHTML = "Exception: <br>" + asiToHtmlString(ex);
             codeView.innerHTML = "Exception: <br>" + asiToHtmlAstString(ex);
         }
-
         var parser = new Parser();
         var al = parser.parse(codeInput.value);
         var i = new Interpreter(exHandler);
         var res = al.items[0].accept(i);
         codeView.innerHTML = asiToHtmlString(res);
         astView.innerHTML = asiToHtmlAstString(res);
+    }
+
+    function clear () {
+        codeView.innerHTML = "...";
+        astView.innerHTML = "...";
     }
 
     parseButton.addEventListener('click', () => {

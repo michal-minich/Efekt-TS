@@ -69,10 +69,12 @@ class TestReprot {
         if (ok) {
             //var rowClass = "";
             return;
+        } else {
+            ++this.failedCount;
         }
 
         this.table.push("<tr", rowClass, ">",
-                        "<td>", "" + (++this.failedCount), "</td>",
+                        "<td>", "" + this.failedCount, "</td>",
                         "<td>", category, "</td>",
                         "<td>", code, "</td>",
                         "<td>", expected, "</td>",
@@ -87,7 +89,7 @@ class TestReprot {
 
 
     getReportString () : string {
-        if (this.failedCount === 0)
+        if (this.table.length === 10)
             return "All " + this.testCount + " Tests OK";
         this.table.push("</tbody></table>");
         return "" + this.failedCount + " of " + this.testCount +
@@ -227,6 +229,31 @@ function parseTests () : void {
     // true false
     t("if true then false").parse();
     t("false").parse();
+
+    // array
+    t("[]").parse();
+    t("[1]").parse();
+    t("[1, 2]").parse();
+    t("[1, 2] 3").parse("[1, 2]\n3");
+    t("0 [1, 2] 3").parse("0\n[1, 2]\n3");
+    t("[1, 2] [3, 4]").parse("[1, 2]\n[3, 4]");
+    t("[] [3, 4]").parse("[]\n[3, 4]");
+    t("[1, 2] []").parse("[1, 2]\n[]");
+    t("[1, [2, 3]] []").parse("[1, [2, 3]]\n[]");
+    t("[] [] []").parse("[]\n[]\n[]");
+    t("[1, 2, ((3 + 4) * 5), [6, 7], 8, 9]").parse();
+
+    // scope braces
+    t("{}").parse("{ }");
+    t("{1}").parse("{ 1 }");
+    t("{1  2} 3").parse("{\n    1\n    2\n}\n3");
+    t("0 {1 2} 3").parse("0\n{\n    1\n    2\n}\n3");
+    t("{1 2} {3 4}").parse("{\n    1\n    2\n}\n{\n    3\n    4\n}");
+    t("{} {3 4}").parse("{ }\n{\n    3\n    4\n}");
+    t("{1 2} {}").parse("{\n    1\n    2\n}\n{ }");
+    t("{1 {2 3}} {}").parse("{\n    1\n    {\n        2\n" +
+                                "        3\n    }\n}\n{ }");
+    t("{} {} {}").parse("{ }\n{ }\n{ }");
 
     // var
     t("var a").parse();

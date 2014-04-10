@@ -37,7 +37,6 @@ class Printer implements AstVisitor<void> {
 
 
 
-
     private static itIsExactlyOneExp (asis : Asi[]) : boolean {
         return asis.length == 1 && asis[0] instanceof Exp;
     }
@@ -47,6 +46,7 @@ class Printer implements AstVisitor<void> {
 
     private static showScopeBraces (asi : Asi) : boolean {
         return asi instanceof Fn ||
+            asi instanceof AsiList ||
             asi instanceof Struct ||
             asi instanceof Interface;
     }
@@ -70,8 +70,10 @@ class Printer implements AstVisitor<void> {
         for (var i = 0; i < al.items.length; i++) {
             var item = al.items[i];
             item.accept(this);
-            if (i < al.items.length - 1)
+            if (i < al.items.length - 1) {
                 this.cw.writeNewLine();
+                this.markLineWritten();
+            }
         }
     }
 
@@ -213,9 +215,21 @@ class Printer implements AstVisitor<void> {
         if (skipBraces)
             skipBraces = !Printer.showScopeBraces(sc.parent);
         this.lineWritten.push(false);
-        if (!skipBraces)
-            this.cw.writeMarkup("{").writeSpace();
-        this.cw.tab();
+        if (!skipBraces) {
+            if (sc.list.items.length === 0) {
+                this.cw.writeMarkup("{ }");
+                return;
+            } else {
+                this.cw.writeMarkup("{");
+                if (sc.list.items.length === 1) {
+                    this.cw.writeSpace()
+                } else {
+                    this.cw.tab();
+                    this.cw.writeNewLine();
+                    this.markLineWritten();
+                }
+            }
+        }
 
         this.visitAsiList(sc.list);
 
@@ -226,8 +240,6 @@ class Printer implements AstVisitor<void> {
             this.cw.writeSpace();
         if (!skipBraces)
             this.cw.writeMarkup("}");
-
-
     }
 
 

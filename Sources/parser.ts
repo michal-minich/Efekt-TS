@@ -36,7 +36,7 @@ class BinOpBuilder {
         "|": 30,
         "&&": 20, "and": 20,
         "||": 10, "or": 10,
-        "," : 5,
+        ",": 5,
         "=": 0, "*=": 0, "/=": 0, "%=": 0, "+=": 0, "-=": 0, "<<=": 0, ">>=": 0,
         "&==": 0, "^=": 0, "|=": 0
     };
@@ -162,11 +162,16 @@ class Parser {
 
     private parseAsiList (startsWithCurly : boolean = false) : AsiList {
         var items : Asi[] = [];
-        var item : Asi;
-        //noinspection AssignmentResultUsedJS
-        while (this.code[this.index - 1] !== '}' &&
-            (item = this.parseMany(startsWithCurly)))
-            items.push(item);
+        if (this.code.length !== 0) {
+            while (true) {
+                var item = this.parseMany(startsWithCurly);
+                if (!item)
+                    break;
+                items.push(item);
+                if (this.code[this.index - 1] === '}')
+                    break;
+            }
+        }
         return new AsiList(undefined, items);
     }
 
@@ -174,30 +179,28 @@ class Parser {
 
 
     private parseMany (startsWithCurly : boolean = false) : Asi {
-        this.binOpBuilders.push(new BinOpBuilder());
+        var b = new BinOpBuilder();
+        this.binOpBuilders.push(b);
         while (true) {
             var asi = this.parseOne();
-            var b = this.binOpBuilders.last();
             this.skipWhite();
-
             if (this.matchChar(']') || this.matchChar('}') || this.matchChar(')')) {
                 if (!b.isEmpty()) {
-                    b.addExpToSequence(<Exp>asi);
+                    if (asi)
+                        b.addExpToSequence(<Exp>asi);
                     asi = b.buildBinOpApplyTreeFromSequence();
+                    this.binOpBuilders.pop();
                 }
-                this.binOpBuilders.pop();
                 if (this.code[this.index - 1] === '}' && !startsWithCurly)
                     --this.index;
                 return asi;
-            }
-
-            this.skipWhite();
-            if (this.matchOp()) {
+            } else if (this.matchOp()) {
                 b.addExpAndOpToSequence(<Exp>asi, this.matched);
             } else if (!b.isEmpty()) {
-                this.binOpBuilders.pop();
                 b.addExpToSequence(<Exp>asi);
-                return b.buildBinOpApplyTreeFromSequence();
+                asi = b.buildBinOpApplyTreeFromSequence();
+                this.binOpBuilders.pop();
+                return asi;
             } else {
                 this.binOpBuilders.pop();
                 return asi;
@@ -259,16 +262,16 @@ class Parser {
 
 
     private parseArray () : Arr {
-        var exps : Exp[] = [];
-        while (true) {
-            var exp = this.parseMany();
-            var ch = this.code[this.index];
-            if (ch === ']')
-                return new Arr(undefined, new ExpList(undefined, exps));
-            if (this.index >= this.code.length)
-                return new Arr(undefined, new ExpList(undefined, exps));
-            exps.push(exp);
-        }
+        var exp = this.parseMany();
+        var el : ExpList;
+        if (exp)
+            el = exp instanceof ExpList
+                ? <ExpList>exp
+                : new ExpList(undefined, [exp]);
+        else
+            el = new ExpList(undefined, []);
+
+        return new Arr(undefined, el);
     }
 
 
@@ -468,6 +471,10 @@ class Parser {
     private skipWhite () : boolean {
         while (this.matchChar(' ') || this.matchChar('\t')) {
         }
-        return this.matchChar('\n') || this.matchChar('\r');
+        var isNewLine = this.matchChar('\n') || this.matchChar('\r');
+        while (this.matchChar(' ') || this.matchChar('\t')
+            || this.matchChar('\n') || this.matchChar('\r')) {
+        }
+        return isNewLine;
     }
 }
