@@ -1,3 +1,8 @@
+/// <reference path="ast.ts"/>
+/// <reference path="writer.ts"/>
+/// <reference path="printer.ts"/>
+/// <reference path="debugprinter.ts"/>
+
 interface TextWriter {
 
     write(...values : string[]) : void;

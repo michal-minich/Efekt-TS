@@ -1,5 +1,5 @@
 /// <reference path="ast.ts"/>
-
+/// <reference path="common.ts"/>
 
 interface Precedence {
     [operator : string] : number
