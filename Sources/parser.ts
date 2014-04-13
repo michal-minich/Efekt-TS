@@ -18,9 +18,10 @@ class BinOpBuilder {
     private opExp : Exp[] = [];
     private opOp : string[] = [];
 
+    // \n is virtual operator that binds fn exp to braced to make fn apply
     private static rightAssociativeOps =
-        [":", "of", "=", "*=", "/=", "%=", "+=", "-=", "<<=", ">>=", "&==",
-         "^=", "|="];
+        ["\n", ":", "of", "=", "*=", "/=", "%=", "+=", "-=", "<<=", ">>=",
+         "&==", "^=", "|="];
 
     private static opPrecedence : Precedence = {
         ".": 160,
@@ -37,8 +38,9 @@ class BinOpBuilder {
         "&&": 20, "and": 20,
         "||": 10, "or": 10,
         ",": 5,
-        "=": 0, "*=": 0, "/=": 0, "%=": 0, "+=": 0, "-=": 0, "<<=": 0, ">>=": 0,
-        "&==": 0, "^=": 0, "|=": 0
+        "=": 3, "*=": 3, "/=": 3, "%=": 3, "+=": 3, "-=": 3, "<<=": 3, ">>=": 3,
+        "&==": 3, "^=": 3, "|=": 3,
+        "\n": 1
     };
 
 
@@ -73,6 +75,7 @@ class BinOpBuilder {
         this.opOp = [];
         return res;
     }
+
 
 
 
@@ -114,6 +117,19 @@ class BinOpBuilder {
             if (!(op2 instanceof Ident))
                 throw "expected identifier after '.'.";
             return new Member(undefined, op1, <Ident>op2);
+        } else if (op === "\n") {
+            if (op2 instanceof ExpList)
+                return new FnApply(undefined, <ExpList>op2, op1);
+            else if (op2 instanceof Exp)
+                return new FnApply(undefined,
+                                   new ExpList(undefined, [<Exp>op2]),
+                                   op1);
+            else if (!op2)
+                return new FnApply(undefined,
+                                   new ExpList(undefined, []),
+                                   op1);
+            else
+                throw "function arguments cannot be statement.";
         } else if (op === "=") {
             return new Assign(undefined, op1, op2);
         } else if (op === ":") {
@@ -144,7 +160,6 @@ class Parser {
     private matched : string;
 
     private binOpBuilders : BinOpBuilder[] = [];
-
 
 
     public parse (code : string) : AsiList {
@@ -184,7 +199,8 @@ class Parser {
         while (true) {
             var asi = this.parseOne();
             this.skipWhite();
-            if (this.matchChar(']') || this.matchChar('}') || this.matchChar(')')) {
+            if (this.matchChar(']') || this.matchChar('}') ||
+                this.matchChar(')')) {
                 if (!b.isEmpty()) {
                     if (asi)
                         b.addExpToSequence(<Exp>asi);
@@ -194,6 +210,8 @@ class Parser {
                 if (this.code[this.index - 1] === '}' && !startsWithCurly)
                     --this.index;
                 return asi;
+            } else if (this.matchChar('(')) {
+                b.addExpAndOpToSequence(<Exp>asi, "\n");
             } else if (this.matchOp()) {
                 b.addExpAndOpToSequence(<Exp>asi, this.matched);
             } else if (!b.isEmpty()) {
@@ -248,10 +266,13 @@ class Parser {
 
         if (this.matchChar('{'))
             return new Scope(undefined, this.parseAsiList(true));
+
         else if (this.matchChar('('))
-            return this.parseMany();
+            return new Braced(undefined, this.parseMany());
+
         else if (this.matchChar('"'))
             return this.parseString();
+
         else if (this.matchChar('['))
             return this.parseArray();
 

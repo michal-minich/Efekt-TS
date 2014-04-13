@@ -1,7 +1,10 @@
 body {
-    background-color: white;
-    color: black;
     font: normal 10pt 'Segoe UI';
+}
+
+body, textarea {
+    background-color: lightgray;
+    color: black;
 }
 
 table {

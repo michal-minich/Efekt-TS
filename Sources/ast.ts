@@ -83,9 +83,29 @@ class ExpList extends Asi {
         return v.visitExpList(this);
     }
 
-    add(item : Exp) : void {
+    add (item : Exp) : void {
         this.items.push(item);
         item.parent = this;
+    }
+}
+
+
+
+
+class Braced extends Exp {
+
+    public value : Exp;
+
+    constructor (attrs : ExpList, value : Exp) {
+        super(attrs);
+        if (value) {
+            this.value = value;
+            value.parent = this;
+        }
+    }
+
+    accept<T> (v : AstVisitor<T>) : T {
+        return v.visitBraced(this);
     }
 }
 

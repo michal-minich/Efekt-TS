@@ -91,6 +91,19 @@ class Printer implements AstVisitor<void> {
 
 
 
+    visitBraced (bc : Braced) : void {
+        //var showBraces = bc.parent instanceof FnApply;
+        //if (showBraces)
+            this.cw.writeMarkup('(');
+        if (bc.value)
+            bc.value.accept(this);
+        //if (showBraces)
+            this.cw.writeMarkup(')');
+    }
+
+
+
+
     // statements ===============================================
 
 
@@ -154,9 +167,9 @@ class Printer implements AstVisitor<void> {
                 this.cw.writeKey("catch");
                 var c = tr.catches[i];
                 if (c.on) {
-                    this.cw.writeSpace().writeMarkup("(");
+                    //this.cw.writeSpace().writeMarkup("(");
                     this.visitVar(c.on);
-                    this.cw.writeMarkup(")").writeSpace();
+                    //this.cw.writeMarkup(")").writeSpace();
                     this.visitScope(c.body);
                 }
             }
@@ -277,13 +290,13 @@ class Printer implements AstVisitor<void> {
 
 
     visitBinOpApply (opa : BinOpApply) : void {
-        this.cw.writeMarkup("(");
+        //this.cw.writeMarkup("(");
         opa.op1.accept(this);
         this.cw.writeSpace();
         opa.op.accept(this);
         this.cw.writeSpace();
         opa.op2.accept(this);
-        this.cw.writeMarkup(")")
+        //this.cw.writeMarkup(")")
     }
 
 

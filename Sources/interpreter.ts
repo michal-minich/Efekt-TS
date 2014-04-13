@@ -185,6 +185,13 @@ class Interpreter implements AstVisitor<Asi> {
 
 
 
+    visitBraced (bc : Braced) {
+        return bc.value;
+    }
+
+
+
+
     // statements ===============================================
 
 

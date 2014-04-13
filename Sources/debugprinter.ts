@@ -18,6 +18,10 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     private writeComaList (items : Exp[]) {
+        if (items.length === 0) {
+            this.cw.writeMarkup("=empty=");
+            return;
+        }
         this.cw.tab().writeNewLine();
         for (var i = 0; i < items.length; i++) {
             this.cw.writeMarkup("" + i).writeSpace();
@@ -52,13 +56,27 @@ class DebugPrinter implements AstVisitor<void> {
 
     visitExpList (el : ExpList) : void {
         this.cw.writeKey("ExpList").tab().writeNewLine()
-            .writeMarkup("items").writeSpace().tab().writeNewLine();;
+            .writeMarkup("items").tab().writeNewLine();
         for (var i = 0; i < el.items.length; i++) {
             el.items[i].accept(this);
             if (i < el.items.length - 1)
                 this.cw.writeNewLine();
+                this.cw.writeNewLine();
         }
         this.cw.unTab().unTab();
+    }
+
+
+
+
+    visitBraced (bc : Braced) : void {
+        this.cw.writeKey("Braced").tab().writeNewLine().writeMarkup("value")
+            .writeSpace();
+        if (bc.value)
+            bc.value.accept(this);
+        else
+            this.cw.writeSpace().writeMarkup("=nothing=");
+        this.cw.unTab();
     }
 
 
@@ -235,8 +253,11 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitFnApply (fna : FnApply) : void {
+        this.cw.writeKey("FnApply").tab().writeNewLine().writeMarkup("fn").writeSpace();
         fna.fn.accept(this);
+        this.cw.writeNewLine().writeMarkup("args.items").writeSpace();
         this.writeComaList(fna.args.items);
+        this.cw.unTab();
     }
 
 

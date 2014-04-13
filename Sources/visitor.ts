@@ -6,6 +6,7 @@ interface AstVisitor<T> {
     // helpers
     visitAsiList (al : AsiList) : T;
     visitExpList (el : ExpList) : T;
+    visitBraced (bc : Braced) : T;
 
     // statements
     visitLoop (l : Loop) : T;
