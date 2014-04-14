@@ -53,15 +53,15 @@ class TestReprot {
 
         var actualPlain = asiToString(actualAsi);
         var actualHtml = asiToHtmlString(actualAsi);
-        var codeAst = codeToAstString(code);
+        var codeAst = codeToAstString(code, true);
 
         try {
-            var expectedAst = codeToAstString(expected);
+            var expectedAst = codeToAstString(expected, true);
         } catch (ex) {
             var expectedAst = ex;
         }
 
-        var actualAst = asiToHtmlAstString(actualAsi);
+        var actualAst = asiToHtmlAstString(actualAsi, true);
 
         var ok = expected === actualPlain && expectedAst === actualAst;
 
@@ -203,7 +203,7 @@ function parseTests () : void {
     t("new Int").parse();
 
     // typeof
-    t("typeof 1 + 2").parse("typeof 1 + 2");
+    t("typeof 1 + 2").parse("typeof (1 + 2)");
     t("typeof var a = 1").parse();
 
     // member access
@@ -215,11 +215,11 @@ function parseTests () : void {
     t("try a finally { var b }").parse("try a\nfinally var b");
 
     // throw
-    t("throw 1 + 2").parse("throw 1 + 2");
+    t("throw 1 + 2").parse("throw (1 + 2)");
     t("throw \n throw ex").parse("throw\nthrow ex");
 
     // return
-    t("return \n return 1 + 2").parse("return\nreturn 1 + 2");
+    t("return \n return 1 + 2").parse("return\nreturn (1 + 2)");
 
 
     // break
@@ -238,15 +238,15 @@ function parseTests () : void {
     t("a(1)").parse();
     t("a(1, 2)").parse();
     t("a(b())").parse();
-    //t("a(b(), c())").parse();
-    //t("a(b(), c()) d()").parse();
-    t("a(b(c(d()))").parse();
+    t("a(b(), c())").parse();
+    t("a(b(), c()) d()").parse("a(b(), c())\nd()");
+    t("a(b(c(d())))").parse();
     t("a()()").parse();
     t("a()(1, b())").parse();
     t("a.b()").parse();
-    //t("a().b()").parse();
-    t("1 + a()").parse();
-    //t("a() + 2").parse();
+    t("a().b()").parse();
+    t("1 + a()").parse("(1 + a())");
+    t("a() + 2").parse("(a() + 2)");
 
     // array
     t("[]").parse();
@@ -306,7 +306,7 @@ function parseTests () : void {
     t("var h : T of Int = Int").parse();
 
     // var & op priority and precednce
-   /* t("a = b = 1 + 2").parse("a = b = (1 + 2)");
+    t("a = b = 1 + 2").parse("a = b = (1 + 2)");
     t("var a = b = 1 + 2").parse("var a = b = (1 + 2)");
     t("a = var b = 1 + 2").parse("a = var b = (1 + 2)");
     t("var a = var b = 1 + 2").parse("var a = var b = (1 + 2)");
@@ -341,7 +341,6 @@ function parseTests () : void {
     t("1 + (((2 * 3))) + 4").parse("((1 + (2 * 3)) + 4)");
     t("1 + ((((2 * 3))))").parse("(1 + (2 * 3))");
     t("1 * ((((2 + 3)))) + 4").parse("((1 * (2 + 3)) + 4)");
-    */
 }
 
 

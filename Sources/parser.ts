@@ -18,13 +18,14 @@ class BinOpBuilder {
     private opExp : Exp[] = [];
     private opOp : string[] = [];
 
-    // \n is virtual operator that binds fn exp to braced to make fn apply
     private static rightAssociativeOps =
-        ["\n", ":", "of", "=", "*=", "/=", "%=", "+=", "-=", "<<=", ">>=",
+        [":", "of", "=", "*=", "/=", "%=", "+=", "-=", "<<=", ">>=",
          "&==", "^=", "|="];
 
+    // \n is virtual operator that binds fn exp to braced to make fn apply
     private static opPrecedence : Precedence = {
         ".": 160,
+        "\n": 160,
         "of": 150,
         ":": 140,
         "*": 130, "/": 130, "%": 130,
@@ -39,8 +40,7 @@ class BinOpBuilder {
         "||": 10, "or": 10,
         ",": 5,
         "=": 3, "*=": 3, "/=": 3, "%=": 3, "+=": 3, "-=": 3, "<<=": 3, ">>=": 3,
-        "&==": 3, "^=": 3, "|=": 3,
-        "\n": 1
+        "&==": 3, "^=": 3, "|=": 3
     };
 
 
@@ -118,18 +118,7 @@ class BinOpBuilder {
                 throw "expected identifier after '.'.";
             return new Member(undefined, op1, <Ident>op2);
         } else if (op === "\n") {
-            if (op2 instanceof ExpList)
-                return new FnApply(undefined, <ExpList>op2, op1);
-            else if (op2 instanceof Exp)
-                return new FnApply(undefined,
-                                   new ExpList(undefined, [<Exp>op2]),
-                                   op1);
-            else if (!op2)
-                return new FnApply(undefined,
-                                   new ExpList(undefined, []),
-                                   op1);
-            else
-                throw "function arguments cannot be statement.";
+            return new FnApply(undefined, <Braced>op2, op1);
         } else if (op === "=") {
             return new Assign(undefined, op1, op2);
         } else if (op === ":") {
@@ -211,6 +200,7 @@ class Parser {
                     --this.index;
                 return asi;
             } else if (this.matchChar('(')) {
+                --this.index;
                 b.addExpAndOpToSequence(<Exp>asi, "\n");
             } else if (this.matchOp()) {
                 b.addExpAndOpToSequence(<Exp>asi, this.matched);

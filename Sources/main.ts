@@ -32,6 +32,7 @@ function start () {
             codeView.innerHTML = "Exception: <br>" + asiToHtmlString(ex);
             codeView.innerHTML = "Exception: <br>" + asiToHtmlAstString(ex);
         }
+
         var parser = new Parser();
         var al = parser.parse(codeInput.value);
         var i = new Interpreter(exHandler);

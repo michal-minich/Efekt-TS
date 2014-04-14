@@ -46,10 +46,10 @@ function asiToString (asi : Asi) : string {
 
 
 
-function asiToHtmlAstString (asi : Asi) : string {
+function asiToHtmlAstString (asi : Asi, invisibleBraced = false) : string {
     var sw = new StringWriter();
     var cw = new HtmlCodeWriter(sw);
-    var p = new DebugPrinter(cw);
+    var p = new DebugPrinter(cw, invisibleBraced);
     asi.accept(p);
     var str = sw.getString();
     return str;
@@ -70,10 +70,10 @@ function asiToHtmlString (asi : Asi) : string {
 
 
 
-function codeToAstString (code : string) : string {
+function codeToAstString (code : string, invisibleBraced = false) : string {
     var parser = new Parser();
     var al = parser.parse(code);
-    return asiToAstString(al);
+    return asiToAstString(al, invisibleBraced);
 }
 
 
@@ -88,10 +88,10 @@ function codeToHtmlString (code : string) : string {
 
 
 
-function asiToAstString (asi : Asi) : string {
+function asiToAstString (asi : Asi, invisibleBraced = false) : string {
     var sw = new StringWriter();
     var cw = new HtmlCodeWriter(sw);
-    var p = new DebugPrinter(cw);
+    var p = new DebugPrinter(cw, invisibleBraced);
     asi.accept(p);
     var str = sw.getString();
     return str;

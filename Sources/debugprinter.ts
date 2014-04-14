@@ -6,20 +6,23 @@
 class DebugPrinter implements AstVisitor<void> {
 
     private cw : CodeWriter;
+    private invisibleBraced : boolean;
 
 
 
 
-    constructor (cw : CodeWriter) {
+    constructor (cw : CodeWriter, invisibleBraced = false) {
         this.cw = cw;
+        this.invisibleBraced = invisibleBraced;
     }
 
 
 
 
-    private writeComaList (items : Exp[]) {
+    private writeList (items : Asi[]) {
+        this.cw.writeMarkup("items");
         if (items.length === 0) {
-            this.cw.writeMarkup("=empty=");
+            this.cw.writeSpace().writeMarkup("=empty=");
             return;
         }
         this.cw.tab().writeNewLine();
@@ -41,42 +44,33 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitAsiList (al : AsiList) : void {
-        this.cw.writeKey("AsiList").tab().writeNewLine()
-            .writeMarkup("items").writeSpace().tab().writeNewLine();
-        for (var i = 0; i < al.items.length; i++) {
-            al.items[i].accept(this);
-            if (i < al.items.length - 1)
-                this.cw.writeNewLine();
-        }
-        this.cw.unTab().unTab();
+        this.cw.writeKey("AsiList").tab().writeNewLine();
+        this.writeList(al.items);
+        this.cw.unTab();
     }
 
 
 
 
     visitExpList (el : ExpList) : void {
-        this.cw.writeKey("ExpList").tab().writeNewLine()
-            .writeMarkup("items").tab().writeNewLine();
-        for (var i = 0; i < el.items.length; i++) {
-            el.items[i].accept(this);
-            if (i < el.items.length - 1)
-                this.cw.writeNewLine();
-                this.cw.writeNewLine();
-        }
-        this.cw.unTab().unTab();
+        this.cw.writeKey("ExpList").tab().writeNewLine();
+        this.writeList(el.items);
+        this.cw.unTab();
     }
 
 
 
 
     visitBraced (bc : Braced) : void {
-        this.cw.writeKey("Braced").tab().writeNewLine().writeMarkup("value")
-            .writeSpace();
+        if (!this.invisibleBraced)
+            this.cw.writeKey("Braced").tab().writeNewLine().writeMarkup("value").writeSpace();
         if (bc.value)
             bc.value.accept(this);
-        else
-            this.cw.writeSpace().writeMarkup("=nothing=");
-        this.cw.unTab();
+        if (!this.invisibleBraced) {
+            if (!bc.value)
+                this.cw.writeSpace().writeMarkup("=nothing=");
+            this.cw.unTab();
+        }
     }
 
 
@@ -255,8 +249,8 @@ class DebugPrinter implements AstVisitor<void> {
     visitFnApply (fna : FnApply) : void {
         this.cw.writeKey("FnApply").tab().writeNewLine().writeMarkup("fn").writeSpace();
         fna.fn.accept(this);
-        this.cw.writeNewLine().writeMarkup("args.items").writeSpace();
-        this.writeComaList(fna.args.items);
+        this.cw.writeNewLine().writeMarkup("args").writeSpace();
+        fna.args.accept(this);
         this.cw.unTab();
     }
 
@@ -365,7 +359,7 @@ class DebugPrinter implements AstVisitor<void> {
 
     visitArr (arr : Arr) : void {
         this.cw.writeKey("Arr").tab().writeNewLine().writeMarkup("list.items");
-        this.writeComaList(arr.list.items);
+        arr.list.accept(this);
         this.cw.unTab();
     }
 
@@ -387,7 +381,7 @@ class DebugPrinter implements AstVisitor<void> {
 
     visitFn (fn : Fn) : void {
         this.cw.writeKey("Fn").writeSpace();
-        this.writeComaList(fn.params.items);
+        this.writeList(fn.params.items);
         this.cw.writeSpace();
         if (fn.returnType) {
             this.cw.writeMarkup("->").writeSpace();
@@ -437,7 +431,7 @@ class DebugPrinter implements AstVisitor<void> {
 
     visitTypeAnyOf (tao : TypeAnyOf) : void {
         this.cw.writeType("AnyOf");
-        this.writeComaList(tao.choices.items);
+        tao.choices.accept(this);
     }
 
 

@@ -377,10 +377,10 @@ class Member extends Exp {
 
 class FnApply extends Exp {
 
-    public args : ExpList;
+    public args : Braced;
     public fn : Exp;
 
-    constructor (attrs : ExpList, args : ExpList, fn : Exp) {
+    constructor (attrs : ExpList, args : Braced, fn : Exp) {
         super(attrs);
         this.args = args;
         this.fn = fn;

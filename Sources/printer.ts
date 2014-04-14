@@ -17,26 +17,6 @@ class Printer implements AstVisitor<void> {
 
 
 
-    private writeComaList (items : Exp[]) {
-        for (var i = 0; i < items.length; i++) {
-            items[i].accept(this);
-            if (i + 1 !== items.length)
-                this.cw.writeMarkup(",").writeSpace();
-        }
-    }
-
-
-
-
-    private writeBracedComaList (items : Exp[]) {
-        this.cw.writeMarkup("(");
-        this.writeComaList(items);
-        this.cw.writeMarkup(")");
-    }
-
-
-
-
     private static itIsExactlyOneExp (asis : Asi[]) : boolean {
         return asis.length == 1 && asis[0] instanceof Exp;
     }
@@ -92,12 +72,13 @@ class Printer implements AstVisitor<void> {
 
 
     visitBraced (bc : Braced) : void {
-        //var showBraces = bc.parent instanceof FnApply;
-        //if (showBraces)
+        var showBraces = !(bc.value && (bc.value instanceof Braced
+            || bc.value instanceof BinOpApply));
+        if (showBraces)
             this.cw.writeMarkup('(');
         if (bc.value)
             bc.value.accept(this);
-        //if (showBraces)
+        if (showBraces)
             this.cw.writeMarkup(')');
     }
 
@@ -283,20 +264,20 @@ class Printer implements AstVisitor<void> {
 
     visitFnApply (fna : FnApply) : void {
         fna.fn.accept(this);
-        this.writeBracedComaList(fna.args.items);
+        fna.args.accept(this);
     }
 
 
 
 
     visitBinOpApply (opa : BinOpApply) : void {
-        //this.cw.writeMarkup("(");
+        this.cw.writeMarkup("(");
         opa.op1.accept(this);
         this.cw.writeSpace();
         opa.op.accept(this);
         this.cw.writeSpace();
         opa.op2.accept(this);
-        //this.cw.writeMarkup(")")
+        this.cw.writeMarkup(")")
     }
 
 
@@ -383,7 +364,7 @@ class Printer implements AstVisitor<void> {
 
     visitArr (arr : Arr) : void {
         this.cw.writeMarkup("[");
-        this.writeComaList(arr.list.items);
+        arr.list.accept(this);
         this.cw.writeMarkup("]");
     }
 
@@ -405,7 +386,7 @@ class Printer implements AstVisitor<void> {
 
     visitFn (fn : Fn) : void {
         this.cw.writeKey("fn").writeSpace();
-        this.writeBracedComaList(fn.params.items);
+        fn.params.accept(this);
         this.cw.writeSpace();
         if (fn.returnType) {
             this.cw.writeMarkup("->").writeSpace();
@@ -451,7 +432,7 @@ class Printer implements AstVisitor<void> {
 
     visitTypeAnyOf (tao : TypeAnyOf) : void {
         this.cw.writeType("AnyOf");
-        this.writeBracedComaList(tao.choices.items);
+        tao.choices.accept(this);
     }
 
 
