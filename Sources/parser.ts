@@ -224,6 +224,7 @@ class Parser {
         "false": () => new Bool(undefined, false),
         "var": () => this.parseSimpleKeyword<Var>(Var, true),
         "if": () => this.parseIf(),
+        "fn": () => this.parseFn(),
         "loop": () => this.parseLoop(),
         "break": () => new Break(undefined),
         "continue": () => new Continue(undefined),
@@ -272,13 +273,29 @@ class Parser {
 
 
 
+    private parseFn () : Fn {
+        var asi = this.parseMany();
+        if (asi instanceof Braced) {
+            var bc = <Braced>asi;
+            asi = this.parseMany();
+            if (!(asi instanceof Scope))
+                throw "expected scope after fn (...).";
+            return new Fn(undefined, bc, <Scope>asi);
+        } else {
+            throw "expected braced after fn.";
+        }
+    }
+
+
+
+
     private parseArray () : Arr {
-        var exp = this.parseMany();
+        var asi = this.parseMany();
         var el : ExpList;
-        if (exp)
-            el = exp instanceof ExpList
-                ? <ExpList>exp
-                : new ExpList(undefined, [exp]);
+        if (asi)
+            el = asi instanceof ExpList
+                ? <ExpList>asi
+                : new ExpList(undefined, [asi]);
         else
             el = new ExpList(undefined, []);
 

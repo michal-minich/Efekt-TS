@@ -380,13 +380,14 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitFn (fn : Fn) : void {
-        this.cw.writeKey("Fn").writeSpace();
-        this.writeList(fn.params.items);
+        this.cw.writeKey("Fn").tab().writeNewLine().writeMarkup("params").writeSpace();
+        fn.params.accept(this);
         this.cw.writeSpace();
         if (fn.returnType) {
-            this.cw.writeMarkup("->").writeSpace();
+            this.cw.writeMarkup("returnType").writeSpace();
             fn.returnType.accept(this);
         }
+        this.cw.writeNewLine().writeMarkup("params").writeSpace();
         fn.body.accept(this);
     }
 

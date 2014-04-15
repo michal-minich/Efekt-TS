@@ -630,11 +630,11 @@ class Ref extends Exp {
 
 class Fn extends Exp {
 
-    public params : ExpList;
+    public params : Braced;
     public body : Scope;
     public returnType : Exp;
 
-    constructor (attrs : ExpList, params : ExpList, body : Scope) {
+    constructor (attrs : ExpList, params : Braced, body : Scope) {
         super(attrs);
         this.params = params;
         this.body = body;

@@ -273,6 +273,15 @@ function parseTests () : void {
                                 "        3\n    }\n}\n{ }");
     t("{} {} {}").parse("{ }\n{ }\n{ }");
 
+    // fn
+    t("fn () { }").parse();
+    t("fn (1) { }").parse();
+    t("fn (1, 2) { }").parse();
+    t("fn (1, 2) { a }").parse();
+    t("fn (1, 2) { a b }").parse("fn (1, 2) {\n    a\n    b\n}");
+    t("fn (1, 2) { fn () { c } }").parse();
+    t("fn (1, 2) { fn (fn () { d }) { } }").parse();
+
     // var
     t("var a").parse();
     t("var b : T").parse();
