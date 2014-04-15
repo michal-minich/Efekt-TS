@@ -186,7 +186,7 @@ class Interpreter implements AstVisitor<Asi> {
 
 
     visitBraced (bc : Braced) : Exp {
-        return bc.value;
+        return bc.value ? bc.value.accept(this) : Void.instance;
     }
 
 
@@ -325,7 +325,36 @@ class Interpreter implements AstVisitor<Asi> {
 
 
     visitFnApply (fna : FnApply) : Exp {
-        return undefined;
+        var args : Exp[] = [];
+        if (fna.args.value instanceof ExpList) {
+            var el = <ExpList>fna.args.value;
+            for (var i = 0; i < el.items.length; ++i)
+                args.push(el.items[i].accept(this));
+        } else if (fna.args.value instanceof Exp) {
+            args = [fna.args.value.accept(this)];
+        } else {
+            args = [];
+        }
+        if (fna.fn instanceof Ident) {
+            var fni = <Ident>fna.fn;
+            if (fni.name === "print") {
+                var codeView = <HTMLPreElement>document.getElementById("codeView");
+                var astView = <HTMLPreElement>document.getElementById("astView");
+                for (var i = 0; i < args.length; ++i) {
+                    codeView.innerHTML += asiToHtmlString(args[i]) + "<br>";
+                    astView.innerHTML += asiToAstString(args[i]) + "<br>";
+                }
+                return Void.instance;
+            }
+        }
+
+        var fn = fna.fn.accept(this);
+        if (fn instanceof Ident) {
+            var fnExp = this.get(fni.name);
+            return fnExp;
+        } else {
+            throw "fn apply not supported";
+        }
     }
 
 

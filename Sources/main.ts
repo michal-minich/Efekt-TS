@@ -38,13 +38,13 @@ function start () {
         var i = new Interpreter(exHandler);
         var sc = new Scope(undefined, al);
         var res = sc.accept(i);
-        codeView.innerHTML = asiToHtmlString(res);
-        astView.innerHTML = asiToHtmlAstString(res);
+        codeView.innerHTML += asiToHtmlString(res);
+        astView.innerHTML += asiToHtmlAstString(res);
     }
 
     function clear () {
-        codeView.innerHTML = "...";
-        astView.innerHTML = "...";
+        codeView.innerHTML = "";
+        astView.innerHTML = "";
     }
 
     parseButton.addEventListener('click', () => {
