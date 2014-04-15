@@ -20,17 +20,17 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     private writeList (items : Asi[]) {
-        this.cw.writeMarkup("items");
+        this.cw.markup("items");
         if (items.length === 0) {
-            this.cw.writeSpace().writeMarkup("=empty=");
+            this.cw.space().markup("=empty=");
             return;
         }
-        this.cw.tab().writeNewLine();
+        this.cw.tab().newLine();
         for (var i = 0; i < items.length; i++) {
-            this.cw.writeMarkup("" + i).writeSpace();
+            this.cw.markup("" + i).space();
             items[i].accept(this);
             if (i + 1 !== items.length)
-                this.cw.writeNewLine();
+                this.cw.newLine();
         }
         this.cw.unTab();
     }
@@ -44,7 +44,7 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitAsiList (al : AsiList) : void {
-        this.cw.writeKey("AsiList").tab().writeNewLine();
+        this.cw.key("AsiList").tab().newLine();
         this.writeList(al.items);
         this.cw.unTab();
     }
@@ -53,7 +53,7 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitExpList (el : ExpList) : void {
-        this.cw.writeKey("ExpList").tab().writeNewLine();
+        this.cw.key("ExpList").tab().newLine();
         this.writeList(el.items);
         this.cw.unTab();
     }
@@ -63,12 +63,12 @@ class DebugPrinter implements AstVisitor<void> {
 
     visitBraced (bc : Braced) : void {
         if (!this.invisibleBraced)
-            this.cw.writeKey("Braced").tab().writeNewLine().writeMarkup("value").writeSpace();
+            this.cw.key("Braced").tab().newLine().markup("value").space();
         if (bc.value)
             bc.value.accept(this);
         if (!this.invisibleBraced) {
             if (!bc.value)
-                this.cw.writeSpace().writeMarkup("=nothing=");
+                this.cw.space().markup("=nothing=");
             this.cw.unTab();
         }
     }
@@ -82,7 +82,7 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitLoop (l : Loop) : void {
-        this.cw.writeKey("Loop").tab().writeNewLine().writeMarkup("body").writeSpace();
+        this.cw.key("Loop").tab().newLine().markup("body").space();
         this.visitScope(l.body);
         this.cw.unTab();
     }
@@ -91,27 +91,27 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitBreak (b : Break) : void {
-        this.cw.writeKey("Break");
+        this.cw.key("Break");
     }
 
 
 
 
     visitContinue (c : Continue) : void {
-        this.cw.writeKey("Continue");
+        this.cw.key("Continue");
     }
 
 
 
 
     visitReturn (r : Return) : void {
-        this.cw.writeKey("Return");
+        this.cw.key("Return");
         if (r.value) {
-            this.cw.tab().writeNewLine().writeMarkup("value").writeSpace();
+            this.cw.tab().newLine().markup("value").space();
             r.value.accept(this);
             this.cw.unTab();
         } else {
-            this.cw.writeNewLine();
+            this.cw.newLine();
         }
     }
 
@@ -119,13 +119,13 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitThrow (th : Throw) : void {
-        this.cw.writeKey("Throw");
+        this.cw.key("Throw");
         if (th.ex) {
-            this.cw.tab().writeNewLine().writeMarkup("ex").writeSpace();
+            this.cw.tab().newLine().markup("ex").space();
             th.ex.accept(this);
             this.cw.unTab();
         } else {
-            this.cw.writeNewLine();
+            this.cw.newLine();
         }
     }
 
@@ -133,22 +133,22 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitTry (tr : Try) : void {
-        this.cw.writeKey("Try").tab().writeNewLine().writeMarkup("body").writeSpace();
+        this.cw.key("Try").tab().newLine().markup("body").space();
         this.visitScope(tr.body);
         if (tr.catches) {
             for (var i = 0; i < tr.catches.length; i++) {
-                this.cw.writeNewLine().writeMarkup("catch");
+                this.cw.newLine().markup("catch");
                 var c = tr.catches[i];
                 if (c.on) {
-                    this.cw.writeSpace().writeMarkup("(");
+                    this.cw.space().markup("(");
                     this.visitVar(c.on);
-                    this.cw.writeMarkup(")").writeSpace();
+                    this.cw.markup(")").space();
                     this.visitScope(c.body);
                 }
             }
         }
         if (tr.fin) {
-            this.cw.writeNewLine().writeMarkup("finally").writeSpace();
+            this.cw.newLine().markup("finally").space();
             this.visitScope(tr.fin);
         }
         this.cw.unTab();
@@ -163,7 +163,7 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitVar (v : Var) : void {
-        this.cw.writeKey("Var").tab().writeNewLine().writeMarkup("exp").writeSpace();
+        this.cw.key("Var").tab().newLine().markup("exp").space();
         v.exp.accept(this);
     }
 
@@ -171,10 +171,10 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitValueVar (vv : ValueVar) : void {
-        this.cw.writeKey("ValueVar").tab();
-        this.cw.writeNewLine().writeMarkup("ident").writeSpace();
+        this.cw.key("ValueVar").tab();
+        this.cw.newLine().markup("ident").space();
         vv.ident.accept(this);
-        this.cw.writeNewLine().writeMarkup("type").writeSpace();
+        this.cw.newLine().markup("type").space();
         vv.type.accept(this);
         this.cw.unTab();
     }
@@ -183,10 +183,10 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitTypeVar (tv : TypeVar) : void {
-        this.cw.writeKey("TypeVar").tab();
-        this.cw.writeNewLine().writeMarkup("type").writeSpace();
+        this.cw.key("TypeVar").tab();
+        this.cw.newLine().markup("type").space();
         tv.type.accept(this);
-        this.cw.writeNewLine().writeMarkup("constraint").writeSpace();
+        this.cw.newLine().markup("constraint").space();
         tv.constraint.accept(this);
         this.cw.unTab();
     }
@@ -195,10 +195,10 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitAssign (a : Assign) : void {
-        this.cw.writeKey("Assign").tab();
-        this.cw.writeNewLine().writeMarkup("slot").writeSpace();
+        this.cw.key("Assign").tab();
+        this.cw.newLine().markup("slot").space();
         a.slot.accept(this);
-        this.cw.writeNewLine().writeMarkup("value").writeSpace();
+        this.cw.newLine().markup("value").space();
         a.value.accept(this);
         this.cw.unTab();
     }
@@ -207,10 +207,10 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitScope (sc : Scope) : void {
-        this.cw.writeKey("Scope");
+        this.cw.key("Scope");
         this.cw.tab();
         for (var i = 0; i < sc.list.items.length; i++) {
-            this.cw.writeNewLine().writeMarkup("item").writeSpace();
+            this.cw.newLine().markup("item").space();
             sc.list.items[i].accept(this);
         }
         this.cw.unTab();
@@ -220,15 +220,15 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitIdent (i : Ident) : void {
-        this.cw.writeKey("Ident").tab().writeNewLine().writeMarkup("name").writeSpace();
+        this.cw.key("Ident").tab().newLine().markup("name").space();
         if (i.isOp)
             this.cw.writeOp(i.name);
         else if (i.isKey)
-            this.cw.writeKey(i.name);
+            this.cw.key(i.name);
         else if (i.isType)
-            this.cw.writeType(i.name);
+            this.cw.type(i.name);
         else
-            this.cw.writeIdent(i.name);
+            this.cw.ident(i.name);
         this.cw.unTab();
     }
 
@@ -236,9 +236,9 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitMember (m : Member) : void {
-        this.cw.writeKey("Member").tab().writeNewLine().writeMarkup("bag").writeSpace();
+        this.cw.key("Member").tab().newLine().markup("bag").space();
         m.bag.accept(this);
-        this.cw.writeNewLine().writeMarkup("ident").writeSpace();
+        this.cw.newLine().markup("ident").space();
         this.visitIdent(m.ident);
         this.cw.unTab();
     }
@@ -247,9 +247,9 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitFnApply (fna : FnApply) : void {
-        this.cw.writeKey("FnApply").tab().writeNewLine().writeMarkup("fn").writeSpace();
+        this.cw.key("FnApply").tab().newLine().markup("fn").space();
         fna.fn.accept(this);
-        this.cw.writeNewLine().writeMarkup("args").writeSpace();
+        this.cw.newLine().markup("args").space();
         fna.args.accept(this);
         this.cw.unTab();
     }
@@ -258,11 +258,11 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitBinOpApply (opa : BinOpApply) : void {
-        this.cw.writeKey("BinOpApply").tab().writeNewLine().writeMarkup("op").writeSpace();
+        this.cw.key("BinOpApply").tab().newLine().markup("op").space();
         opa.op.accept(this);
-        this.cw.writeNewLine().writeMarkup("op1").writeSpace();
+        this.cw.newLine().markup("op1").space();
         opa.op1.accept(this);
-        this.cw.writeNewLine().writeMarkup("op2").writeSpace();
+        this.cw.newLine().markup("op2").space();
         opa.op2.accept(this);
         this.cw.unTab();
     }
@@ -271,12 +271,12 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitIf (i : If) : void {
-        this.cw.writeKey("If").tab().writeNewLine().writeMarkup("test").writeSpace();
+        this.cw.key("If").tab().newLine().markup("test").space();
         i.test.accept(this);
-        this.cw.writeNewLine().writeMarkup("then").writeSpace();
+        this.cw.newLine().markup("then").space();
         this.visitScope(i.then);
         if (i.otherwise) {
-            this.cw.writeNewLine().writeMarkup("otherwise").writeSpace();
+            this.cw.newLine().markup("otherwise").space();
             this.visitScope(i.otherwise);
         }
         this.cw.unTab();
@@ -286,7 +286,7 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitNew (nw : New) : void {
-        this.cw.writeKey("New").tab().writeNewLine().writeMarkup("value").writeSpace();
+        this.cw.key("New").tab().newLine().markup("value").space();
         nw.value.accept(this);
         this.cw.unTab();
     }
@@ -295,7 +295,7 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitTypeOf (tof : TypeOf) : void {
-        this.cw.writeKey("TypeOf").tab().writeNewLine().writeMarkup("value").writeSpace();
+        this.cw.key("TypeOf").tab().newLine().markup("value").space();
         tof.value.accept(this);
         this.cw.unTab();
     }
@@ -309,24 +309,24 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitErr (er : Err) : void {
-        this.cw.writeKey("error").writeSpace().writeMarkup("(");
+        this.cw.key("error").space().markup("(");
         er.item.accept(this);
-        this.cw.writeMarkup(")");
+        this.cw.markup(")");
     }
 
 
 
 
     visitVoid (vo : Void) : void {
-        this.cw.writeKey("void");
+        this.cw.key("void");
     }
 
 
 
 
     visitBool (b : Bool) : void {
-        this.cw.writeKey("Bool").tab().writeNewLine().writeMarkup("value").writeSpace();
-        this.cw.writeKey(b.value === true ? "true" : "false");
+        this.cw.key("Bool").tab().newLine().markup("value").space();
+        this.cw.key(b.value === true ? "true" : "false");
         this.cw.unTab();
     }
 
@@ -334,31 +334,31 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitInt (ii : Int) : void {
-        this.cw.writeKey("Int").tab().writeNewLine().writeMarkup("value")
-            .writeSpace().writeNum(ii.value).unTab();
+        this.cw.key("Int").tab().newLine().markup("value")
+            .space().num(ii.value).unTab();
     }
 
 
 
 
     visitFloat (f : Float) : void {
-        this.cw.writeKey("Char").tab().writeNewLine().writeMarkup("value")
-            .writeText(f.value).unTab();
+        this.cw.key("Char").tab().newLine().markup("value")
+            .text(f.value).unTab();
     }
 
 
 
 
     visitChar (ch : Char) : void {
-        this.cw.writeKey("Char").tab().writeNewLine().writeMarkup("value")
-            .writeText("'").writeText(ch.value).writeText("'").unTab();
+        this.cw.key("Char").tab().newLine().markup("value")
+            .text("'").text(ch.value).text("'").unTab();
     }
 
 
 
 
     visitArr (arr : Arr) : void {
-        this.cw.writeKey("Arr").tab().writeNewLine().writeMarkup("list.items");
+        this.cw.key("Arr").tab().newLine().markup("list.items");
         arr.list.accept(this);
         this.cw.unTab();
     }
@@ -367,7 +367,7 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitRef (rf : Ref) : void {
-        this.cw.writeKey("Ref").writeSpace(); // ?
+        this.cw.key("Ref").space(); // ?
         rf.item.accept(this);
     }
 
@@ -380,14 +380,14 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitFn (fn : Fn) : void {
-        this.cw.writeKey("Fn").tab().writeNewLine().writeMarkup("params").writeSpace();
+        this.cw.key("Fn").tab().newLine().markup("params").space();
         fn.params.accept(this);
-        this.cw.writeSpace();
+        this.cw.space();
         if (fn.returnType) {
-            this.cw.writeMarkup("returnType").writeSpace();
+            this.cw.markup("returnType").space();
             fn.returnType.accept(this);
         }
-        this.cw.writeNewLine().writeMarkup("params").writeSpace();
+        this.cw.newLine().markup("params").space();
         fn.body.accept(this);
     }
 
@@ -400,8 +400,8 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitStruct (st : Struct) : void {
-        this.cw.writeKey("Struct").tab().writeNewLine().writeMarkup("body")
-            .writeSpace();
+        this.cw.key("Struct").tab().newLine().markup("body")
+            .space();
         st.body.accept(this);
         this.cw.unTab();
     }
@@ -409,8 +409,8 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitInterface (ifc : Interface) : void {
-        this.cw.writeKey("Interface").tab().writeNewLine().writeMarkup("body")
-            .writeSpace();
+        this.cw.key("Interface").tab().newLine().markup("body")
+            .space();
         ifc.body.accept(this);
         this.cw.unTab();
     }
@@ -424,14 +424,14 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitTypeAny (ta : TypeAny) : void {
-        this.cw.writeType("Any");
+        this.cw.type("Any");
     }
 
 
 
 
     visitTypeAnyOf (tao : TypeAnyOf) : void {
-        this.cw.writeType("AnyOf");
+        this.cw.type("AnyOf");
         tao.choices.accept(this);
     }
 
@@ -439,54 +439,54 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitTypeErr (te : TypeErr) : void {
-        this.cw.writeType("Error");
+        this.cw.type("Error");
     }
 
 
 
 
     visitTypeVoid (tvo : TypeVoid) : void {
-        this.cw.writeType("Void");
+        this.cw.type("Void");
     }
 
 
 
 
     visitTypeBool (tb : TypeBool) : void {
-        this.cw.writeType("Bool");
+        this.cw.type("Bool");
     }
 
 
 
 
     visitTypeInt (tii : TypeInt) : void {
-        this.cw.writeType("Int");
+        this.cw.type("Int");
     }
 
 
 
 
     visitTypeFloat (tf : TypeFloat) : void {
-        this.cw.writeType("Float");
+        this.cw.type("Float");
     }
 
 
 
 
     visitTypeArr (tarr : TypeArr) : void {
-        this.cw.writeType("Array").writeMarkup("(");
+        this.cw.type("Array").markup("(");
         tarr.elementType.accept(this);
-        this.cw.writeType(",").writeSpace();
+        this.cw.type(",").space();
         tarr.length.accept(this);
-        this.cw.writeMarkup(")");
+        this.cw.markup(")");
     }
 
 
 
 
     visitTypeRef (trf : TypeRef) : void {
-        this.cw.writeType("Ref").writeMarkup("(");
+        this.cw.type("Ref").markup("(");
         trf.elementType.accept(this);
-        this.cw.writeMarkup(")");
+        this.cw.markup(")");
     }
 }

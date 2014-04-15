@@ -2,17 +2,17 @@
 
 interface CodeWriter {
 
-    writeKey(value : string) : CodeWriter;
-    writeIdent(value : string) : CodeWriter;
-    writeType(value : string) : CodeWriter;
-    writeMarkup(value : string) : CodeWriter;
-    writeComment(value : string) : CodeWriter;
-    writeText(value : string) : CodeWriter;
-    writeNum(value : string) : CodeWriter;
+    key(value : string) : CodeWriter;
+    ident(value : string) : CodeWriter;
+    type(value : string) : CodeWriter;
+    markup(value : string) : CodeWriter;
+    comment(value : string) : CodeWriter;
+    text(value : string) : CodeWriter;
+    num(value : string) : CodeWriter;
     writeOp(value : string) : CodeWriter;
 
-    writeNewLine() : CodeWriter;
-    writeSpace() : CodeWriter;
+    newLine() : CodeWriter;
+    space() : CodeWriter;
 
     tab() : CodeWriter;
     unTab() : CodeWriter;
@@ -50,37 +50,37 @@ class HtmlCodeWriter implements CodeWriter {
     }
 
 
-    writeKey (value : string) : CodeWriter {
+    key (value : string) : CodeWriter {
         this.w('Key', value);
         return this;
     }
 
-    writeIdent (value : string) : CodeWriter {
+    ident (value : string) : CodeWriter {
         this.w('Ident', value);
         return this;
     }
 
-    writeType (value : string) : CodeWriter {
+    type (value : string) : CodeWriter {
         this.w('Type', value);
         return this;
     }
 
-    writeMarkup (value : string) : CodeWriter {
+    markup (value : string) : CodeWriter {
         this.w('Markup', value);
         return this;
     }
 
-    writeComment (value : string) : CodeWriter {
+    comment (value : string) : CodeWriter {
         this.w('Comment', value);
         return this;
     }
 
-    writeText (value : string) : CodeWriter {
+    text (value : string) : CodeWriter {
         this.w('Text', value);
         return this;
     }
 
-    writeNum (value : string) : CodeWriter {
+    num (value : string) : CodeWriter {
         this.w('Num', value);
         return this;
     }
@@ -90,13 +90,13 @@ class HtmlCodeWriter implements CodeWriter {
         return this;
     }
 
-    writeNewLine () : CodeWriter {
+    newLine () : CodeWriter {
         this.tw.write("<br>");
         this.tw.write(this.tabs);
         return this;
     }
 
-    writeSpace () : CodeWriter {
+    space () : CodeWriter {
         this.tw.write(" ");
         return this;
     }
@@ -126,37 +126,37 @@ class PlainTextCodeWriter implements CodeWriter {
         this.tabs = "";
     }
 
-    writeKey (value : string) : CodeWriter {
+    key (value : string) : CodeWriter {
         this.tw.write(value);
         return this;
     }
 
-    writeIdent (value : string) : CodeWriter {
+    ident (value : string) : CodeWriter {
         this.tw.write(value);
         return this;
     }
 
-    writeType (value : string) : CodeWriter {
+    type (value : string) : CodeWriter {
         this.tw.write(value);
         return this;
     }
 
-    writeMarkup (value : string) : CodeWriter {
+    markup (value : string) : CodeWriter {
         this.tw.write(value);
         return this;
     }
 
-    writeComment (value : string) : CodeWriter {
+    comment (value : string) : CodeWriter {
         this.tw.write(value);
         return this;
     }
 
-    writeText (value : string) : CodeWriter {
+    text (value : string) : CodeWriter {
         this.tw.write(value);
         return this;
     }
 
-    writeNum (value : string) : CodeWriter {
+    num (value : string) : CodeWriter {
         this.tw.write(value);
         return this;
     }
@@ -166,13 +166,13 @@ class PlainTextCodeWriter implements CodeWriter {
         return this;
     }
 
-    writeNewLine () : CodeWriter {
+    newLine () : CodeWriter {
         this.tw.write("\n");
         this.tw.write(this.tabs);
         return this;
     }
 
-    writeSpace () : CodeWriter {
+    space () : CodeWriter {
         this.tw.write(" ");
         return this;
     }
