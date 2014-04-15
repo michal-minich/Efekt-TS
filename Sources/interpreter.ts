@@ -83,7 +83,7 @@ class Interpreter implements AstVisitor<Asi> {
 
 
 
-    get (name : string) : Asi {
+    get (name : string) : Exp {
         for (var i = this.scopes.length - 1; i >= 0; --i) {
             var asi = this.scopes[i].vars[name];
             if (asi)
@@ -99,7 +99,7 @@ class Interpreter implements AstVisitor<Asi> {
 
 
 
-    set (name : string, value : Asi, createNewVar : boolean) {
+    set (name : string, value : Asi, createNewVar : boolean) : void {
         if (createNewVar) {
             this.currentScope.vars[name] = value;
         } else {
@@ -185,7 +185,7 @@ class Interpreter implements AstVisitor<Asi> {
 
 
 
-    visitBraced (bc : Braced) {
+    visitBraced (bc : Braced) : Exp {
         return bc.value;
     }
 
@@ -197,51 +197,51 @@ class Interpreter implements AstVisitor<Asi> {
 
 
 
-    visitLoop (l : Loop) : Asi {
+    visitLoop (l : Loop) : Void {
         while (!this.isBreak) {
             this.walkAsiList(l.body.list, true);
             this.isContinue = false;
         }
         this.isBreak = false;
-        return undefined;
+        return Void.instance;
     }
 
 
 
 
-    visitBreak (b : Break) : Asi {
+    visitBreak (b : Break) : Void {
         this.isBreak = true;
-        return undefined;
+        return Void.instance;
     }
 
 
 
 
-    visitContinue (c : Continue) : Asi {
+    visitContinue (c : Continue) : Void {
         this.isContinue = true;
-        return undefined;
+        return Void.instance;
     }
 
 
 
 
-    visitReturn (r : Return) : Asi {
-        return undefined;
+    visitReturn (r : Return) : Void {
+        return Void.instance;
     }
 
 
 
 
-    visitThrow (th : Throw) : Asi {
+    visitThrow (th : Throw) : Void {
         this.exceptionHandler(th.ex.accept(this));
-        return undefined;
+        return Void.instance;
     }
 
 
 
 
-    visitTry (tr : Try) : Asi {
-        return undefined;
+    visitTry (tr : Try) : Void {
+        return Void.instance;
     }
 
 
@@ -252,45 +252,48 @@ class Interpreter implements AstVisitor<Asi> {
 
 
 
-    visitVar (v : Var) : Asi {
-        //var val = v.value ? v.value.accept(this) : Void.instance;
-        //this.set(v.ident.name, val, v.useVarKeyword);
-        //return val;
-        return undefined;
+    visitVar (v : Var) : Exp {
+        return v.exp.accept(this);
     }
 
 
 
 
-    visitValueVar (vv : ValueVar) : Asi {
-        return undefined;
+    visitValueVar (vv : ValueVar) : Exp {
+        return vv;
     }
 
 
 
 
-    visitTypeVar (tv : TypeVar) : Asi {
-        return undefined;
+    visitTypeVar (tv : TypeVar) : Exp {
+        return tv;
     }
 
 
 
 
-    visitAssign (a : Assign) : Asi {
-        return undefined;
+    visitAssign (a : Assign) : Exp {
+        var val = a.value.accept(this);
+        if (a.slot instanceof Ident) {
+            this.set((<Ident>a.slot).name, val, a.parent instanceof Var);
+        } else {
+            throw "assing not supported";
+        }
+        return val;
     }
 
 
 
 
-    visitScope (sc : Scope) : Asi {
+    visitScope (sc : Scope) : Exp {
         return this.walkAsiList(sc.list, false);
     }
 
 
 
 
-    private walkAsiList (al : AsiList, isLoopScope : boolean) : Asi {
+    private walkAsiList (al : AsiList, isLoopScope : boolean) : Exp {
         this.push(al.items.length);
         var cs = this.currentScope;
         if (isLoopScope)
@@ -307,28 +310,28 @@ class Interpreter implements AstVisitor<Asi> {
 
 
 
-    visitIdent (i : Ident) : Asi {
+    visitIdent (i : Ident) : Exp {
         return this.get(i.name).accept(this);
     }
 
 
 
 
-    visitMember (m : Member) : Asi {
+    visitMember (m : Member) : Exp {
         return undefined;
     }
 
 
 
 
-    visitFnApply (fna : FnApply) : Asi {
+    visitFnApply (fna : FnApply) : Exp {
         return undefined;
     }
 
 
 
 
-    visitBinOpApply (opa : BinOpApply) : Asi {
+    visitBinOpApply (opa : BinOpApply) : Exp {
         var o1 = opa.op1.accept(this);
         var o2 = opa.op2.accept(this);
         return this.op(opa.op.name)(o1, o2);
@@ -337,7 +340,7 @@ class Interpreter implements AstVisitor<Asi> {
 
 
 
-    visitIf (i : If) : Asi {
+    visitIf (i : If) : Exp {
         var t = i.test.accept(this);
         if (t instanceof Bool) {
             if ((<Bool>t).value)
@@ -355,14 +358,14 @@ class Interpreter implements AstVisitor<Asi> {
 
 
 
-    visitNew (nw : New) : Asi {
+    visitNew (nw : New) : Ref {
         return undefined;
     }
 
 
 
 
-    visitTypeOf (tof : TypeOf) : Asi {
+    visitTypeOf (tof : TypeOf) : Exp {
         return undefined;
     }
 
@@ -373,56 +376,56 @@ class Interpreter implements AstVisitor<Asi> {
 
 
 
-    visitErr (er : Err) : Asi {
+    visitErr (er : Err) : Err {
         return er;
     }
 
 
 
 
-    visitVoid (vo : Void) : Asi {
+    visitVoid (vo : Void) : Void {
         return vo;
     }
 
 
 
 
-    visitBool (b : Bool) : Asi {
+    visitBool (b : Bool) : Bool {
         return b;
     }
 
 
 
 
-    visitInt (ii : Int) : Asi {
+    visitInt (ii : Int) : Int {
         return ii;
     }
 
 
 
 
-    visitFloat (f : Float) : Asi {
+    visitFloat (f : Float) : Float {
         return f;
     }
 
 
 
 
-    visitChar (ch : Char) : Asi {
+    visitChar (ch : Char) : Char {
         return ch;
     }
 
 
 
 
-    visitArr (arr : Arr) : Asi {
+    visitArr (arr : Arr) : Arr {
         return arr;
     }
 
 
 
 
-    visitRef (rf : Ref) : Asi {
+    visitRef (rf : Ref) : Ref {
         return rf;
     }
 
@@ -434,7 +437,7 @@ class Interpreter implements AstVisitor<Asi> {
 
 
 
-    visitFn (fn : Fn) : Asi {
+    visitFn (fn : Fn) : Fn {
         return fn;
     }
 
@@ -446,15 +449,15 @@ class Interpreter implements AstVisitor<Asi> {
 
 
 
-    visitStruct (st : Struct) : Asi {
-        return undefined;
+    visitStruct (st : Struct) : Struct {
+        return st;
     }
 
 
 
 
-    visitInterface (ifc : Interface) : Asi {
-        return undefined;
+    visitInterface (ifc : Interface) : Interface {
+        return ifc;
     }
 
 
@@ -465,63 +468,63 @@ class Interpreter implements AstVisitor<Asi> {
 
 
 
-    visitTypeAny (ta : TypeAny) : Asi {
-        return undefined;
+    visitTypeAny (ta : TypeAny) : TypeAny {
+        return ta;
     }
 
 
 
 
-    visitTypeAnyOf (tao : TypeAnyOf) : Asi {
-        return undefined;
+    visitTypeAnyOf (tao : TypeAnyOf) : TypeAnyOf {
+        return tao;
     }
 
 
 
 
-    visitTypeErr (ter : TypeErr) : Asi {
-        return undefined;
+    visitTypeErr (ter : TypeErr) : TypeErr {
+        return ter;
     }
 
 
 
 
-    visitTypeVoid (tvo : TypeVoid) : Asi {
-        return undefined;
+    visitTypeVoid (tvo : TypeVoid) : TypeVoid {
+        return tvo;
     }
 
 
 
 
-    visitTypeBool (tb : TypeBool) : Asi {
-        return undefined;
+    visitTypeBool (tb : TypeBool) : TypeBool {
+        return tb;
     }
 
 
 
 
-    visitTypeInt (tii : TypeInt) : Asi {
-        return undefined;
+    visitTypeInt (tii : TypeInt) : TypeInt {
+        return tii;
     }
 
 
 
 
-    visitTypeFloat (tf : TypeFloat) : Asi {
-        return undefined;
+    visitTypeFloat (tf : TypeFloat) : TypeFloat {
+        return tf;
     }
 
 
 
 
-    visitTypeArr (tarr : TypeArr) : Asi {
-        return undefined;
+    visitTypeArr (tarr : TypeArr) : TypeArr {
+        return tarr;
     }
 
 
 
 
-    visitTypeRef (trf : TypeRef) : Asi {
-        return undefined;
+    visitTypeRef (trf : TypeRef) : TypeRef {
+        return trf;
     }
 }

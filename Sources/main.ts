@@ -36,7 +36,8 @@ function start () {
         var parser = new Parser();
         var al = parser.parse(codeInput.value);
         var i = new Interpreter(exHandler);
-        var res = al.items[0].accept(i);
+        var sc = new Scope(undefined, al);
+        var res = sc.accept(i);
         codeView.innerHTML = asiToHtmlString(res);
         astView.innerHTML = asiToHtmlAstString(res);
     }
