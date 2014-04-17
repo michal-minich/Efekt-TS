@@ -3,13 +3,7 @@
 /// <reference path="visitor.ts"/>
 /// <reference path="writer.ts"/>
 /// <reference path="printer.ts"/>
-
-
-
-
-interface Vars {
-    [name : string] : Asi
-}
+/// <reference path="builtin.ts"/>
 
 
 
@@ -28,66 +22,33 @@ interface ExceptionHandler {
 
 
 
-interface InterpreterScope {
-    vars : Vars;
-    currentAsiIx : number;
-    asisLenght : number;
-    parent : InterpreterScope;
-}
-
-
-
-
 class Interpreter implements AstVisitor<Asi> {
 
 
 
 
     private exceptionHandler : ExceptionHandler;
-    private scopes : InterpreterScope[];
-    private loopScopes : InterpreterScope[];
-    private currentScope : InterpreterScope;
     private isBreak : boolean;
     private isContinue : boolean;
+    private currentScope : Scope;
 
 
 
 
     constructor (exceptionHandler : ExceptionHandler) {
         this.exceptionHandler = exceptionHandler;
-        this.scopes = [];
-        this.loopScopes = [];
     }
 
 
 
 
-    private push (asisLenght : number) : void {
-        this.currentScope =
-        {
-            vars: {},
-            currentAsiIx: -1,
-            asisLenght: asisLenght,
-            parent: this.currentScope
-        };
-        this.scopes.push(this.currentScope);
-    }
-
-
-
-
-    private pop () : void {
-        this.scopes.pop();
-    }
-
-
-
-
-    get (name : string) : Exp {
-        for (var i = this.scopes.length - 1; i >= 0; --i) {
-            var asi = this.scopes[i].vars[name];
+    private get (scope : Scope, name : string) : Exp {
+        var sc = scope;
+        while (sc) {
+            var asi = sc.vars[name];
             if (asi)
                 return asi;
+            sc = <Scope>sc.parent;
         }
 
         //noinspection UnnecessaryLocalVariableJS
@@ -99,64 +60,23 @@ class Interpreter implements AstVisitor<Asi> {
 
 
 
-    set (name : string, value : Asi, createNewVar : boolean) : void {
+    private set (scope : Scope,
+                 name : string,
+                 value : Asi,
+                 createNewVar : boolean) : void {
         if (createNewVar) {
-            this.currentScope.vars[name] = value;
+            scope.vars[name] = value;
         } else {
-            for (var i = this.scopes.length - 1; i >= 0; --i) {
-                var s = this.scopes[i];
-                if (s.vars[name]) {
-                    s.vars[name] = value;
+            var sc = scope;
+            while (sc) {
+                if (sc.vars[name]) {
+                    sc.vars[name] = value;
                     return;
                 }
+                sc = <Scope>sc.parent;
             }
             throw "cannot assign to variable " + name +
                 " becuase it was not declared.";
-        }
-    }
-
-
-
-
-    op (name : string) : BinFn {
-        switch (name) {
-            case '+':
-                return function (a, b) {
-                    return new Int(undefined,
-                                   "" + (+(<Int>a).value + +(<Int>b).value));
-                };
-            case '-':
-                return function (a, b) {
-                    return new Int(undefined,
-                                   "" + (+(<Int>a).value - +(<Int>b).value));
-                };
-            case '*':
-                return function (a, b) {
-                    return new Int(undefined,
-                                   "" + (+(<Int>a).value * +(<Int>b).value));
-                };
-            case '<':
-                return function (a, b) {
-                    return new Int(undefined,
-                                   "" + (+(<Int>a).value < +(<Int>b).value));
-                };
-            case '>':
-                return function (a, b) {
-                    return new Int(undefined,
-                                   "" + (+(<Int>a).value > +(<Int>b).value));
-                };
-            case '==':
-                return function (a, b) {
-                    return new Bool(undefined,
-                                    asiToString(a) == asiToString(b));
-                };
-            case '!=':
-                return function (a, b) {
-                    return new Bool(undefined,
-                                    asiToString(a) != asiToString(b));
-                };
-            default:
-                throw "operator " + name + " is not defined.";
         }
     }
 
@@ -199,7 +119,7 @@ class Interpreter implements AstVisitor<Asi> {
 
     visitLoop (l : Loop) : Void {
         while (!this.isBreak) {
-            this.walkAsiList(l.body.list, true);
+            this.walkAsiList(l.body.list);
             this.isContinue = false;
         }
         this.isBreak = false;
@@ -260,14 +180,14 @@ class Interpreter implements AstVisitor<Asi> {
 
 
     visitValueVar (vv : ValueVar) : Exp {
-        return vv;
+        return vv.ident;
     }
 
 
 
 
     visitTypeVar (tv : TypeVar) : Exp {
-        return tv;
+        return tv.type;
     }
 
 
@@ -276,7 +196,8 @@ class Interpreter implements AstVisitor<Asi> {
     visitAssign (a : Assign) : Exp {
         var val = a.value.accept(this);
         if (a.slot instanceof Ident) {
-            this.set((<Ident>a.slot).name, val, a.parent instanceof Var);
+            this.set(this.currentScope, (<Ident>a.slot).name, val,
+                     a.parent instanceof Var);
         } else {
             throw "assing not supported";
         }
@@ -287,23 +208,22 @@ class Interpreter implements AstVisitor<Asi> {
 
 
     visitScope (sc : Scope) : Exp {
-        return this.walkAsiList(sc.list, false);
+        this.currentScope = sc;
+        var res = this.walkAsiList(sc.list);
+        this.currentScope = <Scope>sc.parent;
+        return res;
     }
 
 
 
 
-    private walkAsiList (al : AsiList, isLoopScope : boolean) : Exp {
-        this.push(al.items.length);
+    private walkAsiList (al : AsiList) : Exp {
         var cs = this.currentScope;
-        if (isLoopScope)
-            this.loopScopes.push(this.currentScope);
-        while ((cs.currentAsiIx < cs.asisLenght - 1) && !this.isBreak &&
+        while ((cs.currentAsiIx < cs.list.items.length - 1) && !this.isBreak &&
             !this.isContinue) {
             ++cs.currentAsiIx;
             var res = al.items[cs.currentAsiIx].accept(this);
         }
-        this.pop();
         return res;
     }
 
@@ -311,7 +231,7 @@ class Interpreter implements AstVisitor<Asi> {
 
 
     visitIdent (i : Ident) : Exp {
-        return this.get(i.name).accept(this);
+        return this.get(this.currentScope, i.name).accept(this);
     }
 
 
@@ -348,13 +268,13 @@ class Interpreter implements AstVisitor<Asi> {
             }
         }
 
-        var fn = fna.fn.accept(this);
+        /*var fn = fna.fn.accept(this);
         if (fn instanceof Ident) {
             var fnExp = this.get(fni.name);
             return fnExp;
         } else {
             throw "fn apply not supported";
-        }
+        }*/
     }
 
 
@@ -363,7 +283,7 @@ class Interpreter implements AstVisitor<Asi> {
     visitBinOpApply (opa : BinOpApply) : Exp {
         var o1 = opa.op1.accept(this);
         var o2 = opa.op2.accept(this);
-        return this.op(opa.op.name)(o1, o2);
+        return BuiltIn.op(opa.op.name)(o1, o2);
     }
 
 

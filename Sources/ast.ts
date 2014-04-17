@@ -313,9 +313,18 @@ class Assign extends Exp {
 
 
 
+interface Vars {
+    [name : string] : Exp
+}
+
+
+
+
 class Scope extends Exp {
 
     public list : AsiList;
+    public vars : Vars = {};
+    public currentAsiIx = -1;
 
     constructor (attrs : ExpList, list : AsiList) {
         super(attrs);

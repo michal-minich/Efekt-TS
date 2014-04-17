@@ -17,13 +17,6 @@ class Printer implements AstVisitor<void> {
 
 
 
-    private static itIsExactlyOneExp (asis : Asi[]) : boolean {
-        return asis.length == 1 && asis[0] instanceof Exp;
-    }
-
-
-
-
     private static showScopeBraces (asi : Asi) : boolean {
         return asi instanceof Fn ||
             asi instanceof AsiList ||
@@ -205,7 +198,7 @@ class Printer implements AstVisitor<void> {
 
 
     visitScope (sc : Scope) : void {
-        var skipBraces = Printer.itIsExactlyOneExp(sc.list.items);
+        var skipBraces = sc.list.items.length === 1;
         if (skipBraces)
             skipBraces = !Printer.showScopeBraces(sc.parent);
         this.lineWritten.push(false);

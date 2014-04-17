@@ -165,6 +165,7 @@ class DebugPrinter implements AstVisitor<void> {
     visitVar (v : Var) : void {
         this.cw.key("Var").tab().newLine().markup("exp").space();
         v.exp.accept(this);
+        this.cw.unTab();
     }
 
 

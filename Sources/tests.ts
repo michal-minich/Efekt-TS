@@ -368,3 +368,29 @@ function interpreterTests () : void {
           "} " +
           "b").evalTo("6");
 }
+
+/*
+-- fact
+var f = 1
+var n = 21
+var c = 0
+loop {
+  c = c + 1
+  f = f * c
+  print(f)
+  if n == c then break
+}
+
+-- fib
+var prev = 0
+var next = 1
+var i = 0
+loop {
+  i = i + 1
+  if i == 103 then break
+  var sum = prev + next
+  prev = next
+  next = sum
+  print(sum)
+}
+*/
