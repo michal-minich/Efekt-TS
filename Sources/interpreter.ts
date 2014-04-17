@@ -275,9 +275,48 @@ class Interpreter implements AstVisitor<Asi> {
             var fn = <Fn>exp;
             var sc = new Scope(undefined, fn.body.list);
             sc.parent = this.currentScope;
+            for (var i = 0; i < args.length; ++i) {
+                var p = Interpreter.getFromBracedAt(fn.params, i);
+                var n = Interpreter.getName(p);
+                this.set(sc, n, args[i], true);
+            }
             return this.visitScope(sc);
         } else {
             throw "fn is not fn type";
+        }
+    }
+
+
+
+
+    private static getName (e : Exp) : string {
+        if (e instanceof Ident)
+            return (<Ident>e).name;
+        else if (e instanceof ValueVar)
+            return this.getName((<ValueVar>e).ident);
+        else if (e instanceof TypeVar)
+            return this.getName((<TypeVar>e).type);
+        else
+            throw "exp has no name";
+    }
+
+
+
+
+    private static getFromBracedAt (params : Braced, ix : number) : Exp {
+        if (params.value instanceof ExpList) {
+            var el = <ExpList>params.value;
+            if (el.items.length > ix)
+                return el.items[ix];
+            else
+                throw "fn has no param at " + ix;
+        } else if (params.value instanceof Exp) {
+            if (ix === 0)
+                return params.value;
+            else
+                throw "fn has only one param";
+        } else {
+            throw "fn has no params";
         }
     }
 
