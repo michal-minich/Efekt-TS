@@ -335,6 +335,16 @@ class Scope extends Exp {
     accept<T> (v : AstVisitor<T>) : T {
         return v.visitScope(this);
     }
+
+    get parentScope () : Scope {
+        var asi = this.parent;
+        while (asi) {
+            if (asi instanceof Scope)
+                return <Scope>asi;
+            asi = asi.parent;
+        }
+        return undefined;
+    }
 }
 
 

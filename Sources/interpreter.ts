@@ -48,7 +48,7 @@ class Interpreter implements AstVisitor<Asi> {
             var asi = sc.vars[name];
             if (asi)
                 return asi;
-            sc = <Scope>sc.parent;
+            sc = sc.parentScope;
         }
 
         //noinspection UnnecessaryLocalVariableJS
@@ -73,7 +73,7 @@ class Interpreter implements AstVisitor<Asi> {
                     sc.vars[name] = value;
                     return;
                 }
-                sc = <Scope>sc.parent;
+                sc = sc.parentScope;
             }
             throw "cannot assign to variable " + name +
                 " becuase it was not declared.";
@@ -119,7 +119,7 @@ class Interpreter implements AstVisitor<Asi> {
 
     visitLoop (l : Loop) : Void {
         while (!this.isBreak) {
-            this.walkAsiList(l.body.list);
+            this.visitScope(l.body);
             this.isContinue = false;
         }
         this.isBreak = false;
@@ -209,8 +209,9 @@ class Interpreter implements AstVisitor<Asi> {
 
     visitScope (sc : Scope) : Exp {
         this.currentScope = sc;
+        sc.currentAsiIx = -1;
         var res = this.walkAsiList(sc.list);
-        this.currentScope = <Scope>sc.parent;
+        this.currentScope = sc.parentScope;
         return res;
     }
 
