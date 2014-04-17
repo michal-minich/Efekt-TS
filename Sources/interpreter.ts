@@ -247,7 +247,8 @@ class Interpreter implements AstVisitor<Asi> {
 
     visitFnApply (fna : FnApply) : Exp {
         var args : Exp[] = [];
-        if (fna.args.value instanceof ExpList) {
+        if (!fna.args.value) {
+        } else if (fna.args.value instanceof ExpList) {
             var el = <ExpList>fna.args.value;
             for (var i = 0; i < el.items.length; ++i)
                 args.push(el.items[i].accept(this));
@@ -269,13 +270,15 @@ class Interpreter implements AstVisitor<Asi> {
             }
         }
 
-        /*var fn = fna.fn.accept(this);
-        if (fn instanceof Ident) {
-            var fnExp = this.get(fni.name);
-            return fnExp;
+        var exp = fna.fn.accept(this);
+        if (exp instanceof Fn) {
+            var fn = <Fn>exp;
+            var sc = new Scope(undefined, fn.body.list);
+            sc.parent = this.currentScope;
+            return this.visitScope(sc);
         } else {
-            throw "fn apply not supported";
-        }*/
+            throw "fn is not fn type";
+        }
     }
 
 
