@@ -22,13 +22,13 @@ class BuiltIn {
                 };
             case '<':
                 return function (a, b) {
-                    return new Int(undefined,
-                                   "" + (+(<Int>a).value < +(<Int>b).value));
+                    return new Bool(undefined,
+                                    +(<Int>a).value < +(<Int>b).value);
                 };
             case '>':
                 return function (a, b) {
-                    return new Int(undefined,
-                                   "" + (+(<Int>a).value > +(<Int>b).value));
+                    return new Bool(undefined,
+                                    +(<Int>a).value > +(<Int>b).value);
                 };
             case '==':
                 return function (a, b) {

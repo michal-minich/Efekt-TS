@@ -31,14 +31,14 @@ class TestReprot {
 
 
     addParse (code : string, expected : string, actualAsi : Asi) : void {
-        this.add("Parse", code, expected, actualAsi);
+        this.add("Parse", code, expected, actualAsi, false);
     }
 
 
 
 
     addEval (code : string, expected : string, actualAsi : Asi) : void {
-        this.add("Eval", code, expected, actualAsi);
+        this.add("Eval", code, expected, actualAsi, true);
     }
 
 
@@ -47,21 +47,35 @@ class TestReprot {
     private add (category : string,
                  code : string,
                  expected : string,
-                 actualAsi : Asi) : void {
+                 actualAsi : Asi,
+                 isEval : boolean) : void {
 
         ++this.testCount;
 
         var actualPlain = asiToString(actualAsi);
         var actualHtml = asiToHtmlString(actualAsi);
         var codeAst = codeToAstString(code, true);
+        var expectedAst : string;
 
         try {
-            var expectedAst = codeToAstString(expected, true);
+            if (isEval) {
+                var parser = new Parser();
+                var al = parser.parse(expected);
+                expectedAst = "";
+                for (var i = 0; i < al.items.length; ++i) {
+                    expectedAst += asiToAstString(al.items[i], true);
+                    if (i < al.items.length - 1)
+                        expectedAst += "<br>";
+                }
+            } else {
+                expectedAst = codeToAstString(expected, true);
+            }
         } catch (ex) {
-            var expectedAst = ex;
+            expectedAst = ex;
         }
 
         var actualAst = asiToHtmlAstString(actualAsi, true);
+
 
         var ok = expected === actualPlain && expectedAst === actualAst;
 
@@ -160,7 +174,7 @@ function unitTests () {
     }
 
     if (testReport.failedCount === 0) {
-        //interpreterTests();
+        interpreterTests();
     }
 
     document.getElementById("testReport").innerHTML =
@@ -247,6 +261,13 @@ function parseTests () : void {
     t("a().b()").parse();
     t("1 + a()").parse("(1 + a())");
     t("a() + 2").parse("(a() + 2)");
+
+    // fn apply with compound exp
+    t("(if a then b)()").parse();
+    //t("fn () {}()").parse();
+    t("[0]()").parse();
+    t("a() : T()").parse();
+    t("struct {}()").parse();
 
     // array
     t("[]").parse();
@@ -358,15 +379,31 @@ function parseTests () : void {
 function interpreterTests () : void {
 
     t("1 + 2").evalTo("3");
-    t("var a = 0 " +
-          "var b = 5 " +
-          "loop { " +
-          "a = a + 1" +
-          "if a != 10 then continue " +
-          "b = b + 1" +
-          "if a == 10 then break " +
-          "} " +
-          "b").evalTo("6");
+    t("1 + 2 * 10").evalTo("21");
+    t("(1 + 2) * 10").evalTo("30");
+    t("var a = 1").evalTo("1");
+    t("var a = 1 a").evalTo("1");
+    t("var a = 1 + 2").evalTo("3");
+    t("var a = 1 + 2 * 10").evalTo("21");
+    t("var a = (1 + 2) * 10").evalTo("30");
+    t("var a = 1 a = a + 2").evalTo("3");
+    t("var a = 1 a = a + 2 a").evalTo("3");
+    t("if true then 1 else 2").evalTo("1");
+    t("if false then 1 else 2").evalTo("2");
+    t("var a = 1 { var a = 2 }").evalTo("2");
+    t("var a = 1 { var a = 2 } a").evalTo("1");
+    t("var a = 1 { a = 2 } a").evalTo("2");
+    t("var a = 0 loop { if a == 0 then break } a").evalTo("0");
+    t("var a = 0 loop { a = a + 1 if a == 10 then break } a").evalTo("10");
+    t("var f = fn () { 1 } f()").evalTo("1");
+    t("var f = fn (a) { a } f(1)").evalTo("1");
+    t("var f = fn (a) { a + 1 } f(1)").evalTo("2");
+    t("var b = 0 var f = fn (a) { b = a } f(1)").evalTo("1");
+    //t("fn (a) { a }(1)").evalTo("1");
+    t("var f = fn () { return 1 } f()").evalTo("1");
+    //t("var f = fn (a) { fn () { a } } f(1)()").evalTo("1");
+    t("var f = fn () { fn (a) { a } } f()(1)").evalTo("1");
+    //t("var f = fn (a) { fn (b) { a - b } } f(10)(1)").evalTo("9");
 }
 
 /*

@@ -9,20 +9,20 @@
 
 
 interface BinFn {
-    (op1 : Asi, op2 : Asi) : Asi;
+    (op1 : Exp, op2 : Exp) : Exp;
 }
 
 
 
 
 interface ExceptionHandler {
-    (ex : Asi) : void
+    (ex : Exp) : void
 }
 
 
 
 
-class Interpreter implements AstVisitor<Asi> {
+class Interpreter implements AstVisitor<Exp> {
 
 
 
@@ -145,8 +145,8 @@ class Interpreter implements AstVisitor<Asi> {
 
 
 
-    visitReturn (r : Return) : Void {
-        return Void.instance;
+    visitReturn (r : Return) : Exp {
+        return r.value ? r.value.accept(this) : Void.instance;
     }
 
 
