@@ -212,6 +212,8 @@ function parseTests () : void {
 
     // interface
     t("var I = interface { b }").parse();
+    t("struct interface a").parse("struct { interface { a } }");
+    t("interface struct a").parse("interface { struct { a } }");
 
     // new
     t("new Int").parse();
@@ -264,10 +266,12 @@ function parseTests () : void {
 
     // fn apply with compound exp
     t("(if a then b)()").parse();
-    //t("fn () {}()").parse();
+    t("fn () { }()").parse();
     t("[0]()").parse();
     t("a() : T()").parse();
-    t("struct {}()").parse();
+    t("struct { }()").parse();
+    t("interface { }()").parse();
+    t("loop { }()").parse();
 
     // array
     t("[]").parse();

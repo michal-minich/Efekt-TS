@@ -277,7 +277,7 @@ class Parser {
         var asi = this.parseMany();
         if (asi instanceof Braced) {
             var bc = <Braced>asi;
-            asi = this.parseMany();
+            asi = this.parseOne();
             if (!(asi instanceof Scope))
                 throw "expected scope after fn (...).";
             return new Fn(undefined, bc, <Scope>asi);
@@ -333,6 +333,7 @@ class Parser {
         if (this.matchText("then"))
             then = this.parseScopedExp();
 
+        this.skipWhite();
         if (this.matchText("else"))
             otherwise = this.parseScopedExp();
 
@@ -363,7 +364,7 @@ class Parser {
 
 
     private parseScopedExp () : Scope {
-        var asi = this.parseMany();
+        var asi = this.parseOne();
         if (asi instanceof Scope)
             return <Scope>asi;
         return new Scope(undefined, new AsiList(undefined, [asi]));
