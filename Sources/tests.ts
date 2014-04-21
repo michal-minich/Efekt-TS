@@ -104,8 +104,10 @@ class TestReprot {
 
 
     getReportString () : string {
-        if (this.table.length === 10)
-            return "All " + this.testCount + " Tests OK";
+        if (this.table.length === 10) {
+            console.log("All " + this.testCount + " Tests OK");
+            return "";
+        }
         this.table.push("</tbody></table>");
         return "" + this.failedCount + " of " + this.testCount +
             " Tests Failed" +

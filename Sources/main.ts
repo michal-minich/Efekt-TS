@@ -11,19 +11,16 @@ function start () {
 
     unitTests();
 
-    var codeInput = <HTMLTextAreaElement>document.getElementById("codeInput");
-    var codeScratchpad = <HTMLTextAreaElement>document.getElementById("codeScratchpad");
+    var codeEdit = <HTMLTextAreaElement>document.getElementById("codeEdit");
     var parseButton = <HTMLButtonElement>document.getElementById("parseButton");
     var evalButton = <HTMLButtonElement>document.getElementById("evalButton");
     var codeView = <HTMLPreElement>document.getElementById("codeView");
     var astView = <HTMLPreElement>document.getElementById("astView");
 
-    codeScratchpad.value = codeInput.value;
-
     function parse () {
         clear();
-        codeView.innerHTML = codeToHtmlString(codeInput.value);
-        astView.innerHTML = codeToAstString(codeInput.value);
+        codeView.innerHTML = codeToHtmlString(codeEdit.value);
+        astView.innerHTML = codeToAstString(codeEdit.value);
     }
 
     function interpret () {
@@ -34,7 +31,7 @@ function start () {
         }
 
         var parser = new Parser();
-        var al = parser.parse(codeInput.value);
+        var al = parser.parse(codeEdit.value);
         var i = new Interpreter(exHandler);
         var sc = new Scope(undefined, al);
         var res = sc.accept(i);

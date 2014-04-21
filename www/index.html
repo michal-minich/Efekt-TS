@@ -18,11 +18,34 @@
     <script type="application/javascript" src="scripts/writer.js"></script>
 </head>
 <body onload="start();">
+
 <div id="testReport"></div>
-<textarea id="codeInput">
-</textarea>
-<textarea id="codeScratchpad">
-</textarea>
+
+<table id="mainViewGrid">
+    <tbody>
+        <tr>
+            <td>
+                <label for="codeEdit">Edit</label><br>
+                <textarea id="codeEdit">
+                </textarea>
+            </td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+
+            </td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+
+
 <br>
 <button type="button" id="parseButton">Parse</button>
 <button type="button" id="evalButton">Eval</button>

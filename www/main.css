@@ -1,9 +1,10 @@
 body {
     font: normal 10pt 'Segoe UI';
+    margin: 0;
 }
 
 body, textarea {
-    background-color: lightgray;
+    background-color: white;
     color: black;
 }
 
@@ -41,7 +42,7 @@ pre {
     margin: 0;
 }
 
-.efektCode, pre {
+.efektCode, pre, textarea {
     font: bold 10pt Consolas, sans-serif;
 }
 
@@ -77,9 +78,10 @@ pre {
     color: #000000;
 }
 
-#codeInput, #codeScratchpad {
+#codeEdit {
     width: 400px;
     height: 200px;
+    border: none;
 }
 
 #codeView, #astView {
@@ -95,4 +97,15 @@ pre {
 #astView {
     border-left: 1px solid lightgray;
     float: left;
+}
+
+#mainViewGrid {
+    width: 100%;
+}
+
+#mainViewGrid label {
+    background-color: dimgray;
+    color: lightgray;
+    padding: 1px 10px;
+
 }
