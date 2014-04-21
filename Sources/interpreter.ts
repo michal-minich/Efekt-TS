@@ -274,7 +274,7 @@ class Interpreter implements AstVisitor<Exp> {
         if (exp instanceof Fn) {
             var fn = <Fn>exp;
             var sc = new Scope(undefined, fn.body.list);
-            sc.parent = this.currentScope;
+            sc.parent = fn.parent;
             for (var i = 0; i < args.length; ++i) {
                 var p = Interpreter.getFromBracedAt(fn.params, i);
                 var n = Interpreter.getName(p);
@@ -282,7 +282,7 @@ class Interpreter implements AstVisitor<Exp> {
             }
             return this.visitScope(sc);
         } else {
-            throw "fn is not fn type";
+            throw "fn is not fn type: " + exp.getTypeName();
         }
     }
 

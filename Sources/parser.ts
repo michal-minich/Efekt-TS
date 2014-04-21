@@ -148,7 +148,7 @@ class Parser {
     private index : number;
     private matched : string;
 
-    private binOpBuilders : BinOpBuilder[] = [];
+
 
 
     public parse (code : string) : AsiList {
@@ -184,7 +184,6 @@ class Parser {
 
     private parseMany (startsWithCurly : boolean = false) : Asi {
         var b = new BinOpBuilder();
-        this.binOpBuilders.push(b);
         while (true) {
             var asi = this.parseOne();
             this.skipWhite();
@@ -194,7 +193,6 @@ class Parser {
                     if (asi)
                         b.addExpToSequence(<Exp>asi);
                     asi = b.buildBinOpApplyTreeFromSequence();
-                    this.binOpBuilders.pop();
                 }
                 if (this.code[this.index - 1] === '}' && !startsWithCurly)
                     --this.index;
@@ -207,10 +205,8 @@ class Parser {
             } else if (!b.isEmpty()) {
                 b.addExpToSequence(<Exp>asi);
                 asi = b.buildBinOpApplyTreeFromSequence();
-                this.binOpBuilders.pop();
                 return asi;
             } else {
-                this.binOpBuilders.pop();
                 return asi;
             }
         }

@@ -382,9 +382,12 @@ function parseTests () : void {
 
 function interpreterTests () : void {
 
+    // ops
     t("1 + 2").evalTo("3");
     t("1 + 2 * 10").evalTo("21");
     t("(1 + 2) * 10").evalTo("30");
+
+    // var & ops
     t("var a = 1").evalTo("1");
     t("var a = 1 a").evalTo("1");
     t("var a = 1 + 2").evalTo("3");
@@ -392,25 +395,54 @@ function interpreterTests () : void {
     t("var a = (1 + 2) * 10").evalTo("30");
     t("var a = 1 a = a + 2").evalTo("3");
     t("var a = 1 a = a + 2 a").evalTo("3");
+
+    // if
     t("if true then 1 else 2").evalTo("1");
     t("if false then 1 else 2").evalTo("2");
+
+    // scoped names
     t("var a = 1 { var a = 2 }").evalTo("2");
     t("var a = 1 { var a = 2 } a").evalTo("1");
     t("var a = 1 { a = 2 } a").evalTo("2");
+
+    // loop
     t("var a = 0 loop { if a == 0 then break } a").evalTo("0");
     t("var a = 0 loop { a = a + 1 if a == 10 then break } a").evalTo("10");
+
+    // fn
     t("var f = fn () { 1 } f()").evalTo("1");
     t("var f = fn (a) { a } f(1)").evalTo("1");
     t("var f = fn (a) { a + 1 } f(1)").evalTo("2");
-    t("var b = 0 var f = fn (a) { b = a } f(1)").evalTo("1");
-    //t("fn (a) { a }(1)").evalTo("1");
+    t("fn (a) { a }(1)").evalTo("1");
+
+    // return
     t("var f = fn () { return 1 } f()").evalTo("1");
-    //t("var f = fn (a) { fn () { a } } f(1)()").evalTo("1");
+
+    // fn closure
     t("var f = fn () { fn (a) { a } } f()(1)").evalTo("1");
-    //t("var f = fn (a) { fn (b) { a - b } } f(10)(1)").evalTo("9");
+    t("var f = fn (a) { fn () { a } } f(1)()").evalTo("1");
+    t("var f = fn (a) { fn (b) { a - b } } f(10)(1)").evalTo("9");
+    t("var b = 0 var f = fn (a) { b = a } f(1)").evalTo("1");
 }
 
 /*
+
+var f = fn () { var a = 1 fn () { a } }
+var g = f()
+g()
+
+var x = 10
+var adder = fn (a) { fn () { a + 1 } }
+var a = adder(5)
+var b = adder(10)
+print(a())
+print(a())
+print(b())
+print(a())
+print(a())
+print(b())
+
+
 -- fact
 var f = 1
 var n = 21

@@ -208,12 +208,8 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitScope (sc : Scope) : void {
-        this.cw.key("Scope");
-        this.cw.tab();
-        for (var i = 0; i < sc.list.items.length; i++) {
-            this.cw.newLine().markup("item").space();
-            sc.list.items[i].accept(this);
-        }
+        this.cw.key("Scope").tab().newLine().markup("list").space();
+        sc.list.accept(this);
         this.cw.unTab();
     }
 
@@ -388,8 +384,9 @@ class DebugPrinter implements AstVisitor<void> {
             this.cw.markup("returnType").space();
             fn.returnType.accept(this);
         }
-        this.cw.newLine().markup("params").space();
+        this.cw.newLine().markup("body").space();
         fn.body.accept(this);
+        this.cw.unTab();
     }
 
 
