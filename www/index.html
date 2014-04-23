@@ -21,37 +21,20 @@
 
 <div id="testReport"></div>
 
-<table id="mainViewGrid">
-    <tbody>
-        <tr>
-            <td>
-                <label for="codeEdit">Edit</label><br>
-                <textarea id="codeEdit">
-                </textarea>
-            </td>
-            <td>
-
-            </td>
-        </tr>
-        <tr>
-            <td>
-
-            </td>
-            <td>
-
-            </td>
-        </tr>
-    </tbody>
-</table>
-
-
-
-<br>
 <button type="button" id="parseButton">Parse</button>
 <button type="button" id="evalButton">Eval</button>
-<br>
-<pre id="codeView" class="efektCode"></pre>
-<pre id="astView" class="efektCode">
-</pre>
+
+<div id="mainView">
+    <div class="view noScroll">
+        <textarea id="codeEdit"></textarea>
+    </div>
+    <div class="view">
+        <pre id="outputView" class="efektCode"></pre>
+    </div>
+    <div class="view">
+        <pre id="outputAstView" class="efektCode"></pre>
+    </div>
+</div>
+
 </body>
 </html>

@@ -14,20 +14,20 @@ function start () {
     var codeEdit = <HTMLTextAreaElement>document.getElementById("codeEdit");
     var parseButton = <HTMLButtonElement>document.getElementById("parseButton");
     var evalButton = <HTMLButtonElement>document.getElementById("evalButton");
-    var codeView = <HTMLPreElement>document.getElementById("codeView");
-    var astView = <HTMLPreElement>document.getElementById("astView");
+    var outputView = <HTMLPreElement>document.getElementById("outputView");
+    var outputAstView = <HTMLPreElement>document.getElementById("outputAstView");
 
     function parse () {
         clear();
-        codeView.innerHTML = codeToHtmlString(codeEdit.value);
-        astView.innerHTML = codeToAstString(codeEdit.value);
+        outputView.innerHTML = codeToHtmlString(codeEdit.value);
+        outputAstView.innerHTML = codeToAstString(codeEdit.value);
     }
 
     function interpret () {
         clear();
         function exHandler (ex : Asi) {
-            codeView.innerHTML = "Exception: <br>" + asiToHtmlString(ex);
-            codeView.innerHTML = "Exception: <br>" + asiToHtmlAstString(ex);
+            outputView.innerHTML = "Exception: <br>" + asiToHtmlString(ex);
+            outputView.innerHTML = "Exception: <br>" + asiToHtmlAstString(ex);
         }
 
         var parser = new Parser();
@@ -35,13 +35,13 @@ function start () {
         var i = new Interpreter(exHandler);
         var sc = new Scope(undefined, al);
         var res = sc.accept(i);
-        codeView.innerHTML += asiToHtmlString(res);
-        astView.innerHTML += asiToHtmlAstString(res);
+        outputView.innerHTML += asiToHtmlString(res);
+        outputAstView.innerHTML += asiToHtmlAstString(res);
     }
 
     function clear () {
-        codeView.innerHTML = "";
-        astView.innerHTML = "";
+        outputView.innerHTML = "";
+        outputAstView.innerHTML = "";
     }
 
     parseButton.addEventListener('click', () => {

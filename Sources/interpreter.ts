@@ -260,11 +260,11 @@ class Interpreter implements AstVisitor<Exp> {
         if (fna.fn instanceof Ident) {
             var fni = <Ident>fna.fn;
             if (fni.name === "print") {
-                var codeView = <HTMLPreElement>document.getElementById("codeView");
-                var astView = <HTMLPreElement>document.getElementById("astView");
+                var outputView = <HTMLPreElement>document.getElementById("outputView");
+                var outputAstView = <HTMLPreElement>document.getElementById("outputAstView");
                 for (var i = 0; i < args.length; ++i) {
-                    codeView.innerHTML += asiToHtmlString(args[i]) + "<br>";
-                    astView.innerHTML += asiToAstString(args[i]) + "<br>";
+                    outputView.innerHTML += asiToHtmlString(args[i]) + "<br>";
+                    outputAstView.innerHTML += asiToAstString(args[i]) + "<br>";
                 }
                 return Void.instance;
             }

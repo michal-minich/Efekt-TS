@@ -1,6 +1,15 @@
+/* { border: 1px solid red; }*/
+
+html {
+    min-height: 100%;
+    position: relative
+}
+
 body {
     font: normal 10pt 'Segoe UI';
+    cursor: default;
     margin: 0;
+    height: 100%
 }
 
 body, textarea {
@@ -13,13 +22,13 @@ table {
     border: 1px solid lightgray;
 }
 
-td, th {
-    border: 1px solid lightgray;
-    padding: 3px 7px;
+.testReport tr:nth-child(even) {
+    background-color: #eee;
 }
 
-tr:nth-child(even) {
-    background-color: #eee;
+.testReport td, .testReport th {
+    border: 1px solid lightgray;
+    padding: 3px 7px
 }
 
 .testReport td {
@@ -40,7 +49,51 @@ tr:nth-child(even) {
 
 pre {
     margin: 0;
+    padding: 0;
 }
+
+#codeEdit {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+#mainView {
+    position: absolute;
+    top: 25px;
+    bottom: 00px;
+    left: 0;
+    right: 0;
+    overflow: hidden;
+}
+
+#mainView label {
+    background-color: dimgray;
+    color: lightgray;
+    padding: 1px 10px;
+}
+
+.view {
+    width: 30%;
+    height: 100%;
+    border-left: 1px solid gray;
+    float: left;
+    overflow: scroll;
+}
+
+.view:last-child {
+    width: 39.8%;
+}
+
+.view:first-child {
+    border-left: none;
+}
+
+.noScroll {
+    overflow: hidden;
+}
+
+/* code style */
 
 .efektCode, pre, textarea {
     font: bold 10pt Consolas, sans-serif;
@@ -76,36 +129,4 @@ pre {
 
 .efektOp {
     color: #000000;
-}
-
-#codeEdit {
-    width: 400px;
-    height: 200px;
-    border: none;
-}
-
-#codeView, #astView {
-    display: table-cell;
-    margin: 5px;
-    padding: 5px;
-}
-
-#codeView {
-    float: left;
-}
-
-#astView {
-    border-left: 1px solid lightgray;
-    float: left;
-}
-
-#mainViewGrid {
-    width: 100%;
-}
-
-#mainViewGrid label {
-    background-color: dimgray;
-    color: lightgray;
-    padding: 1px 10px;
-
 }
