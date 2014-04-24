@@ -109,6 +109,7 @@ class TestReprot {
             return "";
         }
         this.table.push("</tbody></table>");
+        document.getElementById("mainView").style.display = "none";
         return "" + this.failedCount + " of " + this.testCount +
             " Tests Failed" +
             this.table.join("");
@@ -241,10 +242,11 @@ function parseTests () : void {
 
 
     // break
-    t("break continue").parse("break\ncontinue");
+    t("break continue").parse("\nbreak\n\ncontinue");
 
     // loop
-    t("loop { a }").parse("loop a");
+    t("loop a").parse("loop { a }");
+    t("loop { a b }").parse("loop {\n    a\n    b\n}");
 
     // true false
     t("if true then false").parse();
@@ -299,6 +301,8 @@ function parseTests () : void {
     t("{1 {2 3}} {}").parse("{\n    1\n    {\n        2\n" +
                                 "        3\n    }\n}\n{ }");
     t("{} {} {}").parse("{ }\n{ }\n{ }");
+    t("loop { x if a then b y } z").parse("loop {\n    x\n    " +
+                                              "if a then b\n    y\n}\nz");
 
     // fn
     t("fn () { }").parse();

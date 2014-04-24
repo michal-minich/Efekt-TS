@@ -21,6 +21,7 @@ class Printer implements AstVisitor<void> {
         return asi instanceof Fn ||
             asi instanceof AsiList ||
             asi instanceof Struct ||
+            asi instanceof Loop ||
             asi instanceof Interface;
     }
 
@@ -94,7 +95,7 @@ class Printer implements AstVisitor<void> {
 
     visitBreak (b : Break) : void {
         this.markLineWritten();
-        this.cw.key("break");
+        this.cw.newLine().key("break");
     }
 
 
@@ -102,7 +103,7 @@ class Printer implements AstVisitor<void> {
 
     visitContinue (c : Continue) : void {
         this.markLineWritten();
-        this.cw.key("continue");
+        this.cw.newLine().key("continue");
     }
 
 
@@ -220,10 +221,10 @@ class Printer implements AstVisitor<void> {
 
         this.visitAsiList(sc.list);
 
-        this.cw.unTab();
-        if (this.lineWritten.pop())
+        if (this.lineWritten.pop()) {
+            this.cw.unTab();
             this.cw.newLine();
-        else if (!skipBraces)
+        } else if (!skipBraces)
             this.cw.space();
         if (!skipBraces)
             this.cw.markup("}");
