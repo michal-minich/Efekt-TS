@@ -3,6 +3,31 @@
 /// <reference path="printer.ts"/>
 /// <reference path="debugprinter.ts"/>
 
+interface ExceptionHandler {
+    exception (ex : Exp) : void
+}
+
+
+
+
+interface Logger {
+    error (msg : string) : void;
+    warn (msg : string) : void;
+    suggest (msg : string) : void;
+    info (msg : string) : void;
+    notice (msg : string) : void;
+}
+
+
+
+
+interface OutputWriter {
+    write (asi : Asi) : void;
+}
+
+
+
+
 interface TextWriter {
 
     write(...values : string[]) : void;
@@ -28,6 +53,60 @@ class StringWriter implements TextWriter {
 
     write (...values : string[]) : void {
         this.buffer.push.apply(this.buffer, values);
+    }
+}
+
+
+
+
+class OutputLogger implements Logger, ExceptionHandler, OutputWriter {
+
+    private logView : HTMLElement;
+    private outputView : HTMLElement;
+    private outputAstView : HTMLElement;
+
+    constructor (el : HTMLElement,
+                 outputView : HTMLElement,
+                 outputAstView : HTMLElement) {
+        this.logView = el;
+        this.outputView = outputView;
+        this.outputAstView = outputAstView
+    }
+
+    error (msg : string) : void {
+        this.log('error', msg);
+    }
+
+    warn (msg : string) : void {
+        this.log('warn', msg);
+    }
+
+    suggest (msg : string) : void {
+        this.log('suggest', msg);
+    }
+
+    info (msg : string) : void {
+        this.log('info', msg);
+    }
+
+    notice (msg : string) : void {
+        this.log('notice', msg);
+    }
+
+    exception (ex : Exp) : void {
+        this.outputView.innerHTML += "Exception: <br>" + asiToHtmlString(ex);
+        this.outputAstView.innerHTML += "Exception: <br>" +
+            asiToHtmlAstString(ex);
+    }
+
+    write (asi : Asi) : void {
+        this.outputView.innerHTML += "<br>" + asiToHtmlString(asi);
+        this.outputAstView.innerHTML += "<br>" + asiToHtmlAstString(asi);
+    }
+
+    private log (img : string, msg : string) : void {
+        this.logView.innerHTML += "<span class='logItem'><span class='" + img +
+            "></span>" + msg + "</span>";
     }
 }
 
@@ -70,8 +149,16 @@ function asiToHtmlString (asi : Asi) : string {
 
 
 
+var logView = <HTMLDivElement>document.getElementById("logView");
+var outputView = <HTMLPreElement>document.getElementById("outputView");
+var outputAstView = <HTMLPreElement>document.getElementById("outputAstView");
+var logger = new OutputLogger(logView, outputView, outputAstView);
+
+
+
+
 function codeToAstString (code : string, invisibleBraced = false) : string {
-    var parser = new Parser();
+    var parser = new Parser(logger);
     var al = parser.parse(code);
     return asiToAstString(al, invisibleBraced);
 }
@@ -80,7 +167,7 @@ function codeToAstString (code : string, invisibleBraced = false) : string {
 
 
 function codeToHtmlString (code : string) : string {
-    var parser = new Parser();
+    var parser = new Parser(logger);
     var al = parser.parse(code);
     return asiToHtmlString(al);
 }

@@ -74,7 +74,7 @@ pre {
 }
 
 .view {
-    width: 30%;
+    width: 22%;
     height: 100%;
     border-left: 1px solid gray;
     float: left;
@@ -82,7 +82,7 @@ pre {
 }
 
 .view:last-child {
-    width: 39.8%;
+    width: 33.5%;
 }
 
 .view:first-child {

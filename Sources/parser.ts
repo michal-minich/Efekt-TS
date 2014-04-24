@@ -144,9 +144,18 @@ class BinOpBuilder {
 
 class Parser {
 
+    private logger : Logger;
+
     private code : string;
     private index : number;
     private matched : string;
+
+
+
+
+    constructor (logger : Logger) {
+        this.logger = logger;
+    }
 
 
 

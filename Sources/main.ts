@@ -6,16 +6,15 @@
 /// <reference path="parser.ts"/>
 /// <reference path="interpreter.ts"/>
 
-
 function start () {
 
     unitTests();
 
+    var outputView = <HTMLPreElement>document.getElementById("outputView");
+    var outputAstView = <HTMLPreElement>document.getElementById("outputAstView");
     var codeEdit = <HTMLTextAreaElement>document.getElementById("codeEdit");
     var parseButton = <HTMLButtonElement>document.getElementById("parseButton");
     var evalButton = <HTMLButtonElement>document.getElementById("evalButton");
-    var outputView = <HTMLPreElement>document.getElementById("outputView");
-    var outputAstView = <HTMLPreElement>document.getElementById("outputAstView");
 
     function parse () {
         clear();
@@ -25,14 +24,9 @@ function start () {
 
     function interpret () {
         clear();
-        function exHandler (ex : Asi) {
-            outputView.innerHTML = "Exception: <br>" + asiToHtmlString(ex);
-            outputView.innerHTML = "Exception: <br>" + asiToHtmlAstString(ex);
-        }
-
-        var parser = new Parser();
+        var parser = new Parser(logger);
         var al = parser.parse(codeEdit.value);
-        var i = new Interpreter(exHandler);
+        var i = new Interpreter(logger, logger, logger);
         var sc = new Scope(undefined, al);
         var res = sc.accept(i);
         outputView.innerHTML += asiToHtmlString(res);

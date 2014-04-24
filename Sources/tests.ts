@@ -59,7 +59,7 @@ class TestReprot {
 
         try {
             if (isEval) {
-                var parser = new Parser();
+                var parser = new Parser(logger);
                 var al = parser.parse(expected);
                 expectedAst = "";
                 for (var i = 0; i < al.items.length; ++i) {
@@ -142,7 +142,7 @@ class Test {
     evalTo (expected : string) : Test {
         var exHandler = function (ex : Asi) {
         };
-        var interpreter = new Interpreter(exHandler);
+        var interpreter = new Interpreter(logger, logger, logger);
         var sc = new Scope(undefined, this.parsed);
         var evaled = sc.accept(interpreter);
         testReport.addEval(this.code, expected, evaled);
@@ -154,7 +154,7 @@ class Test {
 
 
 function t (code : string) : Test {
-    var parser = new Parser();
+    var parser = new Parser(logger);
     var parsed = parser.parse(code);
     return new Test(code, parsed);
 }
