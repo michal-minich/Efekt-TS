@@ -3,6 +3,17 @@
 /// <reference path="printer.ts"/>
 /// <reference path="debugprinter.ts"/>
 
+
+
+
+var logView : HTMLDivElement;
+var outputView : HTMLPreElement;
+var outputAstView : HTMLPreElement;
+var logger : OutputLogger;
+
+
+
+
 interface ExceptionHandler {
     exception (ex : Exp) : void
 }
@@ -11,6 +22,7 @@ interface ExceptionHandler {
 
 
 interface Logger {
+    fatal (msg : string) : void;
     error (msg : string) : void;
     warn (msg : string) : void;
     suggest (msg : string) : void;
@@ -65,12 +77,17 @@ class OutputLogger implements Logger, ExceptionHandler, OutputWriter {
     private outputView : HTMLElement;
     private outputAstView : HTMLElement;
 
-    constructor (el : HTMLElement,
+    constructor (logView : HTMLElement,
                  outputView : HTMLElement,
                  outputAstView : HTMLElement) {
-        this.logView = el;
+        this.logView = logView;
         this.outputView = outputView;
         this.outputAstView = outputAstView
+    }
+
+    fatal (msg : string) : void {
+        this.log('fatal', msg);
+        throw msg;
     }
 
     error (msg : string) : void {
@@ -106,7 +123,7 @@ class OutputLogger implements Logger, ExceptionHandler, OutputWriter {
 
     private log (img : string, msg : string) : void {
         this.logView.innerHTML += "<span class='logItem'><span class='" + img +
-            "></span>" + msg + "</span>";
+            "'></span>" + img + ": " + msg + "</span>";
     }
 }
 
@@ -145,14 +162,6 @@ function asiToHtmlString (asi : Asi) : string {
     var str = sw.getString();
     return str;
 }
-
-
-
-
-var logView = <HTMLDivElement>document.getElementById("logView");
-var outputView = <HTMLPreElement>document.getElementById("outputView");
-var outputAstView = <HTMLPreElement>document.getElementById("outputAstView");
-var logger = new OutputLogger(logView, outputView, outputAstView);
 
 
 

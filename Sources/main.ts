@@ -10,8 +10,11 @@ function start () {
 
     unitTests();
 
-    var outputView = <HTMLPreElement>document.getElementById("outputView");
-    var outputAstView = <HTMLPreElement>document.getElementById("outputAstView");
+    logView = <HTMLDivElement>document.getElementById("logView");
+    outputView = <HTMLPreElement>document.getElementById("outputView");
+    outputAstView = <HTMLPreElement>document.getElementById("outputAstView");
+    logger = new OutputLogger(logView, outputView, outputAstView);
+
     var codeEdit = <HTMLTextAreaElement>document.getElementById("codeEdit");
     var parseButton = <HTMLButtonElement>document.getElementById("parseButton");
     var evalButton = <HTMLButtonElement>document.getElementById("evalButton");
@@ -34,6 +37,7 @@ function start () {
     }
 
     function clear () {
+        logView.innerHTML = "";
         outputView.innerHTML = "";
         outputAstView.innerHTML = "";
     }

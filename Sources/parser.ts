@@ -43,6 +43,15 @@ class BinOpBuilder {
         "&==": 3, "^=": 3, "|=": 3
     };
 
+    private logger : Logger;
+
+
+
+
+    constructor (logger : Logger) {
+        this.logger = logger;
+    }
+
 
 
 
@@ -69,8 +78,8 @@ class BinOpBuilder {
 
 
     public buildBinOpApplyTreeFromSequence () : Exp {
-        BinOpBuilder.reorderBinOpsSequence(this.opExp, this.opOp);
-        var res = BinOpBuilder.joinBinOpsSequence(this.opExp, this.opOp);
+        this.reorderBinOpsSequence(this.opExp, this.opOp);
+        var res = this.joinBinOpsSequence(this.opExp, this.opOp);
         this.opExp = [];
         this.opOp = [];
         return res;
@@ -79,8 +88,7 @@ class BinOpBuilder {
 
 
 
-    private static reorderBinOpsSequence (opExp : Exp[],
-                                          opOp : string[]) : void {
+    private reorderBinOpsSequence (opExp : Exp[], opOp : string[]) : void {
         var prec = BinOpBuilder.opPrecedence;
         var right = BinOpBuilder.rightAssociativeOps;
         do {
@@ -90,7 +98,7 @@ class BinOpBuilder {
                 var opPrev = opOp[i - 1];
                 if (!right.contains(opPrev) && prec[op] <= prec[opPrev])
                     continue;
-                opExp[i] = BinOpBuilder.combineExp(op, opExp[i], opExp[i + 1]);
+                opExp[i] = this.combineExp(op, opExp[i], opExp[i + 1]);
                 opExp.removeAt(i + 1);
                 opOp.removeAt(i);
                 ++numChanges;
@@ -102,9 +110,9 @@ class BinOpBuilder {
 
 
 
-    private static joinBinOpsSequence (opExp : Exp[], opOp : string[]) : Exp {
+    private joinBinOpsSequence (opExp : Exp[], opOp : string[]) : Exp {
         for (var i = 0; i < opOp.length; ++i)
-            opExp[i + 1] = BinOpBuilder.combineExp(
+            opExp[i + 1] = this.combineExp(
                 opOp[i], opExp[i], opExp[i + 1]);
         return opExp.last();
     }
@@ -112,10 +120,10 @@ class BinOpBuilder {
 
 
 
-    private static combineExp (op : string, op1 : Exp, op2 : Exp) : Exp {
+    private combineExp (op : string, op1 : Exp, op2 : Exp) : Exp {
         if (op === ".") {
             if (!(op2 instanceof Ident))
-                throw "expected identifier after '.'.";
+                this.logger.fatal("Expected identifier after '.'.");
             return new Member(undefined, op1, <Ident>op2);
         } else if (op === "\n") {
             return new FnApply(undefined, <Braced>op2, op1);
@@ -165,8 +173,9 @@ class Parser {
         this.index = 0;
         var al = this.parseAsiList();
         if (code.length !== this.index)
-            console.log("not all code parsed. not parsed char count: " +
-                            (code.length - this.index));
+            this.logger.error("Not all code parsed. not parsed. " +
+                                  "Remaining char count: " +
+                                  (code.length - this.index));
         return al;
     }
 
@@ -192,7 +201,7 @@ class Parser {
 
 
     private parseMany (startsWithCurly : boolean = false) : Asi {
-        var b = new BinOpBuilder();
+        var b = new BinOpBuilder(this.logger);
         while (true) {
             var asi = this.parseOne();
             this.skipWhite();
@@ -284,10 +293,10 @@ class Parser {
             var bc = <Braced>asi;
             asi = this.parseOne();
             if (!(asi instanceof Scope))
-                throw "expected scope after fn (...).";
+                this.logger.fatal("Expected scope after fn (...).");
             return new Fn(undefined, bc, <Scope>asi);
         } else {
-            throw "expected braced after fn.";
+            this.logger.fatal("Expected braced after fn.");
         }
     }
 
@@ -333,7 +342,8 @@ class Parser {
         var asi = this.parseMany();
 
         if (!(asi instanceof Exp))
-            throw "test of if statement must be expression not statement.";
+            this.logger.fatal("Test of if statement must be expression" +
+                                  ", not statement.");
 
         if (this.matchText("then"))
             then = this.parseScopedExp();
@@ -394,15 +404,17 @@ class Parser {
                                                expIsRequired : boolean) : T {
         if (this.skipWhite()) {
             if (expIsRequired)
-                throw TConstructor.getTypeName() + " requires expression";
+                this.logger.fatal(TConstructor.getTypeName() +
+                                      " requires expression");
             else
                 return new TConstructor(undefined, undefined);
         }
         var asi = this.parseMany();
         if (asi instanceof Exp)
             return new TConstructor(undefined, <Exp>asi);
-        throw "expression expected after " + TConstructor.getTypeName() +
-            ", not statement";
+        this.logger.fatal("Expression expected after " +
+                              TConstructor.getTypeName() +
+                              ", not statement");
     }
 
 
