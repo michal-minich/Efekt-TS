@@ -207,6 +207,9 @@ function testSpecific () : void {
 
 function parseTests () : void {
 
+    t("").parse();
+    t("void").parse();
+
     // if
     t("if 1 then 2").parse();
     t("if a then b else c").parse();
@@ -397,6 +400,9 @@ function parseTests () : void {
 
 
 function interpreterTests () : void {
+
+    t("").evalTo("void");
+    t("void").evalTo("void");
 
     // ops
     t("1 + 2").evalTo("3");

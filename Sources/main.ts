@@ -33,8 +33,8 @@ function start () {
         var al = parser.parse(codeEdit.value);
         var i = new Interpreter(outputLogger, outputLogger, outputLogger);
         var res = i.run(al);
-        outputView.innerHTML += "<br>" + asiToHtmlString(res);
-        outputAstView.innerHTML += "<br>" + asiToHtmlAstString(res);
+        outputView.innerHTML += asiToHtmlString(res);
+        outputAstView.innerHTML += asiToHtmlAstString(res);
     }
 
     function clear () {

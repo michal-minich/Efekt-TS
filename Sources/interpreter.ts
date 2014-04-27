@@ -239,10 +239,11 @@ class Interpreter implements AstVisitor<Exp> {
 
     private walkAsiList (al : AsiList) : Exp {
         var cs = this.currentScope;
+        var res = Void.instance;
         while ((cs.currentAsiIx < cs.list.items.length - 1) && !this.isBreak &&
             !this.isContinue) {
             ++cs.currentAsiIx;
-            var res = al.items[cs.currentAsiIx].accept(this);
+            res = al.items[cs.currentAsiIx].accept(this);
         }
         return res;
     }

@@ -100,14 +100,14 @@ class OutputLogger implements Logger, ExceptionHandler, OutputWriter {
     }
 
     exception (ex : Exp) : void {
-        this.outputView.innerHTML += "Exception: <br>" + asiToHtmlString(ex);
-        this.outputAstView.innerHTML += "Exception: <br>" +
-            asiToHtmlAstString(ex);
+        this.outputView.innerHTML += "Exception: " + asiToHtmlString(ex) + "<br>";
+        this.outputAstView.innerHTML += "Exception: " +
+            asiToHtmlAstString(ex) + "<br>";
     }
 
     write (asi : Asi) : void {
-        this.outputView.innerHTML += "<br>" + asiToHtmlString(asi);
-        this.outputAstView.innerHTML += "<br>" + asiToHtmlAstString(asi);
+        this.outputView.innerHTML += asiToHtmlString(asi) + "<br>";
+        this.outputAstView.innerHTML += asiToHtmlAstString(asi) + "<br>";
     }
 
     private log (img : string, msg : string) : void {

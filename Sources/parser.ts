@@ -171,6 +171,8 @@ class Parser {
     public parse (code : string) : AsiList {
         this.code = code;
         this.index = 0;
+        if (code.length === 0)
+            return new AsiList(undefined, []);
         var al = this.parseAsiList();
         if (code.length !== this.index)
             this.logger.error("Not all code parsed. not parsed. " +
@@ -236,6 +238,7 @@ class Parser {
     private matchTextToFn : TextToAsiFn = {
         "true": () => new Bool(undefined, true),
         "false": () => new Bool(undefined, false),
+        "void": () => new Void(undefined),
         "var": () => this.parseSimpleKeyword<Var>(Var, true),
         "if": () => this.parseIf(),
         "fn": () => this.parseFn(),

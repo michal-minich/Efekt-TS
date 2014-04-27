@@ -315,7 +315,7 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitVoid (vo : Void) : void {
-        this.cw.key("void");
+        this.cw.key("Void");
     }
 
 
