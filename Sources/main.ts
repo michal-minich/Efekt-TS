@@ -10,26 +10,28 @@ function start () {
 
     unitTests();
 
-    logView = <HTMLDivElement>document.getElementById("logView");
-    outputView = <HTMLPreElement>document.getElementById("outputView");
-    outputAstView = <HTMLPreElement>document.getElementById("outputAstView");
-    logger = new OutputLogger(logView, outputView, outputAstView);
+    var logView = <HTMLDivElement>document.getElementById("logView");
+    var outputView = <HTMLPreElement>document.getElementById("outputView");
+    var outputAstView = <HTMLPreElement>document.getElementById("outputAstView");
+    var outputLogger = new OutputLogger(logView, outputView, outputAstView);
+    var consoleLogger = new ConsoleLogger();
 
     var codeEdit = <HTMLTextAreaElement>document.getElementById("codeEdit");
     var parseButton = <HTMLButtonElement>document.getElementById("parseButton");
-    var evalButton = <HTMLButtonElement>document.getElementById("evalButton");
+    var runButton = <HTMLButtonElement>document.getElementById("runButton");
 
     function parse () {
         clear();
-        outputView.innerHTML = codeToHtmlString(codeEdit.value);
-        outputAstView.innerHTML = codeToAstString(codeEdit.value);
+        outputView.innerHTML = codeToHtmlString(codeEdit.value, outputLogger);
+        outputAstView.innerHTML = codeToAstString(codeEdit.value,
+                                                  consoleLogger);
     }
 
     function interpret () {
         clear();
-        var parser = new Parser(logger);
+        var parser = new Parser(outputLogger);
         var al = parser.parse(codeEdit.value);
-        var i = new Interpreter(logger, logger, logger);
+        var i = new Interpreter(outputLogger, outputLogger, outputLogger);
         var sc = new Scope(undefined, al);
         var res = sc.accept(i);
         outputView.innerHTML += asiToHtmlString(res);
@@ -46,7 +48,7 @@ function start () {
         parse();
     });
 
-    evalButton.addEventListener('click', () => {
+    runButton.addEventListener('click', () => {
         interpret();
     });
 

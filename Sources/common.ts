@@ -3,17 +3,6 @@
 /// <reference path="printer.ts"/>
 /// <reference path="debugprinter.ts"/>
 
-
-
-
-var logView : HTMLDivElement;
-var outputView : HTMLPreElement;
-var outputAstView : HTMLPreElement;
-var logger : OutputLogger;
-
-
-
-
 interface ExceptionHandler {
     exception (ex : Exp) : void
 }
@@ -122,8 +111,54 @@ class OutputLogger implements Logger, ExceptionHandler, OutputWriter {
     }
 
     private log (img : string, msg : string) : void {
-        this.logView.innerHTML += "<span class='logItem'><span class='" + img +
-            "'></span>" + img + ": " + msg + "</span>";
+        this.logView.innerHTML += "<div class='logItem'><span class='" + img +
+            "'></span>" + img + ": " + msg + "<div>";
+    }
+}
+
+
+
+
+class ConsoleLogger implements Logger, ExceptionHandler, OutputWriter {
+
+    fatal (msg : string) : void {
+        this.log('fatal', msg);
+        throw msg;
+    }
+
+    error (msg : string) : void {
+        this.log('error', msg);
+    }
+
+    warn (msg : string) : void {
+        this.log('warn', msg);
+    }
+
+    suggest (msg : string) : void {
+        this.log('suggest', msg);
+    }
+
+    info (msg : string) : void {
+        this.log('info', msg);
+    }
+
+    notice (msg : string) : void {
+        this.log('notice', msg);
+    }
+
+    exception (ex : Exp) : void {
+        console.log("Exception: " + asiToHtmlString(ex));
+        console.log("Exception: " + asiToHtmlAstString(ex));
+    }
+
+    write (asi : Asi) : void {
+        console.log(asiToHtmlString(asi));
+        console.log(asiToHtmlAstString(asi));
+    }
+
+    private log (img : string, msg : string) : void {
+        console.log("<div class='logItem'><span class='" + img +
+                        "'></span>" + img + ": " + msg + "<div>");
     }
 }
 
@@ -166,7 +201,9 @@ function asiToHtmlString (asi : Asi) : string {
 
 
 
-function codeToAstString (code : string, invisibleBraced = false) : string {
+function codeToAstString (code : string,
+                          logger : Logger,
+                          invisibleBraced = false) : string {
     var parser = new Parser(logger);
     var al = parser.parse(code);
     return asiToAstString(al, invisibleBraced);
@@ -175,7 +212,7 @@ function codeToAstString (code : string, invisibleBraced = false) : string {
 
 
 
-function codeToHtmlString (code : string) : string {
+function codeToHtmlString (code : string, logger : Logger) : string {
     var parser = new Parser(logger);
     var al = parser.parse(code);
     return asiToHtmlString(al);

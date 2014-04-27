@@ -21,21 +21,31 @@
 
 <div id="testReport"></div>
 
-<button type="button" id="parseButton">Parse</button>
-<button type="button" id="evalButton">Eval</button>
+<div class="toolbar">
 
+    <button type="button" id="parseButton">Parse</button>
+    <button type="button" id="runButton">Run</button>
+</div>
 <div id="mainView">
     <div class="view">
-        <div id="logView"></div>
+        <div class="viewInner">
+            <div id="logView"></div>
+        </div>
     </div>
     <div class="view noScroll">
-        <textarea id="codeEdit"></textarea>
+        <div class="viewInner">
+            <textarea id="codeEdit"></textarea>
+        </div>
     </div>
     <div class="view">
-        <pre id="outputView" class="efektCode"></pre>
+        <div class="viewInner">
+            <pre id="outputView" class="efektCode"></pre>
+        </div>
     </div>
     <div class="view">
-        <pre id="outputAstView" class="efektCode"></pre>
+        <div class="viewInner">
+            <pre id="outputAstView" class="efektCode"></pre>
+        </div>
     </div>
 </div>
 

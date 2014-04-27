@@ -292,11 +292,14 @@ class Parser {
         if (asi instanceof Braced) {
             var bc = <Braced>asi;
             asi = this.parseOne();
-            if (!(asi instanceof Scope))
+            if (!(asi instanceof Scope)) {
                 this.logger.fatal("Expected scope after fn (...).");
+                throw undefined;
+            }
             return new Fn(undefined, bc, <Scope>asi);
         } else {
             this.logger.fatal("Expected braced after fn.");
+            throw undefined;
         }
     }
 
@@ -403,11 +406,13 @@ class Parser {
     private parseSimpleKeyword<T extends Exp> (TConstructor : any,
                                                expIsRequired : boolean) : T {
         if (this.skipWhite()) {
-            if (expIsRequired)
+            if (expIsRequired) {
                 this.logger.fatal(TConstructor.getTypeName() +
                                       " requires expression");
-            else
+                throw undefined;
+            } else {
                 return new TConstructor(undefined, undefined);
+            }
         }
         var asi = this.parseMany();
         if (asi instanceof Exp)
@@ -415,6 +420,7 @@ class Parser {
         this.logger.fatal("Expression expected after " +
                               TConstructor.getTypeName() +
                               ", not statement");
+        throw undefined;
     }
 
 

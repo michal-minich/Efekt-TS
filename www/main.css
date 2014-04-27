@@ -12,7 +12,7 @@ body {
     height: 100%
 }
 
-body, textarea {
+body, textarea, div {
     background-color: white;
     color: black;
 }
@@ -56,12 +56,14 @@ pre {
     width: 100%;
     height: 100%;
     border: none;
+    padding: 0;
+    margin: 0;
 }
 
 #mainView {
     position: absolute;
-    top: 25px;
-    bottom: 00px;
+    top: 31px;
+    bottom: 0;
     left: 0;
     right: 0;
     overflow: hidden;
@@ -76,21 +78,38 @@ pre {
 .view {
     width: 22%;
     height: 100%;
-    border-left: 1px solid gray;
     float: left;
-    overflow: scroll;
+    background-color: lightgray;
 }
 
 .view:last-child {
-    width: 33.5%;
+    width: 34%;
 }
 
-.view:first-child {
-    border-left: none;
+.viewInner {
+    margin-left: 1px;
+    height: 100%;
+    overflow: auto;
 }
 
-.noScroll {
+.viewInner .noScroll {
     overflow: hidden;
+}
+
+.viewInner:first-child {
+    border: none;
+}
+
+.toolbar {
+    background-color: #ddd;
+    height: 24px;
+    padding: 3px;
+    border-bottom: 1px solid #bbb;
+}
+
+.logItem {
+    border-bottom: 1px solid lightgray;
+    padding: 5px;
 }
 
 /* code style */

@@ -13,6 +13,8 @@ class TestReprot {
     private table : string[] = [];
     public failedCount = 0;
     private testCount = 0;
+    private logger = new ConsoleLogger();
+
 
     constructor () {
         this.table.push("<table class='testReport'><thead><tr>",
@@ -54,12 +56,12 @@ class TestReprot {
 
         var actualPlain = asiToString(actualAsi);
         var actualHtml = asiToHtmlString(actualAsi);
-        var codeAst = codeToAstString(code, true);
+        var codeAst = codeToAstString(code, this.logger, true);
         var expectedAst : string;
 
         try {
             if (isEval) {
-                var parser = new Parser(logger);
+                var parser = new Parser(this.logger);
                 var al = parser.parse(expected);
                 expectedAst = "";
                 for (var i = 0; i < al.items.length; ++i) {
@@ -68,7 +70,7 @@ class TestReprot {
                         expectedAst += "<br>";
                 }
             } else {
-                expectedAst = codeToAstString(expected, true);
+                expectedAst = codeToAstString(expected, this.logger, true);
             }
         } catch (ex) {
             expectedAst = ex;
@@ -123,6 +125,8 @@ class Test {
 
     private code : string;
     private parsed : AsiList;
+    private logger = new ConsoleLogger();
+
 
     constructor (code : string, parsed : AsiList) {
         this.code = code;
@@ -143,7 +147,8 @@ class Test {
     evalTo (expected : string) : Test {
         var exHandler = function (ex : Asi) {
         };
-        var interpreter = new Interpreter(logger, logger, logger);
+        var interpreter = new Interpreter(this.logger, this.logger,
+                                          this.logger);
         var sc = new Scope(undefined, this.parsed);
         var evaled = sc.accept(interpreter);
         testReport.addEval(this.code, expected, evaled);
@@ -155,7 +160,7 @@ class Test {
 
 
 function t (code : string) : Test {
-    var parser = new Parser(logger);
+    var parser = new Parser(this.logger);
     var parsed = parser.parse(code);
     return new Test(code, parsed);
 }
