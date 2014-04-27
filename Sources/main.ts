@@ -32,10 +32,9 @@ function start () {
         var parser = new Parser(outputLogger);
         var al = parser.parse(codeEdit.value);
         var i = new Interpreter(outputLogger, outputLogger, outputLogger);
-        var sc = new Scope(undefined, al);
-        var res = sc.accept(i);
-        outputView.innerHTML += asiToHtmlString(res);
-        outputAstView.innerHTML += asiToHtmlAstString(res);
+        var res = i.run(al);
+        outputView.innerHTML += "<br>" + asiToHtmlString(res);
+        outputAstView.innerHTML += "<br>" + asiToHtmlAstString(res);
     }
 
     function clear () {

@@ -609,6 +609,7 @@ class Char extends Exp {
 class Arr extends Exp {
 
     public list : ExpList;
+    public itemType : Exp = null;
 
     constructor (attrs : ExpList, list : ExpList) {
         super(attrs);
@@ -787,6 +788,16 @@ class TypeFloat extends Exp {
 
     accept<T> (v : AstVisitor<T>) : T {
         return v.visitTypeFloat(this);
+    }
+}
+
+
+
+
+class TypeChar extends Exp {
+
+    accept<T> (v : AstVisitor<T>) : T {
+        return v.visitTypeChar(this);
     }
 }
 

@@ -471,6 +471,13 @@ class DebugPrinter implements AstVisitor<void> {
 
 
 
+    visitTypeChar (tch : TypeChar) : void {
+        this.cw.type("Char");
+    }
+
+
+
+
     visitTypeArr (tarr : TypeArr) : void {
         this.cw.type("Array").markup("(");
         tarr.elementType.accept(this);

@@ -159,8 +159,13 @@ class Test {
 
 
 
+var loggerX = new ConsoleLogger();
+
+
+
+
 function t (code : string) : Test {
-    var parser = new Parser(this.logger);
+    var parser = new Parser(loggerX);
     var parsed = parser.parse(code);
     return new Test(code, parsed);
 }

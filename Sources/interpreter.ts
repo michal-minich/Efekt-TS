@@ -49,9 +49,23 @@ class Interpreter implements AstVisitor<Exp> {
         }
 
         //noinspection UnnecessaryLocalVariableJS
-        var ex = "variable " + name + " is undefined.";
-        //this.exceptionHandler(new Text(ex));
-        throw ex;
+        var arr = new Arr(undefined,
+                          Interpreter.stringToExpList("variable " + name +
+                                                          " is undefined."));
+        arr.itemType =  new TypeChar(undefined);
+        this.exceptionHandler.exception(arr);
+        return Void.instance;
+    }
+
+
+
+
+    private static stringToExpList (s : string) : ExpList {
+        var exps : Exp[] = [];
+        for (var i = 0; i < s.length; ++i) {
+            exps.push(new Char(undefined, s[i]));
+        }
+        return new ExpList(undefined, exps);
     }
 
 
@@ -74,6 +88,17 @@ class Interpreter implements AstVisitor<Exp> {
             }
             throw "cannot assign to variable " + name +
                 " becuase it was not declared.";
+        }
+    }
+
+
+
+    run (al : AsiList) : Exp {
+        try {
+            return this.visitScope(new Scope(undefined, al));
+        } catch (ex) {
+            this.exceptionHandler.exception(ex);
+            return Void.instance;
         }
     }
 
@@ -501,6 +526,13 @@ class Interpreter implements AstVisitor<Exp> {
 
     visitTypeFloat (tf : TypeFloat) : TypeFloat {
         return tf;
+    }
+
+
+
+
+    visitTypeChar (tch : TypeChar) : TypeChar {
+        return tch;
     }
 
 

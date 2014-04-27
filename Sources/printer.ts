@@ -357,9 +357,16 @@ class Printer implements AstVisitor<void> {
 
 
     visitArr (arr : Arr) : void {
-        this.cw.markup("[");
-        arr.list.accept(this);
-        this.cw.markup("]");
+        if (arr.itemType instanceof TypeChar) {
+            var s = "";
+            for (var i = 0; i < arr.list.items.length; ++i)
+                s += (<Char>arr.list.items[i]).value;
+            this.cw.text('"').text(s).text('"');
+        } else {
+            this.cw.markup("[");
+            arr.list.accept(this);
+            this.cw.markup("]");
+        }
     }
 
 
@@ -462,6 +469,13 @@ class Printer implements AstVisitor<void> {
 
     visitTypeFloat (tf : TypeFloat) : void {
         this.cw.type("Float");
+    }
+
+
+
+
+    visitTypeChar (tch : TypeChar) : void {
+        this.cw.type("Char");
     }
 
 

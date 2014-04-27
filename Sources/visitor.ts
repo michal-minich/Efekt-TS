@@ -55,6 +55,7 @@ interface AstVisitor<T> {
     visitTypeBool (tb : TypeBool) : T;
     visitTypeInt (tii : TypeInt) : T;
     visitTypeFloat (tf : TypeFloat) : T;
+    visitTypeChar (tch : TypeChar) : T;
     visitTypeArr (tarr : TypeArr) : T;
     visitTypeRef (trf : TypeRef) : T;
 }
