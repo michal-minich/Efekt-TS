@@ -48,24 +48,19 @@ class Interpreter implements AstVisitor<Exp> {
             sc = sc.parentScope;
         }
 
-        //noinspection UnnecessaryLocalVariableJS
-        var arr = new Arr(undefined,
-                          Interpreter.stringToExpList("variable " + name +
-                                                          " is undefined."));
-        arr.itemType =  new TypeChar(undefined);
-        this.exceptionHandler.exception(arr);
-        return Void.instance;
+        throw              "variable " + name + " is undefined.";
+
     }
 
 
 
 
-    private static stringToExpList (s : string) : ExpList {
+    private static createStringArr (s : string) : Arr {
         var exps : Exp[] = [];
         for (var i = 0; i < s.length; ++i) {
             exps.push(new Char(undefined, s[i]));
         }
-        return new ExpList(undefined, exps);
+        return new Arr(undefined, new ExpList(undefined, exps));
     }
 
 
@@ -87,7 +82,7 @@ class Interpreter implements AstVisitor<Exp> {
                 sc = sc.parentScope;
             }
             throw "cannot assign to variable " + name +
-                " becuase it was not declared.";
+                " because it was not declared.";
         }
     }
 
@@ -97,7 +92,9 @@ class Interpreter implements AstVisitor<Exp> {
         try {
             return this.visitScope(new Scope(undefined, al));
         } catch (ex) {
-            this.exceptionHandler.exception(ex);
+            var arr = Interpreter.createStringArr(ex);
+            arr.itemType = new TypeChar(undefined);
+            this.exceptionHandler.exception(arr);
             return Void.instance;
         }
     }
@@ -261,7 +258,7 @@ class Interpreter implements AstVisitor<Exp> {
 
 
     visitMember (m : Member) : Exp {
-        return undefined;
+        throw "member not implemented";
     }
 
 
@@ -373,14 +370,14 @@ class Interpreter implements AstVisitor<Exp> {
 
 
     visitNew (nw : New) : Ref {
-        return undefined;
+        throw "new not implemented";
     }
 
 
 
 
     visitTypeOf (tof : TypeOf) : Exp {
-        return undefined;
+        throw "type of not implemented";
     }
 
 
