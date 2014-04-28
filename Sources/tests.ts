@@ -444,7 +444,8 @@ function interpreterTests () : void {
     t("var f = fn () { fn (a) { a } } f()(1)").evalTo("1");
     t("var f = fn (a) { fn () { a } } f(1)()").evalTo("1");
     t("var f = fn (a) { fn (b) { a - b } } f(10)(1)").evalTo("9");
-    t("var b = 0 var f = fn (a) { b = a } f(1)").evalTo("1");
+    t("var b = 0 var f = fn (a) { b = a } f(1) b").evalTo("1");
+    t("var f { var a = 1 f = fn () { a } } f()").evalTo("1");
 }
 
 /*

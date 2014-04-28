@@ -193,6 +193,9 @@ class Interpreter implements AstVisitor<Exp> {
 
 
     visitVar (v : Var) : Exp {
+        if (v.exp instanceof Ident)
+            this.set(this.currentScope, (<Ident>v.exp).name, Void.instance,
+                     true);
         return v.exp.accept(this);
     }
 
