@@ -331,9 +331,11 @@ class Parser {
             var ch = this.code[this.index];
             ++this.index;
             if (ch === '"')
-                return new Arr(undefined, new ExpList(undefined, chars));
+                return new Arr(undefined, new ExpList(undefined, chars),
+                               new TypeChar(undefined));
             if (this.index >= this.code.length)
-                return new Arr(undefined, new ExpList(undefined, chars));
+                return new Arr(undefined, new ExpList(undefined, chars),
+                               new TypeChar(undefined));
             chars.push(new Char(undefined, ch));
         }
     }

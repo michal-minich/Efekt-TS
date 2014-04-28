@@ -609,12 +609,16 @@ class Char extends Exp {
 class Arr extends Exp {
 
     public list : ExpList;
-    public itemType : Exp = null;
+    public itemType : Exp;
 
-    constructor (attrs : ExpList, list : ExpList) {
+    constructor (attrs : ExpList, list : ExpList, itemType : Exp = null) {
         super(attrs);
         this.list = list;
         list.parent = this;
+        if (itemType) {
+            this.itemType = itemType;
+            itemType.parent = this;
+        }
     }
 
     accept<T> (v : AstVisitor<T>) : T {

@@ -357,7 +357,7 @@ class Printer implements AstVisitor<void> {
 
 
     visitArr (arr : Arr) : void {
-        if (arr.itemType instanceof TypeChar) {
+        if (arr.itemType && arr.itemType instanceof TypeChar) {
             var s = "";
             for (var i = 0; i < arr.list.items.length; ++i)
                 s += (<Char>arr.list.items[i]).value;

@@ -100,7 +100,8 @@ class OutputLogger implements Logger, ExceptionHandler, OutputWriter {
     }
 
     exception (ex : Exp) : void {
-        this.outputView.innerHTML += "Exception: " + asiToHtmlString(ex) + "<br>";
+        this.outputView.innerHTML += "Exception: " + asiToHtmlString(ex) +
+            "<br>";
         this.outputAstView.innerHTML += "Exception: " +
             asiToHtmlAstString(ex) + "<br>";
     }

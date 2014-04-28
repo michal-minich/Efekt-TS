@@ -48,7 +48,7 @@ class Interpreter implements AstVisitor<Exp> {
             sc = sc.parentScope;
         }
 
-        throw              "variable " + name + " is undefined.";
+        throw "variable " + name + " is undefined.";
 
     }
 
@@ -60,7 +60,9 @@ class Interpreter implements AstVisitor<Exp> {
         for (var i = 0; i < s.length; ++i) {
             exps.push(new Char(undefined, s[i]));
         }
-        return new Arr(undefined, new ExpList(undefined, exps));
+        var arr = new Arr(undefined, new ExpList(undefined, exps),
+                          new TypeChar(undefined));
+        return arr;
     }
 
 
@@ -93,7 +95,6 @@ class Interpreter implements AstVisitor<Exp> {
             return this.visitScope(new Scope(undefined, al));
         } catch (ex) {
             var arr = Interpreter.createStringArr(ex);
-            arr.itemType = new TypeChar(undefined);
             this.exceptionHandler.exception(arr);
             return Void.instance;
         }
