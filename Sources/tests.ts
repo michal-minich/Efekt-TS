@@ -282,6 +282,7 @@ function parseTests () : void {
     t("a() + 2").parse("(a() + 2)");
 
     // fn apply with compound exp
+    t("if a then b()").parse();
     t("(if a then b)()").parse();
     t("fn () { }()").parse();
     t("[0]()").parse();
@@ -454,7 +455,7 @@ function interpreterTests () : void {
 
 /*
 
--- select
+-- select, where
 var select = fn (arr, f) {
   var i = 0
   loop {
@@ -464,7 +465,22 @@ var select = fn (arr, f) {
     i = i + 1
   }
 }
-select([5, 6, 7, 8], fn (a) { print(a + 10) } )
+
+var where = fn (arr, f) {
+  var r = []
+  var i = 0
+  loop {
+    if i == count(arr) then break
+    var item = at(arr, i)
+    var b = f(item)
+    if b then { add(r, item) }
+    i = i + 1
+  }
+  return r
+}
+var s = fn (a) { print(a + 10) }
+var w = fn (a) { a > 6 }
+select(where([5, 6, 7, 8, 9], w), s)
 
 
 -- adder

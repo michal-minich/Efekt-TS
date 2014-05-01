@@ -303,6 +303,12 @@ class Interpreter implements AstVisitor<Exp> {
             } else if (fni.name === "count") {
                 var arr = <Arr>args[0];
                 return new Int(undefined, "" + arr.list.items.length);
+            } else if (fni.name === "add") {
+                var arr = <Arr>args[0];
+                var item = args[1];
+                item.parent = arr.list;
+                arr.list.items.push(item);
+                return arr;
             }
         }
 
@@ -316,7 +322,7 @@ class Interpreter implements AstVisitor<Exp> {
             }
             return this.visitScope(fn.body);
         } else {
-            throw "fn is not fn type: " + getTypeName(exp);
+            throw "cannot apply " + getTypeName(exp);
         }
     }
 

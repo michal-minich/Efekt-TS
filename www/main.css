@@ -75,15 +75,19 @@ pre {
     padding: 1px 10px;
 }
 
+.view:first-child {
+    width: 15%;
+}
+
 .view {
-    width: 22%;
+    width: 25%;
     height: 100%;
     float: left;
     background-color: lightgray;
 }
 
 .view:last-child {
-    width: 34%;
+    width: 35%;
 }
 
 .viewInner {
