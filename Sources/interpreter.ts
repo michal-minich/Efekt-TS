@@ -94,9 +94,13 @@ class Interpreter implements AstVisitor<Exp> {
         try {
             return this.visitScope(new Scope(undefined, al));
         } catch (ex) {
-            var arr = Interpreter.createStringArr(ex);
-            this.exceptionHandler.exception(arr);
-            return Void.instance;
+            if (ex instanceof String) {
+                var arr = Interpreter.createStringArr(ex);
+                this.exceptionHandler.exception(arr);
+                return Void.instance;
+            } else {
+                throw ex;
+            }
         }
     }
 
@@ -297,16 +301,14 @@ class Interpreter implements AstVisitor<Exp> {
         var exp = fna.fn.accept(this);
         if (exp instanceof Fn) {
             var fn = <Fn>exp;
-            var sc = new Scope(undefined, fn.body.list);
-            sc.parent = fn.parent;
             for (var i = 0; i < args.length; ++i) {
                 var p = Interpreter.getFromBracedAt(fn.params, i);
                 var n = Interpreter.getName(p);
-                this.set(sc, n, args[i], true);
+                this.set(fn.body, n, args[i], true);
             }
-            return this.visitScope(sc);
+            return this.visitScope(fn.body);
         } else {
-            throw "fn is not fn type: " + exp.getTypeName();
+            throw "fn is not fn type: " + getTypeName(exp);
         }
     }
 
@@ -454,7 +456,11 @@ class Interpreter implements AstVisitor<Exp> {
 
 
     visitFn (fn : Fn) : Fn {
-        return fn;
+        var f = new Fn(undefined, fn.params,
+                      new Scope(undefined,
+                                new AsiList(undefined, fn.body.list.items)));
+        f.parent = fn.parent;
+        return f;
     }
 
 

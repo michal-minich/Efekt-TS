@@ -249,14 +249,14 @@ interface Object {
 
 
 
-Object.prototype.getTypeName = function () : string {
-    var str = (this.prototype
-        ? this.prototype.constructor
-        : this.constructor).toString();
+function getTypeName (o : any) : string {
+    var str = (o.prototype
+        ? o.prototype.constructor
+        : o.constructor).toString();
     var cname = str.match(/function\s(\w*)/)[1];
     var aliases = ["", "anonymous", "Anonymous"];
     return aliases.indexOf(cname) > -1 ? "Function" : cname;
-};
+}
 
 
 

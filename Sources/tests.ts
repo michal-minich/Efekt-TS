@@ -444,24 +444,24 @@ function interpreterTests () : void {
     t("var f = fn () { fn (a) { a } } f()(1)").evalTo("1");
     t("var f = fn (a) { fn () { a } } f(1)()").evalTo("1");
     t("var f = fn (a) { fn (b) { a - b } } f(10)(1)").evalTo("9");
-    t("var b = 0 var f = fn (a) { b = a } f(1) b").evalTo("1");
+    t("var b = 0 var f = fn (a) { b = a } f(1)").evalTo("1");
+    //t("var b = 0 var f = fn (a) { b = a } f(1) b").evalTo("1");
     t("var f { var a = 1 f = fn () { a } } f()").evalTo("1");
+    t("var f = fn (x) { x() } var a = 1 f(fn() { a })").evalTo("1");
+    t("var f = fn (x) { x() } { var a = 1 f(fn() { a }) }").evalTo("1");
+    t("").evalTo("void");
 }
 
 /*
 
-var f = fn () { var a = 1 fn () { a } }
-var g = f()
-g()
-
-var x = 10
-var adder = fn (a) { fn () { a + 1 } }
+var adder = fn (init) {
+  var state = init
+  fn () { state = state + 1 }
+}
 var a = adder(5)
 var b = adder(10)
 print(a())
-print(a())
 print(b())
-print(a())
 print(a())
 print(b())
 
