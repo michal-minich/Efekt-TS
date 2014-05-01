@@ -454,6 +454,20 @@ function interpreterTests () : void {
 
 /*
 
+-- select
+var select = fn (arr, f) {
+  var i = 0
+  loop {
+    if i == count(arr) then break
+    var item = at(arr, i)
+    f(item)
+    i = i + 1
+  }
+}
+select([5, 6, 7, 8], fn (a) { print(a + 10) } )
+
+
+-- adder
 var adder = fn (init) {
   var state = init
   fn () { state = state + 1 }
@@ -476,6 +490,7 @@ loop {
   print(f)
   if n == c then break
 }
+
 
 -- fib
 var prev = 0

@@ -235,10 +235,11 @@ class Interpreter implements AstVisitor<Exp> {
 
 
     visitScope (sc : Scope) : Exp {
+        var prevScope = this.currentScope;
         this.currentScope = sc;
         sc.currentAsiIx = -1;
         var res = this.walkAsiList(sc.list);
-        this.currentScope = sc.parentScope;
+        this.currentScope = prevScope;
         return res;
     }
 
@@ -295,6 +296,13 @@ class Interpreter implements AstVisitor<Exp> {
                     outputAstView.innerHTML += asiToAstString(args[i]) + "<br>";
                 }
                 return Void.instance;
+            } else if (fni.name === "at") {
+                var arr = <Arr>args[0];
+                var ix = <Int>args[1];
+                return arr.list.items[+ix.value];
+            } else if (fni.name === "count") {
+                var arr = <Arr>args[0];
+                return new Int(undefined, "" + arr.list.items.length);
             }
         }
 
