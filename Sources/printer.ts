@@ -1,11 +1,12 @@
 /// <reference path="writer.ts"/>
 /// <reference path="visitor.ts"/>
 /// <reference path="parser.ts"/>
+/// <reference path="short.ts"/>
 
 class Printer implements AstVisitor<void> {
 
     private cw : CodeWriter;
-    private lineWritten : boolean[] = [];
+    private isInline = new ShortCircuitFnVisitor(new IsInline());
 
 
 
@@ -28,13 +29,6 @@ class Printer implements AstVisitor<void> {
 
 
 
-    private markLineWritten () : void {
-        this.lineWritten[this.lineWritten.length - 1] = true;
-    }
-
-
-
-
     // helpers ===============================================
 
 
@@ -46,7 +40,6 @@ class Printer implements AstVisitor<void> {
             item.accept(this);
             if (i < al.items.length - 1) {
                 this.cw.newLine();
-                this.markLineWritten();
             }
         }
     }
@@ -85,7 +78,6 @@ class Printer implements AstVisitor<void> {
 
 
     visitLoop (l : Loop) : void {
-        this.markLineWritten();
         this.cw.key("loop").space();
         this.visitScope(l.body);
     }
@@ -94,23 +86,20 @@ class Printer implements AstVisitor<void> {
 
 
     visitBreak (b : Break) : void {
-        this.markLineWritten();
-        this.cw.newLine().key("break");
+        this.cw.key("break");
     }
 
 
 
 
     visitContinue (c : Continue) : void {
-        this.markLineWritten();
-        this.cw.newLine().key("continue");
+        this.cw.key("continue");
     }
 
 
 
 
     visitReturn (r : Return) : void {
-        this.markLineWritten();
         this.cw.key("return");
         if (r.value) {
             this.cw.space();
@@ -122,7 +111,6 @@ class Printer implements AstVisitor<void> {
 
 
     visitThrow (th : Throw) : void {
-        this.markLineWritten();
         this.cw.key("throw");
         if (th.ex) {
             this.cw.space();
@@ -134,7 +122,6 @@ class Printer implements AstVisitor<void> {
 
 
     visitTry (tr : Try) : void {
-        this.markLineWritten();
         this.cw.key("try").space();
         this.visitScope(tr.body);
         if (tr.catches) {
@@ -199,35 +186,40 @@ class Printer implements AstVisitor<void> {
 
 
     visitScope (sc : Scope) : void {
-        var skipBraces = sc.list.items.length === 1;
-        if (skipBraces)
-            skipBraces = !Printer.showScopeBraces(sc.parent);
-        this.lineWritten.push(false);
-        if (!skipBraces) {
-            if (sc.list.items.length === 0) {
+
+        var useBraces = sc.list.items.length > 1
+            || Printer.showScopeBraces(sc.parent);
+
+        if (sc.list.items.length === 0) {
+            if (useBraces)
                 this.cw.markup("{ }");
-                return;
-            } else {
-                this.cw.markup("{");
-                if (sc.list.items.length === 1) {
-                    this.cw.space()
-                } else {
-                    this.cw.tab();
-                    this.cw.newLine();
-                    this.markLineWritten();
-                }
-            }
+            return;
+        }
+        var ln = sc.list.items.length > 1
+            || !sc.list.items[0].accept(this.isInline);
+
+        if (ln) {
+            if (useBraces)
+                this.cw.markup("{").tab().newLine();
+            else
+                this.cw.tab().newLine();
+        } else {
+            if (useBraces)
+                this.cw.markup("{").space();
         }
 
         this.visitAsiList(sc.list);
 
-        if (this.lineWritten.pop()) {
-            this.cw.unTab();
-            this.cw.newLine();
-        } else if (!skipBraces)
-            this.cw.space();
-        if (!skipBraces)
-            this.cw.markup("}");
+        if (ln) {
+            if (useBraces)
+                this.cw.unTab().newLine().markup("}");
+            else
+                this.cw.unTab();
+        }
+        else {
+            if (useBraces)
+                this.cw.space().markup("}");
+        }
     }
 
 
@@ -496,5 +488,85 @@ class Printer implements AstVisitor<void> {
         this.cw.type("Ref").markup("(");
         trf.elementType.accept(this);
         this.cw.markup(")");
+    }
+}
+
+
+
+
+class IsInline implements TerminalAstVisitor<boolean> {
+
+
+    // statements
+    visitBreak (b : Break) : boolean {
+        return false;
+    }
+
+    visitContinue (c : Continue) : boolean {
+        return false;
+    }
+
+
+
+
+    // expresions
+    visitIdent (i : Ident) : boolean {
+        return true;
+    }
+
+
+
+
+    // values
+    visitVoid (vo : Void) : boolean {
+        return true;
+    }
+
+    visitBool (b : Bool) : boolean {
+        return true;
+    }
+
+    visitInt (ii : Int) : boolean {
+        return true;
+    }
+
+    visitFloat (f : Float) : boolean {
+        return true;
+    }
+
+    visitChar (ch : Char) : boolean {
+        return true;
+    }
+
+
+
+
+    // types (built in)
+    visitTypeAny (ta : TypeAny) : boolean {
+        return true;
+    }
+
+    visitTypeErr (ter : TypeErr) : boolean {
+        return true;
+    }
+
+    visitTypeVoid (tvo : TypeVoid) : boolean {
+        return true;
+    }
+
+    visitTypeBool (tb : TypeBool) : boolean {
+        return true;
+    }
+
+    visitTypeInt (tii : TypeInt) : boolean {
+        return true;
+    }
+
+    visitTypeFloat (tf : TypeFloat) : boolean {
+        return true;
+    }
+
+    visitTypeChar (tch : TypeChar) : boolean {
+        return true;
     }
 }

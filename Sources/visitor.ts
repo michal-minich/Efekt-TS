@@ -1,7 +1,7 @@
 /// <reference path="ast.ts"/>
 
 
-interface AstVisitor<T> {
+interface AstVisitor<T> extends TerminalAstVisitor<T> {
 
     // helpers
     visitAsiList (al : AsiList) : T;
@@ -10,8 +10,8 @@ interface AstVisitor<T> {
 
     // statements
     visitLoop (l : Loop) : T;
-    visitBreak (b : Break) : T;
-    visitContinue (c : Continue) : T;
+    //visitBreak (b : Break) : T;
+    //visitContinue (c : Continue) : T;
     visitReturn (r : Return) : T;
     visitThrow (th : Throw) : T;
     visitTry (tr : Try) : T;
@@ -22,7 +22,7 @@ interface AstVisitor<T> {
     visitTypeVar (vv : TypeVar) : T;
     visitAssign (a : Assign) : T;
     visitScope (sc : Scope) : T;
-    visitIdent (i : Ident) : T;
+    //visitIdent (i : Ident) : T;
     visitMember (m : Member) : T;
     visitFnApply (fna : FnApply) : T;
     visitBinOpApply(opa : BinOpApply) : T;
@@ -32,11 +32,11 @@ interface AstVisitor<T> {
 
     // values
     visitErr (er : Err) : T;
-    visitVoid (vo : Void) : T;
-    visitBool (b : Bool) : T;
-    visitInt (ii : Int) : T;
-    visitFloat (f : Float) : T;
-    visitChar (ch : Char) : T;
+    //visitVoid (vo : Void) : T;
+    //visitBool (b : Bool) : T;
+    //visitInt (ii : Int) : T;
+    //visitFloat (f : Float) : T;
+    //visitChar (ch : Char) : T;
     visitArr (arr : Arr) : T;
     visitRef (rf : Ref) : T;
 
@@ -48,14 +48,43 @@ interface AstVisitor<T> {
     visitInterface (ifc : Interface) : T;
 
     // types (built in)
-    visitTypeAny (ta : TypeAny) : T;
+    //visitTypeAny (ta : TypeAny) : T;
     visitTypeAnyOf (tao : TypeAnyOf) : T;
+    //visitTypeErr (ter : TypeErr) : T;
+    //visitTypeVoid (tvo : TypeVoid) : T;
+    //visitTypeBool (tb : TypeBool) : T;
+    //visitTypeInt (tii : TypeInt) : T;
+    //visitTypeFloat (tf : TypeFloat) : T;
+    //visitTypeChar (tch : TypeChar) : T;
+    visitTypeArr (tarr : TypeArr) : T;
+    visitTypeRef (trf : TypeRef) : T;
+}
+
+
+
+
+interface TerminalAstVisitor<T> {
+
+    // statements
+    visitBreak (b : Break) : T;
+    visitContinue (c : Continue) : T;
+
+    // expresions
+    visitIdent (i : Ident) : T;
+
+    // values
+    visitVoid (vo : Void) : T;
+    visitBool (b : Bool) : T;
+    visitInt (ii : Int) : T;
+    visitFloat (f : Float) : T;
+    visitChar (ch : Char) : T;
+
+    // types (built in)
+    visitTypeAny (ta : TypeAny) : T;
     visitTypeErr (ter : TypeErr) : T;
     visitTypeVoid (tvo : TypeVoid) : T;
     visitTypeBool (tb : TypeBool) : T;
     visitTypeInt (tii : TypeInt) : T;
     visitTypeFloat (tf : TypeFloat) : T;
     visitTypeChar (tch : TypeChar) : T;
-    visitTypeArr (tarr : TypeArr) : T;
-    visitTypeRef (trf : TypeRef) : T;
 }

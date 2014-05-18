@@ -180,6 +180,9 @@ var testReport = new TestReprot();
 
 function unitTests () {
 
+    if (window.location.href.indexOf("notest") != -1)
+        return;
+
     testSpecific();
 
     if (testReport.failedCount === 0) {
@@ -255,7 +258,7 @@ function parseTests () : void {
 
 
     // break
-    t("break continue").parse("\nbreak\n\ncontinue");
+    //t("break continue").parse("\nbreak\n\ncontinue");
 
     // loop
     t("loop a").parse("loop { a }");

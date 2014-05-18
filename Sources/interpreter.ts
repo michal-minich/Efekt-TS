@@ -471,8 +471,8 @@ class Interpreter implements AstVisitor<Exp> {
 
     visitFn (fn : Fn) : Fn {
         var f = new Fn(undefined, fn.params,
-                      new Scope(undefined,
-                                new AsiList(undefined, fn.body.list.items)));
+                       new Scope(undefined,
+                                 new AsiList(undefined, fn.body.list.items)));
         f.parent = fn.parent;
         return f;
     }
