@@ -221,6 +221,9 @@ class Interpreter implements AstVisitor<Exp> {
 
     visitAssign (a : Assign) : Exp {
         var val = a.value.accept(this);
+        if (val instanceof Struct)
+            val = Interpreter.copyStruct(<Struct>val);
+
         if (a.slot instanceof Ident) {
             this.set(this.currentScope, (<Ident>a.slot).name, val,
                      a.parent instanceof Var);
@@ -238,6 +241,16 @@ class Interpreter implements AstVisitor<Exp> {
             throw "assing not supported";
         }
         return val;
+    }
+
+
+
+    private static copyStruct (s : Struct) : Struct {
+        var sc = new Scope(s.body.attrs, s.body.list);
+        for (var key in s.body.vars)
+            sc.vars[key] = s.body.vars[key];
+        var c = new Struct(s.attrs, sc);
+        return c;
     }
 
 
@@ -263,6 +276,8 @@ class Interpreter implements AstVisitor<Exp> {
             ++cs.currentAsiIx;
             res = al.items[cs.currentAsiIx].accept(this);
         }
+        if (res instanceof Struct)
+            res = Interpreter.copyStruct(<Struct>res);
         return res;
     }
 
@@ -293,10 +308,17 @@ class Interpreter implements AstVisitor<Exp> {
         if (!fna.args.value) {
         } else if (fna.args.value instanceof ExpList) {
             var el = <ExpList>fna.args.value;
-            for (var i = 0; i < el.items.length; ++i)
-                args.push(el.items[i].accept(this));
+            for (var i = 0; i < el.items.length; ++i) {
+                var ea = el.items[i].accept(this);
+                if (ea instanceof Struct)
+                    ea = Interpreter.copyStruct(<Struct>ea);
+                args.push(ea);
+            }
         } else if (fna.args.value instanceof Exp) {
-            args = [fna.args.value.accept(this)];
+            ea = fna.args.value.accept(this);
+            if (ea instanceof Struct)
+                ea = Interpreter.copyStruct(<Struct>ea);
+            args = [ea];
         } else {
             args = [];
         }

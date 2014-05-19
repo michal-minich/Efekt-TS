@@ -526,6 +526,7 @@ loop {
 
 
 -- struct
+print("init")
 var S = struct {
     var a = 1
     var C = struct { var c = 10 }
@@ -533,21 +534,43 @@ var S = struct {
 }
 var s = S()
 print(s.a)
-s.a = 2
-print(s.a)
-var t = s
-print(t.a)
-t.a = 3
-print(t.a)
-print(s.a)
+
+print("test inner struct access")
 print(s.b.c)
+
+print("test inner struct take out")
 var x = s.b
-print(x.c)
 s.b.c = 20
 print(x.c)
 print(s.b.c)
+
+print("test fn arg pass")
 var c = s.C()
-c.c
+c.c = 11
+var f = fn (a) { print(a.c) }
+f(c)
+
+print("test create in fn and return")
+var g = fn (a) { s.C() s.b.c = 12 s }
+var d = g()
+print(d.b.c)
+
+print("test copy assign")
+var t = s
+t.a = 2
+print(s.a)
+
+print("test copy arg")
+var h = fn (x) { x.a = 3 }
+h(s)
+print(s.a)
+
+print("test copy return")
+var f = fn () { s }
+var u = f()
+u.a = 4
+print(s.a)
+print(u.a)
 
 
 */
