@@ -258,7 +258,7 @@ function parseTests () : void {
 
 
     // break
-    //t("break continue").parse("\nbreak\n\ncontinue");
+    t("break continue").parse("break\ncontinue");
 
     // loop
     t("loop a").parse("loop { a }");
@@ -523,4 +523,31 @@ loop {
   next = sum
   print(sum)
 }
+
+
+-- struct
+var S = struct {
+    var a = 1
+    var C = struct { var c = 10 }
+    var b = C()
+}
+var s = S()
+print(s.a)
+s.a = 2
+print(s.a)
+var t = s
+print(t.a)
+t.a = 3
+print(t.a)
+print(s.a)
+print(s.b.c)
+var x = s.b
+print(x.c)
+s.b.c = 20
+print(x.c)
+print(s.b.c)
+var c = s.C()
+c.c
+
+
 */

@@ -49,7 +49,6 @@ class Interpreter implements AstVisitor<Exp> {
         }
 
         throw "variable " + name + " is undefined.";
-
     }
 
 
@@ -225,6 +224,16 @@ class Interpreter implements AstVisitor<Exp> {
         if (a.slot instanceof Ident) {
             this.set(this.currentScope, (<Ident>a.slot).name, val,
                      a.parent instanceof Var);
+        } else if (a.slot instanceof Member) {
+            var m = <Member>a.slot;
+            var exp = m.bag.accept(this);
+            if (exp instanceof Struct) {
+                var s = <Struct>exp;
+                this.set(s.body, m.ident.name, val, false);
+            } else {
+                throw "assign to member expected struct, got: " +
+                    getTypeName(m);
+            }
         } else {
             throw "assing not supported";
         }
@@ -268,7 +277,12 @@ class Interpreter implements AstVisitor<Exp> {
 
 
     visitMember (m : Member) : Exp {
-        throw "member not implemented";
+        var exp = m.bag.accept(this);
+        if (exp instanceof Struct) {
+            var bag = <Struct>exp;
+            return this.get(bag.body, m.ident.name);
+        }
+        throw "expected struct before member access, got: " + getTypeName(exp);
     }
 
 
@@ -321,6 +335,10 @@ class Interpreter implements AstVisitor<Exp> {
                 this.set(fn.body, n, args[i], true);
             }
             return this.visitScope(fn.body);
+        } else if (exp instanceof Struct) {
+            var st = <Struct>exp;
+            this.visitScope(st.body);
+            return exp;
         } else {
             throw "cannot apply " + getTypeName(exp);
         }
