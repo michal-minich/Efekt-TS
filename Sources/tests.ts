@@ -213,6 +213,10 @@ function parseTests () : void {
     t("").parse();
     t("void").parse();
 
+    // comments
+    t("a = 1 -- + 2\nb").parse("a = 1\nb");
+    t("a = 1 /* + 2 */\nb").parse("a = 1\nb");
+
     // if
     t("if 1 then 2").parse();
     t("if a then b else c").parse();

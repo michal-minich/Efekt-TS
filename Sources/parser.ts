@@ -262,6 +262,15 @@ class Parser {
         if (this.finished())
             return undefined;
 
+        else if (this.matchText('--'))
+            this.parseCommentLine();
+
+        else if (this.matchText('/*'))
+            this.parseCommentMulti();
+
+        if (this.finished())
+            return undefined;
+
         for (var m in this.matchTextToFn)
             if (this.matchText(m))
                 return this.matchTextToFn[m]();
@@ -338,6 +347,31 @@ class Parser {
                                new TypeChar(undefined));
             chars.push(new Char(undefined, ch));
         }
+    }
+
+
+
+
+    private parseCommentLine () : void {
+        while (this.index < this.code.length &&
+            !(this.code[this.index] === '\n' ||
+                this.code[this.index] === '\r')) {
+            ++this.index;
+        }
+        ++this.index;
+    }
+
+
+
+
+    private parseCommentMulti () : void {
+        while (this.index < this.code.length - 1 &&
+            !(this.code[this.index] === '*' &&
+                this.code[this.index + 1] === '/')) {
+            ++this.index;
+        }
+        ++this.index;
+        ++this.index;
     }
 
 
@@ -453,6 +487,9 @@ class Parser {
 
 
     private matchOp () : boolean {
+        if (this.code.indexOf("--", this.index) === this.index
+            || this.code.indexOf("/*", this.index) === this.index)
+            return false;
         var m = this.match(Parser.isOp);
         if (m)
             return true;
