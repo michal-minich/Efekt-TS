@@ -577,4 +577,12 @@ print(s.a)
 print(u.a)
 
 
+-- ref
+var a = 1
+var r = Ref(a)
+a = 2
+print(r)
+deref(r) = 3
+print(a)
+
 */

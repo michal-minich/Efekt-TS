@@ -365,8 +365,9 @@ class Printer implements AstVisitor<void> {
 
 
     visitRef (rf : Ref) : void {
-        this.cw.key("ref").space(); // ?
+        this.cw.type("Ref").markup("(");
         rf.item.accept(this);
+        this.cw.markup(")");
     }
 
 

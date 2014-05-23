@@ -364,8 +364,10 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitRef (rf : Ref) : void {
-        this.cw.key("Ref").space(); // ?
+        this.cw.key("Ref").space().tab().newLine().markup("item").space();
         rf.item.accept(this);
+        //this.cw.newLine().markup("scope").space();
+        //rf.scope.accept(this);
     }
 
 

@@ -631,9 +631,10 @@ class Arr extends Exp {
 
 class Ref extends Exp {
 
-    public item : Exp;
+    public item : Ident;
+    public scope : Scope;
 
-    constructor (attrs : ExpList, item : Exp) {
+    constructor (attrs : ExpList, item : Ident) {
         super(attrs);
         this.item = item;
         item.parent = this;
