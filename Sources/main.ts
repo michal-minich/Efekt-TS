@@ -5,6 +5,7 @@
 /// <reference path="printer.ts"/>
 /// <reference path="parser.ts"/>
 /// <reference path="interpreter.ts"/>
+/// <reference path="usage.ts"/>
 
 function start () {
 
@@ -18,6 +19,7 @@ function start () {
 
     var codeEdit = <HTMLTextAreaElement>document.getElementById("codeEdit");
     var parseButton = <HTMLButtonElement>document.getElementById("parseButton");
+    var usagesButton = <HTMLButtonElement>document.getElementById("usagesButton");
     var runButton = <HTMLButtonElement>document.getElementById("runButton");
 
     function parse () {
@@ -25,6 +27,17 @@ function start () {
         outputView.innerHTML = codeToHtmlString(codeEdit.value, outputLogger);
         outputAstView.innerHTML = codeToAstString(codeEdit.value,
                                                   consoleLogger);
+    }
+
+    function usages () {
+        clear();
+        var parser = new Parser(outputLogger);
+        var al = parser.parse(codeEdit.value);
+        var usage = new Usage(outputLogger, outputLogger);
+        var sc = new Scope(undefined, al);
+        sc.accept(usage);
+        outputView.innerHTML = asiToHtmlString(al);
+        outputAstView.innerHTML = asiToHtmlAstString(al, false);
     }
 
     function interpret () {
@@ -47,10 +60,54 @@ function start () {
         parse();
     });
 
+    usagesButton.addEventListener('click', () => {
+        usages();
+    });
+
+
+    function highlightToggle (className : string) {
+        var usages = document.getElementsByClassName(className);
+        for (var i = 0; i < usages.length; ++i) {
+            var u = <HTMLElement>usages[i];
+            if (u.classList.contains('declr'))
+                u.classList.toggle('usageDeclr');
+            else if (u.classList.contains('write'))
+                u.classList.toggle('usageWrite');
+            else if (u.classList.contains('builtin'))
+                u.classList.toggle('usageBuiltin');
+            else
+                u.classList.toggle('usage');
+        }
+    }
+
+
     runButton.addEventListener('click', () => {
         interpret();
     });
 
-    parse();
+    var lastTarget : HTMLElement;
+    var lastClass : string;
+
+    outputView.addEventListener('mousemove', (event : MouseEvent) => {
+        var t = <HTMLElement>event.target || <HTMLElement>event.srcElement;
+        if (lastClass && t === outputView) {
+            highlightToggle(lastClass);
+            lastClass = undefined;
+        }
+        if (t === lastTarget)
+            return;
+        highlightToggle(lastClass);
+        lastTarget = t;
+        for (var i = 0; i < t.classList.length; ++i) {
+            var cn = t.classList[i];
+            if (cn.indexOf("sc_") === 0) {
+                lastClass = cn;
+                break;
+            }
+        }
+        highlightToggle(lastClass);
+    });
+
+    usages();
 }
 

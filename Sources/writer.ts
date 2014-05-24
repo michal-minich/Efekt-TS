@@ -3,7 +3,7 @@
 interface CodeWriter {
 
     key(value : string) : CodeWriter;
-    ident(value : string) : CodeWriter;
+    ident(value : string, cssClass? : string) : CodeWriter;
     type(value : string) : CodeWriter;
     markup(value : string) : CodeWriter;
     comment(value : string) : CodeWriter;
@@ -45,8 +45,11 @@ class HtmlCodeWriter implements CodeWriter {
     }
 
 
-    private w (style : string, value : string) : void {
-        this.tw.write("<span class='efekt", style, "'>", value, "</span>");
+    private w (style : string, value : string, cssClass : string = "") : void {
+        if (cssClass !== "")
+            cssClass = " " + cssClass;
+        this.tw.write("<span class='efekt", style, cssClass, "'>", value,
+                      "</span>");
     }
 
 
@@ -55,8 +58,8 @@ class HtmlCodeWriter implements CodeWriter {
         return this;
     }
 
-    ident (value : string) : CodeWriter {
-        this.w('Ident', value);
+    ident (value : string, cssClass : string = "") : CodeWriter {
+        this.w('Ident', value, cssClass);
         return this;
     }
 
@@ -131,7 +134,7 @@ class PlainTextCodeWriter implements CodeWriter {
         return this;
     }
 
-    ident (value : string) : CodeWriter {
+    ident (value : string, cssClass : string = "") : CodeWriter {
         this.tw.write(value);
         return this;
     }

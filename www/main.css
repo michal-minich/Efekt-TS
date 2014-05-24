@@ -153,3 +153,19 @@ pre {
 .efektOp {
     color: #000000;
 }
+
+.usageDeclr {
+    background-color: limegreen;
+}
+
+.usageWrite {
+    background-color: orange;
+}
+
+.usageBuiltin {
+    background-color: pink;
+}
+
+.usage {
+    background-color: yellow;
+}

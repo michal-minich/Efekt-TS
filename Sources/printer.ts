@@ -232,8 +232,23 @@ class Printer implements AstVisitor<void> {
             this.cw.key(i.name);
         else if (i.isType)
             this.cw.type(i.name);
-        else
-            this.cw.ident(i.name);
+        else {
+            if (i.isBuiltin) {
+                this.cw.ident(i.name, "sc_0_" + i.name + " builtin");
+            } else if (i.scopeId) {
+                var cssClass = "sc_" + i.scopeId + "_" + i.name;
+                if (i.declaredBy) {
+                    if (i.isWrite)
+                        this.cw.ident(i.name, cssClass + " write");
+                    else
+                        this.cw.ident(i.name, cssClass);
+                }
+                else
+                    this.cw.ident(i.name, cssClass + " declr");
+            } else {
+                this.cw.ident(i.name);
+            }
+        }
     }
 
 

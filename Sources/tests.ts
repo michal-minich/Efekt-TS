@@ -585,4 +585,14 @@ print(r)
 deref(r) = 3
 print(a)
 
+
+--- usages
+var f = fn (y) { x = 1 x = y + x }
+var a = 1{
+var b = a + 1 b = b + b }
+var b = 10
+var fr = f(b)
+var c = b + a + 1
+print(c + c + b + a)
+
 */
