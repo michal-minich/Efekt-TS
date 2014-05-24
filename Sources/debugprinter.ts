@@ -62,13 +62,14 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitBraced (bc : Braced) : void {
-        if (!this.invisibleBraced)
+        if (this.invisibleBraced) {
+            if (bc.list.items.length === 1)
+                bc.list.items[0].accept(this);
+        } else {
             this.cw.key("Braced").tab().newLine().markup("value").space();
-        if (bc.value)
-            bc.value.accept(this);
-        if (!this.invisibleBraced) {
-            if (!bc.value)
-                this.cw.space().markup("=nothing=");
+            bc.list.accept(this);
+            if (bc.list.items.length === 0)
+                this.cw.space().markup("&lt;nothing&gt;");
             this.cw.unTab();
         }
     }

@@ -47,8 +47,7 @@ class Origin implements AstVisitor<void> {
 
 
     visitBraced (bc : Braced) : void {
-        if (bc.value)
-            bc.value.accept(this);
+        bc.list.accept(this);
     }
 
 
@@ -326,8 +325,8 @@ class Origin implements AstVisitor<void> {
         var prevScope = this.currentScope;
         this.currentScope = fn.body;
 
-        if (fn.params.value instanceof ExpList) {
-            var el = <ExpList>fn.params.value;
+        if (fn.params.list) {
+            var el = <ExpList>fn.params.list;
             for (var i = 0; i < el.items.length; ++i) {
                 if (el.items[i] instanceof Ident) {
                     var ident = <Ident>el.items[i];
@@ -338,11 +337,6 @@ class Origin implements AstVisitor<void> {
                     el.items[i].accept(this);
                 }
             }
-        } else if (fn.params.value instanceof Ident) {
-            var ident = <Ident>fn.params.value;
-            this.declareIdent(ident);
-            ident.scopeId = fn.body.id;
-            //fn.params.value.accept(this);
         }
 
         if (fn.returnType)

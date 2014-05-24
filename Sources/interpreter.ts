@@ -137,7 +137,7 @@ class Interpreter implements AstVisitor<Exp> {
 
 
     visitBraced (bc : Braced) : Exp {
-        return bc.value ? bc.value.accept(this) : Void.instance;
+        return bc.list ? bc.list.accept(this) : Void.instance;
     }
 
 
@@ -324,23 +324,16 @@ class Interpreter implements AstVisitor<Exp> {
 
     visitFnApply (fna : FnApply) : Exp {
         var args : Exp[] = [];
-        if (!fna.args.value) {
-        } else if (fna.args.value instanceof ExpList) {
-            var el = <ExpList>fna.args.value;
+        if (fna.args.list) {
+            var el = <ExpList>fna.args.list;
             for (var i = 0; i < el.items.length; ++i) {
                 var ea = el.items[i].accept(this);
                 if (ea instanceof Struct)
                     ea = Interpreter.copyStruct(<Struct>ea);
                 args.push(ea);
             }
-        } else if (fna.args.value instanceof Exp) {
-            ea = fna.args.value.accept(this);
-            if (ea instanceof Struct)
-                ea = Interpreter.copyStruct(<Struct>ea);
-            args = [ea];
-        } else {
-            args = [];
         }
+
         if (fna.fn instanceof Ident) {
             var fni = <Ident>fna.fn;
             if (fni.name === "print") {
@@ -365,8 +358,9 @@ class Interpreter implements AstVisitor<Exp> {
                 arr.list.items.push(item);
                 return arr;
             } else if (fni.name === "Ref") {
-                if (fna.args.value instanceof Ident) {
-                    var ident = <Ident>fna.args.value;
+                if (fna.args.list.items.length === 1 &&
+                    fna.args.list.items[0] instanceof Ident) {
+                    var ident = <Ident>fna.args.list.items[0];
                     var rf = new Ref(undefined, ident);
                     rf.scope = Interpreter.getScope(this.currentScope,
                                                     ident.name);
@@ -413,17 +407,12 @@ class Interpreter implements AstVisitor<Exp> {
 
 
     private static getFromBracedAt (params : Braced, ix : number) : Exp {
-        if (params.value instanceof ExpList) {
-            var el = <ExpList>params.value;
+        if (params.list) {
+            var el = <ExpList>params.list;
             if (el.items.length > ix)
                 return el.items[ix];
             else
                 throw "fn has no param at " + ix;
-        } else if (params.value instanceof Exp) {
-            if (ix === 0)
-                return params.value;
-            else
-                throw "fn has only one param";
         } else {
             throw "fn has no params";
         }

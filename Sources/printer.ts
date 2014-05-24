@@ -59,12 +59,12 @@ class Printer implements AstVisitor<void> {
 
 
     visitBraced (bc : Braced) : void {
-        var showBraces = !(bc.value && (bc.value instanceof Braced
-            || bc.value instanceof BinOpApply));
+        var showBraces = !(bc.list.items.length === 1
+            && (bc.list.items[0] instanceof Braced
+                || bc.list.items[0] instanceof BinOpApply));
         if (showBraces)
             this.cw.markup('(');
-        if (bc.value)
-            bc.value.accept(this);
+        bc.list.accept(this);
         if (showBraces)
             this.cw.markup(')');
     }

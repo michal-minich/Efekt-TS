@@ -285,13 +285,13 @@ class Parser {
             return new Scope(undefined, this.parseAsiList(true));
 
         else if (this.matchChar('('))
-            return new Braced(undefined, this.parseMany());
+            return this.parseBracedOrArr<Braced>(Braced);
 
         else if (this.matchChar('"'))
             return this.parseString();
 
         else if (this.matchChar('['))
-            return this.parseArray();
+            return this.parseBracedOrArr<Arr>(Arr);
 
         return undefined;
     }
@@ -318,7 +318,7 @@ class Parser {
 
 
 
-    private parseArray () : Arr {
+    private parseBracedOrArr<T extends Exp> (TConstructor : any) : T {
         var asi = this.parseMany();
         var el : ExpList;
         if (asi)
@@ -328,7 +328,7 @@ class Parser {
         else
             el = new ExpList(undefined, []);
 
-        return new Arr(undefined, el);
+        return new TConstructor(undefined, el);
     }
 
 

@@ -94,8 +94,6 @@ function start () {
 
 
 
-
-
     function highlightToggle (className : string) {
         var usages = outputView.getElementsByClassName(className);
         for (var i = 0; i < usages.length; ++i) {

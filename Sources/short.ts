@@ -56,7 +56,7 @@ class ShortCircuitFnVisitor implements AstVisitor<boolean> {
 
 
     visitBraced (bc : Braced) : boolean {
-        return bc.value ? bc.value.accept(this) : true;
+        return bc.list ? bc.list.accept(this) : true;
     }
 
 

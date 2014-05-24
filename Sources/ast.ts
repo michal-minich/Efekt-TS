@@ -94,13 +94,13 @@ class ExpList extends Asi {
 
 class Braced extends Exp {
 
-    public value : Exp;
+    public list : ExpList;
 
-    constructor (attrs : ExpList, value : Exp) {
+    constructor (attrs : ExpList, list : ExpList) {
         super(attrs);
-        if (value) {
-            this.value = value;
-            value.parent = this;
+        if (list) {
+            this.list = list;
+            list.parent = this;
         }
     }
 
