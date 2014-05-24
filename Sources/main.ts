@@ -6,6 +6,8 @@
 /// <reference path="parser.ts"/>
 /// <reference path="interpreter.ts"/>
 /// <reference path="usage.ts"/>
+/// <reference path="origin.ts"/>
+
 
 function start () {
 
@@ -20,6 +22,7 @@ function start () {
     var codeEdit = <HTMLTextAreaElement>document.getElementById("codeEdit");
     var parseButton = <HTMLButtonElement>document.getElementById("parseButton");
     var usagesButton = <HTMLButtonElement>document.getElementById("usagesButton");
+    var originButton = <HTMLButtonElement>document.getElementById("originButton");
     var runButton = <HTMLButtonElement>document.getElementById("runButton");
 
     function parse () {
@@ -40,6 +43,19 @@ function start () {
         outputAstView.innerHTML = asiToHtmlAstString(al, false);
     }
 
+    function origin () {
+        clear();
+        var parser = new Parser(outputLogger);
+        var al = parser.parse(codeEdit.value);
+        var usage = new Usage(outputLogger, outputLogger);
+        var origin = new Origin(outputLogger, outputLogger);
+        var sc = new Scope(undefined, al);
+        sc.accept(usage);
+        sc.accept(origin);
+        outputView.innerHTML = asiToHtmlString(al);
+        outputAstView.innerHTML = asiToHtmlAstString(al, false);
+    }
+
     function interpret () {
         clear();
         var parser = new Parser(outputLogger);
@@ -56,6 +72,9 @@ function start () {
         outputAstView.innerHTML = "";
     }
 
+
+
+
     parseButton.addEventListener('click', () => {
         parse();
     });
@@ -64,9 +83,21 @@ function start () {
         usages();
     });
 
+    originButton.addEventListener('click', () => {
+        origin();
+    });
+
+    runButton.addEventListener('click', () => {
+        interpret();
+    });
+
+
+
+
+
 
     function highlightToggle (className : string) {
-        var usages = document.getElementsByClassName(className);
+        var usages = outputView.getElementsByClassName(className);
         for (var i = 0; i < usages.length; ++i) {
             var u = <HTMLElement>usages[i];
             if (u.classList.contains('declr'))
@@ -79,11 +110,6 @@ function start () {
                 u.classList.toggle('usage');
         }
     }
-
-
-    runButton.addEventListener('click', () => {
-        interpret();
-    });
 
     var lastTarget : HTMLElement;
     var lastClass : string;
