@@ -152,6 +152,8 @@ class Usage implements AstVisitor<void> {
                 i.declaredBy = sc.declrs[i.name];
                 i.isWrite = true;
             }
+        } else {
+            a.slot.accept(this);
         }
     }
 
