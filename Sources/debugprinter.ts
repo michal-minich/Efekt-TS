@@ -22,7 +22,7 @@ class DebugPrinter implements AstVisitor<void> {
     private writeList (items : Asi[]) {
         this.cw.markup("items");
         if (items.length === 0) {
-            this.cw.space().markup("=empty=");
+            this.cw.space().markup("&lt;empty&gt;");
             return;
         }
         this.cw.tab().newLine();
@@ -68,8 +68,6 @@ class DebugPrinter implements AstVisitor<void> {
         } else {
             this.cw.key("Braced").tab().newLine().markup("value").space();
             bc.list.accept(this);
-            if (bc.list.items.length === 0)
-                this.cw.space().markup("&lt;nothing&gt;");
             this.cw.unTab();
         }
     }

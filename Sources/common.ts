@@ -113,7 +113,7 @@ class OutputLogger implements Logger, ExceptionHandler, OutputWriter {
 
     private log (img : string, msg : string) : void {
         this.logView.innerHTML += "<div class='logItem'><span class='" + img +
-            "'></span>" + img + ": " + msg + "<div>";
+            "' title='" + img + "'></span><span>" + msg + "</span></div>";
     }
 }
 

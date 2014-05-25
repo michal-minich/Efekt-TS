@@ -4,6 +4,7 @@ html {
     min-height: 100%;
     position: relative
 }
+
 body, button {
     font: normal 10pt 'Trebuchet MS';
 }
@@ -15,14 +16,16 @@ body {
 }
 
 body, textarea, div {
-    background-color: white;
+    background-color: #ddd;
     color: black;
 }
 
 table {
     border-collapse: collapse;
-    border: 1px solid lightgray;
+    border: 1px solid #b9b9b9;
 }
+
+/* tests ========================================= */
 
 .testReport tr:nth-child(even) {
     background-color: #eee;
@@ -48,6 +51,8 @@ table {
 .testFailed td {
     background-color: #f4c9c5;
 }
+
+/* views  ========================================= */
 
 pre {
     margin: 0;
@@ -85,7 +90,7 @@ pre {
     width: 25%;
     height: 100%;
     float: left;
-    background-color: lightgray;
+    background-color: #bbb;
 }
 
 .view:last-child {
@@ -98,6 +103,10 @@ pre {
     overflow: auto;
 }
 
+.viewInner.first {
+    margin-left: 0;
+}
+
 .viewInner .noScroll {
     overflow: hidden;
 }
@@ -106,24 +115,78 @@ pre {
     border: none;
 }
 
+/* toolbar  ========================================= */
+
 .toolbar {
-    background-color: #ddd;
+    background-color: #666;
     height: 25px;
-    padding: 3px;
-    border-bottom: 1px solid #bbb;
+    padding: 4px;
 }
 
 .toolbar > button {
     padding-top: 1px;
     padding-bottom: 1px;
+    background-color: #5b5b5b;
+    color: #adadad;
+    border: 1px solid #4f4f4f;
 }
 
+.toolbar > button:hover {
+    background-color: #717171;
+    border: 1px solid #585858;
+    color: white;
+}
+
+/* log ========================================= */
+
 .logItem {
-    border-bottom: 1px solid lightgray;
+    background-color: gray;
+    border: 0;
+    border-top: 1px solid #888;
+    border-bottom: 1px solid #777;
+    color: white;
     padding: 5px;
 }
 
-/* code style */
+.logItem span:first-child {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    margin-right: 3px;
+    margin-bottom: -3px;
+}
+
+.logItem span:last-child {
+    padding-left: 20px;
+    display: inline-block;
+    margin-top: -20px;
+}
+
+.logItem .fatal {
+    background-image: url('images/fatal.png');
+}
+
+.logItem .error {
+    background-image: url('images/error.png');
+}
+
+.logItem .warn {
+    background-image: url('images/warn.png');
+}
+
+.logItem .suggest {
+    background-image: url('images/suggest.png');
+}
+
+.logItem .info {
+    background-image: url('images/info.png');
+}
+
+.logItem .notice {
+    background-image: url('images/notice.png');
+}
+
+/* code ========================================= */
 
 .efektCode, pre, textarea {
     font: bold 10pt Consolas, sans-serif;
@@ -161,6 +224,12 @@ pre {
     color: #000000;
 }
 
+/* usages ========================================= */
+
+.usage {
+    background-color: yellow;
+}
+
 .usageDeclr {
     background-color: limegreen;
 }
@@ -173,6 +242,4 @@ pre {
     background-color: pink;
 }
 
-.usage {
-    background-color: yellow;
-}
+/* other ========================================= */

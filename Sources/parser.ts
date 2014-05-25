@@ -56,7 +56,7 @@ class BinOpBuilder {
 
 
     public addExpAndOpToSequence (asi : Exp, op : string) : void {
-        this.opExp.push(asi);
+            this.opExp.push(asi);
         this.opOp.push(op);
     }
 
@@ -446,7 +446,7 @@ class Parser {
                                                expIsRequired : boolean) : T {
         if (this.skipWhite()) {
             if (expIsRequired) {
-                this.logger.fatal(TConstructor.getTypeName() +
+                this.logger.fatal(getTypeName(TConstructor) +
                                       " requires expression");
                 throw undefined;
             } else {
@@ -457,7 +457,7 @@ class Parser {
         if (asi instanceof Exp)
             return new TConstructor(undefined, <Exp>asi);
         this.logger.fatal("Expression expected after " +
-                              TConstructor.getTypeName() +
+                              getTypeName(TConstructor) +
                               ", not statement");
         throw undefined;
     }

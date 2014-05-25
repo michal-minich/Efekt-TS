@@ -22,7 +22,7 @@ function start () {
     var codeEdit = <HTMLTextAreaElement>document.getElementById("codeEdit");
     var parseButton = <HTMLButtonElement>document.getElementById("parseButton");
     var usagesButton = <HTMLButtonElement>document.getElementById("usagesButton");
-    var originButton = <HTMLButtonElement>document.getElementById("originButton");
+    //var originButton = <HTMLButtonElement>document.getElementById("originButton");
     var runButton = <HTMLButtonElement>document.getElementById("runButton");
 
     function parse () {
@@ -83,9 +83,9 @@ function start () {
         usages();
     });
 
-    originButton.addEventListener('click', () => {
+    /*originButton.addEventListener('click', () => {
         origin();
-    });
+    });*/
 
     runButton.addEventListener('click', () => {
         interpret();
