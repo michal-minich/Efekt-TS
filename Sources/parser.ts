@@ -56,7 +56,7 @@ class BinOpBuilder {
 
 
     public addExpAndOpToSequence (asi : Exp, op : string) : void {
-            this.opExp.push(asi);
+        this.opExp.push(asi);
         this.opOp.push(op);
     }
 
@@ -239,7 +239,7 @@ class Parser {
         "true": () => new Bool(undefined, true),
         "false": () => new Bool(undefined, false),
         "void": () => new Void(undefined),
-        "var": () => this.parseSimpleKeyword<Var>(Var, true),
+        "var": () => this.parseVar(),
         "if": () => this.parseIf(),
         "fn": () => this.parseFn(),
         "loop": () => this.parseLoop(),
@@ -253,6 +253,17 @@ class Parser {
         "struct": () => this.parseStruct(),
         "interface": () => this.parseInterface()
     };
+
+
+
+
+    private parseVar () {
+        var v = this.parseSimpleKeyword<Var>(Var, true);
+        if (!(v.exp instanceof Ident || v.exp instanceof Assign
+            || v.exp instanceof ValueVar || v.exp instanceof TypeVar))
+            this.logger.error("Expected identifier after var.");
+        return v;
+    }
 
 
 
