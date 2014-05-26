@@ -195,7 +195,7 @@ class Usage implements AstVisitor<void> {
     visitIdent (i : Ident) : void {
         if (i.isOp || i.name === "print" || i.name === "count" ||
             i.name === "at" || i.name === "add" || i.name === "Ref" ||
-            i.name === "deref") {
+            i.name === "target") {
             i.isBuiltin = true;
             return;
         }

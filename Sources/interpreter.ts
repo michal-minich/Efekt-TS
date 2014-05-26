@@ -366,7 +366,7 @@ class Interpreter implements AstVisitor<Exp> {
                                                     ident.name);
                     return rf;
                 }
-            } else if (fni.name === "deref") {
+            } else if (fni.name === "target") {
                 return args[0];
             }
         }

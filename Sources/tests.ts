@@ -580,9 +580,13 @@ print(u.a)
 -- ref
 var a = 1
 var r = Ref(a)
+var f = fn () { r }
 a = 2
 print(r)
-deref(r) = 3
+print(target(r))
+target(r) = 3
+print(a)
+target(f()) = 4
 print(a)
 
 */
