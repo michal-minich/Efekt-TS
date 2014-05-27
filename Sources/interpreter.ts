@@ -18,7 +18,7 @@ interface BinFn {
 class Interpreter implements AstVisitor<Exp> {
 
     private exceptionHandler : ExceptionHandler;
-    private logger : Logger;
+    private logger : LogWritter;
     private writer : OutputWriter;
 
     private isBreak : boolean;
@@ -29,7 +29,7 @@ class Interpreter implements AstVisitor<Exp> {
 
 
     constructor (exceptionHandler : ExceptionHandler,
-                 logger : Logger,
+                 logger : LogWritter,
                  writer : OutputWriter) {
         this.exceptionHandler = exceptionHandler;
         this.logger = logger;

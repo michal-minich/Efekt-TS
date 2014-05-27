@@ -8,16 +8,14 @@ class Usage implements AstVisitor<void> {
 
 
 
-    private logger : Logger;
-    private writer : OutputWriter;
+    private logger : LogWritter;
     private currentScope : Scope;
 
 
 
 
-    constructor (logger : Logger, writer : OutputWriter) {
+    constructor (logger : LogWritter) {
         this.logger = logger;
-        this.writer = writer;
     }
 
 

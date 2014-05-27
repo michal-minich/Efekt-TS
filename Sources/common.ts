@@ -10,7 +10,7 @@ interface ExceptionHandler {
 
 
 
-interface Logger {
+interface LogWritter {
     fatal (msg : string) : void;
     error (msg : string) : void;
     warn (msg : string) : void;
@@ -20,6 +20,9 @@ interface Logger {
 }
 
 
+interface Logger extends LogWritter {
+    clear () : void;
+}
 
 
 interface OutputWriter {
@@ -60,15 +63,61 @@ class StringWriter implements TextWriter {
 
 
 
+interface AsiToStringFn {
+    (asi : Asi) : string;
+}
+
+
+
+
+interface OutputView {
+    show (asi : Asi) : void;
+    write (asi : Asi) : void;
+    clear () : void;
+}
+
+
+
+
+class HtmlOutputView implements OutputView {
+
+    private outputView : HTMLPreElement;
+    private asiToStringFn : AsiToStringFn;
+
+    constructor (outputView : HTMLPreElement, asiToStringFn : AsiToStringFn) {
+        this.outputView = outputView;
+        this.asiToStringFn = asiToStringFn;
+    }
+
+    show (asi : Asi) : void {
+        this.outputView.innerHTML = this.asiToStringFn(asi);
+    }
+
+    write (asi : Asi) : void {
+        this.outputView.innerHTML += this.asiToStringFn(asi);
+    }
+
+    clear () : void {
+        this.outputView.innerHTML = "";
+    }
+
+    element () : HTMLPreElement {
+        return this.outputView;
+    }
+}
+
+
+
+
 class OutputLogger implements Logger, ExceptionHandler, OutputWriter {
 
     private logView : HTMLElement;
-    private outputView : HTMLElement;
-    private outputAstView : HTMLElement;
+    private outputView : OutputView;
+    private outputAstView : OutputView;
 
     constructor (logView : HTMLElement,
-                 outputView : HTMLElement,
-                 outputAstView : HTMLElement) {
+                 outputView : OutputView,
+                 outputAstView : OutputView) {
         this.logView = logView;
         this.outputView = outputView;
         this.outputAstView = outputAstView
@@ -100,27 +149,30 @@ class OutputLogger implements Logger, ExceptionHandler, OutputWriter {
     }
 
     exception (ex : Exp) : void {
-        this.outputView.innerHTML += "Exception: " + asiToHtmlString(ex) +
-            "<br>";
-        this.outputAstView.innerHTML += "Exception: " +
-            asiToHtmlAstString(ex) + "<br>";
+        // todo show somehow it is exception
+        this.outputView.write(ex);
+        this.outputAstView.write(ex)
     }
 
     write (asi : Asi) : void {
-        this.outputView.innerHTML += asiToHtmlString(asi) + "<br>";
-        this.outputAstView.innerHTML += asiToHtmlAstString(asi) + "<br>";
+        this.outputView.write(asi);
+        this.outputAstView.write(asi);
     }
 
     private log (img : string, msg : string) : void {
         this.logView.innerHTML += "<div class='logItem'><span class='" + img +
             "' title='" + img + "'></span><span>" + msg + "</span></div>";
     }
+
+    clear () {
+        this.logView.innerHTML = "";
+    }
 }
 
 
 
 
-class ConsoleLogger implements Logger, ExceptionHandler, OutputWriter {
+class ConsoleLogger implements LogWritter, ExceptionHandler, OutputWriter {
 
     fatal (msg : string) : void {
         this.log('fatal', msg);
@@ -203,7 +255,7 @@ function asiToHtmlString (asi : Asi) : string {
 
 
 function codeToAstString (code : string,
-                          logger : Logger,
+                          logger : LogWritter,
                           invisibleBraced = false) : string {
     var parser = new Parser(logger);
     var al = parser.parse(code);
@@ -213,7 +265,7 @@ function codeToAstString (code : string,
 
 
 
-function codeToHtmlString (code : string, logger : Logger) : string {
+function codeToHtmlString (code : string, logger : LogWritter) : string {
     var parser = new Parser(logger);
     var al = parser.parse(code);
     return asiToHtmlString(al);
@@ -244,6 +296,13 @@ function assume (test : boolean) {
 
 interface Object {
     getTypeName () : string;
+}
+
+
+
+
+function $id (elementId : string) : HTMLElement {
+    return document.getElementById(elementId);
 }
 
 
