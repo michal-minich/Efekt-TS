@@ -5,7 +5,7 @@
 /// <reference path="printer.ts"/>
 /// <reference path="parser.ts"/>
 /// <reference path="interpreter.ts"/>
-/// <reference path="usage.ts"/>
+/// <reference path="namer.ts"/>
 
 
 class Ide {
@@ -17,7 +17,7 @@ class Ide {
     static outputAstView : OutputView;
     static outputLogger : OutputLogger;
     static parser : Parser;
-    static usager : Usage;
+    static namer : Namer;
     static interpreter : Interpreter;
 
 
@@ -35,7 +35,7 @@ class Ide {
                                             Ide.outputView,
                                             Ide.outputAstView);
         Ide.parser = new Parser(Ide.outputLogger);
-        Ide.usager = new Usage(Ide.outputLogger);
+        Ide.namer = new Namer(Ide.outputLogger);
         Ide.interpreter = new Interpreter(Ide.outputLogger,
                                           Ide.outputLogger,
                                           Ide.outputLogger);
@@ -95,7 +95,7 @@ class Ide {
     static usages (code : string) {
         var al = Ide.parser.parse(code);
         var sc = new Scope(undefined, al);
-        sc.accept(Ide.usager);
+        sc.accept(Ide.namer);
         Ide.outputView.show(al);
         Ide.outputAstView.show(al);
     }

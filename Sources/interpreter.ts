@@ -176,6 +176,30 @@ class Interpreter implements AstVisitor<Exp> {
 
 
 
+    visitLabel (lb : Label) : Void {
+        throw undefined;
+        //return lb.ident.accept(this);
+    }
+
+
+
+
+    visitGoto (gt : Goto) : Void {
+        throw undefined;
+        //return gt.ident.accept(this);
+    }
+
+
+
+
+    visitImport (im : Import) : Void {
+        throw undefined;
+        //return im.value.accept(this);
+    }
+
+
+
+
     visitReturn (r : Return) : Exp {
         return r.value ? r.value.accept(this) : Void.instance;
     }
@@ -424,7 +448,7 @@ class Interpreter implements AstVisitor<Exp> {
     visitBinOpApply (opa : BinOpApply) : Exp {
         var o1 = opa.op1.accept(this);
         var o2 = opa.op2.accept(this);
-        return BuiltIn.op(opa.op.name)(o1, o2);
+        return BuiltInOps.op(opa.op.name)(o1, o2);
     }
 
 

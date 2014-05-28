@@ -103,6 +103,36 @@ class DebugPrinter implements AstVisitor<void> {
 
 
 
+    visitLabel (lb : Label) : void {
+        this.cw.key("Label").space();
+        this.cw.tab().newLine().markup("ident").space();
+        lb.ident.accept(this);
+        this.cw.unTab();
+    }
+
+
+
+
+    visitGoto (gt : Goto) : void {
+        this.cw.key("Goto").space();
+        this.cw.tab().newLine().markup("ident").space();
+        gt.ident.accept(this);
+        this.cw.unTab();
+    }
+
+
+
+
+    visitImport (im : Import) : void {
+        this.cw.key("Import").space();
+        this.cw.tab().newLine().markup("value").space();
+        im.value.accept(this);
+        this.cw.unTab();
+    }
+
+
+
+
     visitReturn (r : Return) : void {
         this.cw.key("Return");
         if (r.value) {

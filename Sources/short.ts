@@ -88,6 +88,27 @@ class ShortCircuitFnVisitor implements AstVisitor<boolean> {
 
 
 
+    visitLabel (lb : Label) : boolean {
+        return lb.ident.accept(this);
+    }
+
+
+
+
+    visitGoto (gt : Goto) : boolean {
+        return gt.ident.accept(this);
+    }
+
+
+
+
+    visitImport (im : Import) : boolean {
+        return im.value.accept(this);
+    }
+
+
+
+
     visitReturn (r : Return) : boolean {
         return r.value.accept(this);
     }

@@ -155,6 +155,62 @@ class Continue extends Stm {
 
 
 
+class Label extends Stm {
+
+    public ident : Ident;
+
+    constructor (attrs : ExpList, ident : Ident) {
+        super(attrs);
+        this.ident = ident;
+        ident.parent = this;
+    }
+
+    accept<T> (v : AstVisitor<T>) : T {
+        return v.visitLabel(this);
+    }
+}
+
+
+
+
+class Goto extends Stm {
+
+    public ident : Ident;
+
+    constructor (attrs : ExpList, ident : Ident) {
+        super(attrs);
+        this.ident = ident;
+        ident.parent = this;
+    }
+
+    accept<T> (v : AstVisitor<T>) : T {
+        return v.visitGoto(this);
+    }
+}
+
+
+
+
+class Import extends Stm {
+
+    public value : Exp;
+
+    constructor (attrs : ExpList, value : Exp) {
+        super(attrs);
+        if (value) {
+            this.value = value;
+            value.parent = this;
+        }
+    }
+
+    accept<T> (v : AstVisitor<T>) : T {
+        return v.visitImport(this);
+    }
+}
+
+
+
+
 class Return extends Stm {
 
     public value : Exp;

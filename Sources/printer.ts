@@ -99,6 +99,30 @@ class Printer implements AstVisitor<void> {
 
 
 
+    visitLabel (lb : Label) : void {
+        this.cw.key("label").space();
+        lb.ident.accept(this);
+    }
+
+
+
+
+    visitGoto (gt : Goto) : void {
+        this.cw.key("goto").space();
+        gt.ident.accept(this);
+    }
+
+
+
+
+    visitImport (im : Import) : void {
+        this.cw.key("import").space();
+        im.value.accept(this);
+    }
+
+
+
+
     visitReturn (r : Return) : void {
         this.cw.key("return");
         if (r.value) {

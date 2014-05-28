@@ -1,7 +1,7 @@
 /// <reference path="common.ts"/>
 /// <reference path="ast.ts"/>
 
-class BuiltIn {
+class BuiltInOps {
 
     static op (name : string) : BinFn {
         switch (name) {

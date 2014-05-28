@@ -3,7 +3,7 @@
 /// <reference path="visitor.ts"/>
 
 
-class Usage implements AstVisitor<void> {
+class Namer implements AstVisitor<void> {
 
 
 
@@ -69,6 +69,27 @@ class Usage implements AstVisitor<void> {
 
 
     visitContinue (c : Continue) : void {
+    }
+
+
+
+
+    visitLabel (lb : Label) : void {
+        return lb.ident.accept(this);
+    }
+
+
+
+
+    visitGoto (gt : Goto) : void {
+        return gt.ident.accept(this);
+    }
+
+
+
+
+    visitImport (im : Import) : void {
+        return im.value.accept(this);
     }
 
 
@@ -144,7 +165,7 @@ class Usage implements AstVisitor<void> {
             if (a.parent instanceof Var) {
                 this.declareIdent(i);
             } else {
-                var sc = Usage.getScope(this.currentScope, i.name);
+                var sc = Namer.getScope(this.currentScope, i.name);
                 i.scopeId = sc.id;
                 i.declaredBy = sc.declrs[i.name];
                 i.isWrite = true;
@@ -197,7 +218,7 @@ class Usage implements AstVisitor<void> {
             i.isBuiltin = true;
             return;
         }
-        var sc = Usage.getScope(this.currentScope, i.name);
+        var sc = Namer.getScope(this.currentScope, i.name);
         i.scopeId = sc.id;
         i.declaredBy = sc.declrs[i.name];
         if (!i.declaredBy)
