@@ -75,21 +75,21 @@ class Namer implements AstVisitor<void> {
 
 
     visitLabel (lb : Label) : void {
-        return lb.ident.accept(this);
+        //return lb.ident.accept(this);
     }
 
 
 
 
     visitGoto (gt : Goto) : void {
-        return gt.ident.accept(this);
+        //return gt.ident.accept(this);
     }
 
 
 
 
     visitImport (im : Import) : void {
-        return im.value.accept(this);
+        //return im.value.accept(this);
     }
 
 
