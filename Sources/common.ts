@@ -72,21 +72,6 @@ function asiToAstString (asi : Asi, invisibleBraced = false) : string {
 
 
 
-function assume (test : boolean) {
-    if (!test)
-        throw "Assumtion failed";
-}
-
-
-
-
-interface Object {
-    getTypeName () : string;
-}
-
-
-
-
 function $id (elementId : string) : HTMLElement {
     return document.getElementById(elementId);
 }

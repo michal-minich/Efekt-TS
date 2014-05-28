@@ -157,6 +157,7 @@ class Parser {
     private code : string;
     private index : number;
     private matched : string;
+    private nextIsAttr : boolean;
 
 
 
@@ -272,6 +273,32 @@ class Parser {
 
 
     private parseOne () : Asi {
+        var attrs : Exp[] = [];
+        while (this.matchChar('@')) {
+            this.nextIsAttr = true;
+            var asi = this.parseMany();
+            if (asi && asi instanceof Exp) {
+                attrs.push(<Exp>asi);
+            } else {
+                throw "exp expected after @";
+            }
+            if (this.finished()) {
+                throw "finished with attributes without exp";
+            }
+        }
+        var asi = this.parseOneAsi();
+        if (asi) {
+            var el = new ExpList(undefined, attrs);
+            el.parent = asi;
+            asi.attrs = el;
+        }
+        return asi;
+    }
+
+
+
+
+    private parseOneAsi () : Asi {
 
         if (this.finished())
             return undefined;
@@ -292,8 +319,14 @@ class Parser {
         if (this.match(Parser.isInt))
             return new Int(undefined, this.matched);
 
-        else if (this.match(Parser.isIdent))
-            return new Ident(undefined, this.matched);
+        else if (this.match(Parser.isIdent)) {
+            var i = new Ident(undefined, this.matched);
+            if (this.nextIsAttr) {
+                i.name = "@" + i.name;
+                this.nextIsAttr = false;
+            }
+            return i;
+        }
 
         if (this.matchChar('{'))
             return new Scope(undefined, this.parseAsiList(true));
@@ -486,7 +519,7 @@ class Parser {
     private static isOp (ch : string) : boolean {
         return ch === '.' || ch === '+' || ch === '-' || ch === '*' ||
             ch === '%' || ch === '=' || ch === ':' || ch === '!' ||
-            ch === '~' || ch === '@' || ch === '#' || ch === '^' ||
+            ch === '~' /*|| ch === '@'*/ || ch === '#' || ch === '^' ||
             ch === '&' || ch === '/' || ch === '|' || ch === '<' ||
             ch === '>' || ch === '?' || ch === ',' || ch === '$' ||
             ch === '\\';
@@ -494,7 +527,7 @@ class Parser {
 
     private static isIdent (ch : string) : boolean {
         return (ch >= 'a' && ch <= 'z') ||
-            (ch >= 'A' && ch <= 'Z') || ch === '_';
+            (ch >= 'A' && ch <= 'Z') || ch === '_' || ch === '@';
     }
 
 

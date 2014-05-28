@@ -61,6 +61,7 @@ interface CodeWriter {
     key(value : string) : CodeWriter;
     ident(value : string, cssClass? : string) : CodeWriter;
     type(value : string) : CodeWriter;
+    attr(value : string) : CodeWriter;
     markup(value : string) : CodeWriter;
     comment(value : string) : CodeWriter;
     text(value : string) : CodeWriter;
@@ -286,6 +287,11 @@ class HtmlCodeWriter implements CodeWriter {
         return this;
     }
 
+    attr (value : string) : CodeWriter {
+        this.w('Attr', value);
+        return this;
+    }
+
     markup (value : string) : CodeWriter {
         this.w('Markup', value);
         return this;
@@ -358,6 +364,11 @@ class PlainTextCodeWriter implements CodeWriter {
     }
 
     type (value : string) : CodeWriter {
+        this.tw.write(value);
+        return this;
+    }
+
+    attr (value : string) : CodeWriter {
         this.tw.write(value);
         return this;
     }

@@ -29,6 +29,17 @@ class Printer implements AstVisitor<void> {
 
 
 
+    private printAttributes (asi : Asi) : void {
+        if (asi.attrs)
+            for (var i = 0; i < asi.attrs.items.length; ++i) {
+                asi.attrs.items[i].accept(this);
+                this.cw.space();
+            }
+    }
+
+
+
+
     // helpers ===============================================
 
 
@@ -175,6 +186,7 @@ class Printer implements AstVisitor<void> {
 
 
     visitVar (v : Var) : void {
+        this.printAttributes(v);
         this.cw.key("var").space();
         v.exp.accept(this);
     }
@@ -256,6 +268,8 @@ class Printer implements AstVisitor<void> {
             this.cw.key(i.name);
         else if (i.isType)
             this.cw.type(i.name);
+        else if (i.isAttr)
+            this.cw.attr(i.name);
         else {
             if (i.isBuiltin) {
                 this.cw.ident(i.name, "sc_0_" + i.name + " builtin");

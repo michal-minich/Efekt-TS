@@ -440,6 +440,10 @@ class Ident extends Exp {
     get isType () : boolean {
         return this.name[0] >= 'A' && this.name[0] <= 'Z';
     }
+
+    get isAttr () : boolean {
+        return this.name[0] === '@';
+    }
 }
 
 

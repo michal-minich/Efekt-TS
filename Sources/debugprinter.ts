@@ -38,6 +38,17 @@ class DebugPrinter implements AstVisitor<void> {
 
 
 
+    private printAttributes (asi : Asi) : void {
+        if (asi.attrs) {
+            this.cw.markup("attrs").tab().newLine();
+            this.writeList(asi.attrs.items);
+            this.cw.unTab().newLine();
+        }
+    }
+
+
+
+
     // helpers ===============================================
 
 
@@ -192,7 +203,9 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitVar (v : Var) : void {
-        this.cw.key("Var").tab().newLine().markup("exp").space();
+        this.cw.key("Var").tab().newLine();
+        this.printAttributes(v);
+        this.cw.markup("exp").space();
         v.exp.accept(this);
         this.cw.unTab();
     }
@@ -253,6 +266,8 @@ class DebugPrinter implements AstVisitor<void> {
             this.cw.key(i.name);
         else if (i.isType)
             this.cw.type(i.name);
+        else if (i.isAttr)
+            this.cw.attr(i.name);
         else
             this.cw.ident(i.name);
         this.cw.unTab();
