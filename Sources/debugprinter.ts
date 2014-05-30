@@ -399,8 +399,8 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitArr (arr : Arr) : void {
-        this.cw.key("Arr").tab().newLine().markup("list.items");
-        arr.list.accept(this);
+        this.cw.key("Arr").tab().newLine().markup("list").space();
+        this.visitAsiList(arr.list);
         this.cw.unTab();
     }
 
