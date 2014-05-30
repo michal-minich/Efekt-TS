@@ -464,30 +464,30 @@ function interpreterTests () : void {
 
 -- select, where
 var select = fn (arr, f) {
+  var r = []
   var i = 0
   loop {
-    if i == count(arr) then break
-    var item = at(arr, i)
-    f(item)
+    if i == arr.count() then break
+    r.add(f(arr.at(i)))
     i = i + 1
   }
+  return r
 }
 
 var where = fn (arr, f) {
   var r = []
   var i = 0
   loop {
-    if i == count(arr) then break
-    var item = at(arr, i)
-    var b = f(item)
-    if b then { add(r, item) }
+    if i == arr.count() then break
+    var item = arr.at(i)
+    if f(item) then { r.add(item) }
     i = i + 1
   }
   return r
 }
-var s = fn (a) { print(a + 10) }
+var s = fn (a) { a = a + 10 a.print() a }
 var w = fn (a) { a > 6 }
-select(where([5, 6, 7, 8, 9], w), s)
+[5, 6, 7, 8, 9].where(w).select(s)
 
 
 -- adder

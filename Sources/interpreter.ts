@@ -378,6 +378,18 @@ class Interpreter implements AstVisitor<Exp> {
                 }
             }
         }
+
+        if (fna.fn instanceof Member) {
+            var m = <Member>fna.fn;
+            args.splice(0, 0, m.bag);
+            var fna2 = new FnApply(undefined, new Braced(undefined,
+                                                         new ExpList(undefined,
+                                                                     args)),
+                                   m.ident);
+            var res = this.visitFnApply(fna2);
+            return res;
+        }
+
         var exp = fna.fn.accept(this);
         if (exp instanceof Fn) {
             var fn = <Fn>exp;
@@ -433,7 +445,7 @@ class Interpreter implements AstVisitor<Exp> {
                               new Braced(undefined,
                                          new ExpList(undefined,
                                                      [opa.op1, opa.op2])),
-                             opa.op);
+                              opa.op);
         return this.visitFnApply(fna);
     }
 
