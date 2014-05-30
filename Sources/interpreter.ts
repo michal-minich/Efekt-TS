@@ -8,11 +8,14 @@
 
 
 
-interface BinFn {
-    (op1 : Exp, op2 : Exp) : Exp;
+interface BuiltinFn {
+    (params : Exp[]) : Exp;
 }
 
 
+interface BinFn {
+    (a : Exp, b : Exp) : Exp;
+}
 
 
 class Interpreter implements AstVisitor<Exp> {
@@ -360,28 +363,11 @@ class Interpreter implements AstVisitor<Exp> {
 
         if (fna.fn instanceof Ident) {
             var fni = <Ident>fna.fn;
-            if (fni.name === "print") {
-                var outputView = <HTMLPreElement>document.getElementById("outputView");
-                var outputAstView = <HTMLPreElement>document.getElementById("outputAstView");
-                for (var i = 0; i < args.length; ++i) {
-                    outputView.innerHTML += asiToHtmlString(args[i]) + "<br>";
-                    outputAstView.innerHTML += asiToAstString(args[i]) + "<br>";
-                }
-                return Void.instance;
-            } else if (fni.name === "at") {
-                var arr = <Arr>args[0];
-                var ix = <Int>args[1];
-                return arr.list.items[+ix.value];
-            } else if (fni.name === "count") {
-                var arr = <Arr>args[0];
-                return new Int(undefined, "" + arr.list.items.length);
-            } else if (fni.name === "add") {
-                var arr = <Arr>args[0];
-                var item = args[1];
-                item.parent = arr.list;
-                arr.list.items.push(item);
-                return arr;
-            } else if (fni.name === "Ref") {
+            var bfn = BuiltIns.fn(fni.name);
+            if (bfn)
+                return bfn(args);
+
+            if (fni.name === "Ref") {
                 if (fna.args.list.items.length === 1 &&
                     fna.args.list.items[0] instanceof Ident) {
                     var ident = <Ident>fna.args.list.items[0];
@@ -390,11 +376,8 @@ class Interpreter implements AstVisitor<Exp> {
                                                     ident.name);
                     return rf;
                 }
-            } else if (fni.name === "target") {
-                return args[0];
             }
         }
-
         var exp = fna.fn.accept(this);
         if (exp instanceof Fn) {
             var fn = <Fn>exp;
@@ -448,7 +431,7 @@ class Interpreter implements AstVisitor<Exp> {
     visitBinOpApply (opa : BinOpApply) : Exp {
         var o1 = opa.op1.accept(this);
         var o2 = opa.op2.accept(this);
-        return BuiltInOps.op(opa.op.name)(o1, o2);
+        return BuiltIns.fn(opa.op.name)([o1, o2]);
     }
 
 
