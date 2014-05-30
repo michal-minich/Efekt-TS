@@ -429,9 +429,12 @@ class Interpreter implements AstVisitor<Exp> {
 
 
     visitBinOpApply (opa : BinOpApply) : Exp {
-        var o1 = opa.op1.accept(this);
-        var o2 = opa.op2.accept(this);
-        return BuiltIns.fn(opa.op.name)([o1, o2]);
+        var fna = new FnApply(undefined,
+                              new Braced(undefined,
+                                         new ExpList(undefined,
+                                                     [opa.op1, opa.op2])),
+                             opa.op);
+        return this.visitFnApply(fna);
     }
 
 
