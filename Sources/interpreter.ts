@@ -4,9 +4,9 @@
 /// <reference path="writer.ts"/>
 /// <reference path="printer.ts"/>
 /// <reference path="builtin.ts"/>
-interface BinFn {
-    (a : Exp, b : Exp) : Exp;
-}
+/// <reference path="prelude.ts"/>
+
+
 
 
 class Interpreter implements AstVisitor<Exp> {
@@ -92,8 +92,11 @@ class Interpreter implements AstVisitor<Exp> {
 
 
     run (al : AsiList) : Exp {
+        if (al.items.length === 0)
+            return Void.instance;
+        var code = combineAsiLists(prelude, al);
         try {
-            return this.visitScope(new Scope(undefined, al));
+            return this.visitScope(new Scope(undefined, code));
         } catch (ex) {
             if (ex instanceof String) {
                 var arr = Interpreter.createStringArr(ex);

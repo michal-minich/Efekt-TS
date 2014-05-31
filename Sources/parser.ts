@@ -1,5 +1,6 @@
 /// <reference path="ast.ts"/>
 /// <reference path="common.ts"/>
+/// <reference path="prelude.ts"/>
 
 interface Precedence {
     [operator : string] : number
@@ -158,8 +159,7 @@ class Parser {
     private index : number;
     private matched : string;
     private nextIsAttr : boolean;
-    private parseOneSpare : Asi;
-
+    private spares : Asi[] = [];
 
 
 
@@ -171,6 +171,15 @@ class Parser {
 
 
     public parse (code : string) : AsiList {
+        if (!prelude)
+            prelude = this.parseNoPrelude(preludeStr);
+        return this.parseNoPrelude(code);
+    }
+
+
+
+
+    public parseNoPrelude (code : string) : AsiList {
         this.code = code;
         this.index = 0;
         if (code.length === 0)
@@ -301,11 +310,9 @@ class Parser {
                 throw "finished with attributes without exp";
             }
         }
-        if (this.parseOneSpare) {
-            var s = this.parseOneSpare;
-            this.parseOneSpare = undefined;
-            return s;
-        }
+        if (this.spares.length !== 0)
+            return this.spares.pop();
+
         var asi = this.parseOneAsi();
         if (asi && attrs.length !== 0) {
             var el = new ExpList(undefined, attrs);
@@ -372,7 +379,7 @@ class Parser {
             var bc = <Braced>asi;
             asi = this.parseOne();
             if (!(asi instanceof Scope)) {
-                this.parseOneSpare = asi;
+                this.spares.push(asi);
                 return new Fn(undefined, bc, undefined);
             }
             return new Fn(undefined, bc, <Scope>asi);

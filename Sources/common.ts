@@ -4,6 +4,20 @@
 /// <reference path="debugprinter.ts"/>
 
 
+
+
+function combineAsiLists (first : AsiList, second : AsiList) : AsiList {
+    var alCombined : Asi[] = [];
+    for (var i = 0; i < first.items.length; i++)
+        alCombined.push(first.items[i]);
+    for (var i = 0; i < second.items.length; i++)
+        alCombined.push(second.items[i]);
+    return new AsiList(undefined, alCombined);
+}
+
+
+
+
 function arrToStr (arr : Arr) : string {
     var s : string[] = [];
     var items = arr.list.items;

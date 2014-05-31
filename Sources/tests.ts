@@ -149,8 +149,7 @@ class Test {
         };
         var interpreter = new Interpreter(this.logger, this.logger,
                                           this.logger);
-        var sc = new Scope(undefined, this.parsed);
-        var evaled = sc.accept(interpreter);
+        var evaled = interpreter.run(this.parsed);
         testReport.addEval(this.code, expected, evaled);
         return this;
     }
