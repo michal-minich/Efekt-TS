@@ -263,9 +263,11 @@ class Printer implements AstVisitor<void> {
 
     visitIdent (i : Ident) : void {
         this.printAttributes(i);
-        if (i.isOp)
+        if (i.isOp) {
+            if (!(i.parent instanceof BinOpApply))
+                this.cw.key("op");
             this.cw.writeOp(i.name);
-        else if (i.isKey)
+        } else if (i.isKey)
             this.cw.key(i.name);
         else if (i.isType)
             this.cw.type(i.name);
@@ -447,7 +449,7 @@ class Printer implements AstVisitor<void> {
             fn.returnType.accept(this);
         }
         if (fn.body)
-            fn.body.accept(this);
+            this.visitScope(fn.body);
     }
 
 

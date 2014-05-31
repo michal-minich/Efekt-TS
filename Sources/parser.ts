@@ -244,6 +244,7 @@ class Parser {
         "var": () => this.parseVar(),
         "if": () => this.parseIf(),
         "fn": () => this.parseFn(),
+        "op": () => this.parseOp(),
         "loop": () => this.parseLoop(),
         "break": () => new Break(undefined),
         "continue": () => new Continue(undefined),
@@ -262,7 +263,19 @@ class Parser {
 
 
 
-    private parseVar () {
+    private parseOp () : Ident {
+        if (this.match(Parser.isOp)) {
+            var i = new Ident(undefined, this.matched);
+            i.isOp = true;
+            return i;
+        }
+        throw "expected operator after 'op'.";
+    }
+
+
+
+
+    private parseVar () : Var {
         var v = this.parseSimpleKeyword<Var>(Var, true);
         if (!(v.exp instanceof Ident || v.exp instanceof Assign
             || v.exp instanceof ValueVar || v.exp instanceof TypeVar))
@@ -288,11 +301,11 @@ class Parser {
                 throw "finished with attributes without exp";
             }
         }
-        /*if (this.parseOneSpare) {
+        if (this.parseOneSpare) {
             var s = this.parseOneSpare;
             this.parseOneSpare = undefined;
             return s;
-        }*/
+        }
         var asi = this.parseOneAsi();
         if (asi && attrs.length !== 0) {
             var el = new ExpList(undefined, attrs);
@@ -359,10 +372,8 @@ class Parser {
             var bc = <Braced>asi;
             asi = this.parseOne();
             if (!(asi instanceof Scope)) {
-                this.logger.fatal("Expected scope after fn (...).");
-                throw undefined;
-                //this.parseOneSpare = asi;
-                //return new Fn(undefined, bc, undefined);
+                this.parseOneSpare = asi;
+                return new Fn(undefined, bc, undefined);
             }
             return new Fn(undefined, bc, <Scope>asi);
         } else {

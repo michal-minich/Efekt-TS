@@ -447,7 +447,7 @@ class DebugPrinter implements AstVisitor<void> {
         }
         if (fn.body) {
             this.cw.newLine().markup("body").space();
-            fn.body.accept(this);
+            this.visitScope(fn.body);
         }
         this.cw.unTab();
     }

@@ -764,7 +764,7 @@ class Fn extends Exp {
         super(attrs);
         this.params = params;
         params.parent = this;
-        if (this.body) {
+        if (body) {
             this.body = body;
             body.parent = this;
         }
