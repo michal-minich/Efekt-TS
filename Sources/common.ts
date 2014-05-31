@@ -4,7 +4,7 @@
 /// <reference path="debugprinter.ts"/>
 
 
-function arrToStr (arr : Arr) : string{
+function arrToStr (arr : Arr) : string {
     var s : string[] = [];
     var items = arr.list.items;
     for (var i = 0; i < items.length; ++i)

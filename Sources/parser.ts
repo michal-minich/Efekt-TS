@@ -288,11 +288,11 @@ class Parser {
                 throw "finished with attributes without exp";
             }
         }
-        if (this.parseOneSpare) {
+        /*if (this.parseOneSpare) {
             var s = this.parseOneSpare;
             this.parseOneSpare = undefined;
             return s;
-        }
+        }*/
         var asi = this.parseOneAsi();
         if (asi && attrs.length !== 0) {
             var el = new ExpList(undefined, attrs);
@@ -359,10 +359,10 @@ class Parser {
             var bc = <Braced>asi;
             asi = this.parseOne();
             if (!(asi instanceof Scope)) {
-                //this.logger.fatal("Expected scope after fn (...).");
-                //throw undefined;
-                this.parseOneSpare = asi;
-                return new Fn(undefined, bc, undefined);
+                this.logger.fatal("Expected scope after fn (...).");
+                throw undefined;
+                //this.parseOneSpare = asi;
+                //return new Fn(undefined, bc, undefined);
             }
             return new Fn(undefined, bc, <Scope>asi);
         } else {

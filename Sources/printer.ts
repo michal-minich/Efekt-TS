@@ -411,7 +411,8 @@ class Printer implements AstVisitor<void> {
 
     visitArr (arr : Arr) : void {
         if (arr.itemType && arr.itemType instanceof TypeChar) {
-            this.cw.text('"').text(arrToStr(arr)).text('"');;
+            this.cw.text('"').text(arrToStr(arr)).text('"');
+            ;
         } else {
             this.cw.markup("[");
             arr.list.accept(this);

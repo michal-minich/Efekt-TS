@@ -354,10 +354,6 @@ class Interpreter implements AstVisitor<Exp> {
 
         if (fna.fn instanceof Ident) {
             var fni = <Ident>fna.fn;
-            var bfn = BuiltIns.fn(fni.name);
-            if (bfn)
-                return bfn(args);
-
             if (fni.name === "Ref") {
                 if (fna.args.list.items.length === 1 &&
                     fna.args.list.items[0] instanceof Ident) {
@@ -373,17 +369,17 @@ class Interpreter implements AstVisitor<Exp> {
         if (fna.fn instanceof Member) {
             var m = <Member>fna.fn;
             args.splice(0, 0, m.bag);
-            var fna2 = new FnApply(undefined, new Braced(undefined,
-                                                         new ExpList(undefined,
-                                                                     args)),
-                                   m.ident);
+            var fna2 = new FnApply(
+                undefined,
+                new Braced(undefined, new ExpList(undefined, args)),
+                m.ident);
             return this.visitFnApply(fna2);
         }
 
         var exp = fna.fn.accept(this);
 
         if (exp instanceof Builtin) {
-            return exp.impl(args);
+            return (<Builtin>exp).impl(args);
         }
 
         if (exp instanceof Fn) {
@@ -394,13 +390,15 @@ class Interpreter implements AstVisitor<Exp> {
                 Interpreter.set(fn.body, n, args[i], true);
             }
             return this.visitScope(fn.body);
-        } else if (exp instanceof Struct) {
+        }
+
+        if (exp instanceof Struct) {
             var st = <Struct>exp;
             this.visitScope(st.body);
             return exp;
-        } else {
-            throw "cannot apply " + getTypeName(exp);
         }
+
+        throw "cannot apply " + getTypeName(exp);
     }
 
 
@@ -552,6 +550,8 @@ class Interpreter implements AstVisitor<Exp> {
 
     visitFn (fn : Fn) : Exp {
         if (!fn.body) {
+            if (!fn.attrs)
+                return fn;
             for (var i = 0; i < fn.attrs.items.length; i++) {
                 var attr = fn.attrs.items[i];
                 if (attr instanceof FnApply) {
