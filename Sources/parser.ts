@@ -274,6 +274,7 @@ class Parser {
 
     private parseOne () : Asi {
         var attrs : Exp[] = [];
+        this.skipWhite();
         while (this.matchChar('@')) {
             this.nextIsAttr = true;
             var asi = this.parseMany();
@@ -287,7 +288,7 @@ class Parser {
             }
         }
         var asi = this.parseOneAsi();
-        if (asi) {
+        if (asi && attrs.length !== 0) {
             var el = new ExpList(undefined, attrs);
             el.parent = asi;
             asi.attrs = el;

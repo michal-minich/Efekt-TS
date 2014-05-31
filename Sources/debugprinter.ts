@@ -40,7 +40,7 @@ class DebugPrinter implements AstVisitor<void> {
 
     private printAttributes (asi : Asi) : void {
         if (asi.attrs) {
-            this.cw.markup("attrs").tab().newLine();
+            this.cw.markup("attrs").space().key("AsiList").tab().newLine();
             this.writeList(asi.attrs.items);
             this.cw.unTab().newLine();
         }
@@ -250,7 +250,9 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitScope (sc : Scope) : void {
-        this.cw.key("Scope").tab().newLine().markup("list").space();
+        this.cw.key("Scope").tab().newLine();
+        this.printAttributes(sc);
+        this.cw.markup("list").space();
         sc.list.accept(this);
         this.cw.unTab();
     }
@@ -259,7 +261,9 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitIdent (i : Ident) : void {
-        this.cw.key("Ident").tab().newLine().markup("name").space();
+        this.cw.key("Ident").tab().newLine();
+        this.printAttributes(i);
+        this.cw.markup("name").space();
         if (i.isOp)
             this.cw.writeOp(i.name);
         else if (i.isKey)
@@ -423,7 +427,9 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitFn (fn : Fn) : void {
-        this.cw.key("Fn").tab().newLine().markup("params").space();
+        this.cw.key("Fn").tab().newLine();
+        this.printAttributes(fn);
+        this.cw.markup("params").space();
         fn.params.accept(this);
         this.cw.space();
         if (fn.returnType) {
@@ -444,8 +450,9 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitStruct (st : Struct) : void {
-        this.cw.key("Struct").tab().newLine().markup("body")
-            .space();
+        this.cw.key("Struct").tab().newLine();
+        this.printAttributes(st);
+        this.cw.markup("body").space();
         st.body.accept(this);
         this.cw.unTab();
     }
@@ -453,8 +460,9 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitInterface (ifc : Interface) : void {
-        this.cw.key("Interface").tab().newLine().markup("body")
-            .space();
+        this.cw.key("Interface").tab().newLine();
+        this.printAttributes(ifc);
+        this.cw.markup("body").space();
         ifc.body.accept(this);
         this.cw.unTab();
     }

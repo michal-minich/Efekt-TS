@@ -222,7 +222,7 @@ class Printer implements AstVisitor<void> {
 
 
     visitScope (sc : Scope) : void {
-
+        this.printAttributes(sc);
         var useBraces = sc.list.items.length > 1
             || Printer.showScopeBraces(sc.parent);
 
@@ -262,6 +262,7 @@ class Printer implements AstVisitor<void> {
 
 
     visitIdent (i : Ident) : void {
+        this.printAttributes(i);
         if (i.isOp)
             this.cw.writeOp(i.name);
         else if (i.isKey)
@@ -432,6 +433,7 @@ class Printer implements AstVisitor<void> {
 
 
     visitFn (fn : Fn) : void {
+        this.printAttributes(fn);
         this.cw.key("fn").space();
         fn.params.accept(this);
         this.cw.space();
@@ -451,6 +453,7 @@ class Printer implements AstVisitor<void> {
 
 
     visitStruct (st : Struct) : void {
+        this.printAttributes(st);
         this.cw.key("struct").space();
         st.body.accept(this);
     }
@@ -458,6 +461,7 @@ class Printer implements AstVisitor<void> {
 
 
     visitInterface (ifc : Interface) : void {
+        this.printAttributes(ifc);
         this.cw.key("interface").space();
         ifc.body.accept(this);
     }

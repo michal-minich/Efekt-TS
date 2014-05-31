@@ -386,8 +386,7 @@ class Interpreter implements AstVisitor<Exp> {
                                                          new ExpList(undefined,
                                                                      args)),
                                    m.ident);
-            var res = this.visitFnApply(fna2);
-            return res;
+            return this.visitFnApply(fna2);
         }
 
         var exp = fna.fn.accept(this);

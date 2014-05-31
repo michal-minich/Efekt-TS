@@ -49,8 +49,8 @@ class BuiltIns {
                 };
             case 'print':
                 return function (args : Exp[]) {
-                    var outputView = <HTMLPreElement>document.getElementById("outputView");
-                    var outputAstView = <HTMLPreElement>document.getElementById("outputAstView");
+                    var outputView = <HTMLPreElement>$id("outputView");
+                    var outputAstView = <HTMLPreElement>$id("outputAstView");
                     for (var i = 0; i < args.length; ++i) {
                         outputView.innerHTML += asiToHtmlString(args[i]) +
                             "<br>";
