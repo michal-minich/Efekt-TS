@@ -143,7 +143,10 @@ class Namer implements AstVisitor<void> {
 
 
     visitValueVar (vv : ValueVar) : void {
-        vv.ident.accept(this);
+        if (vv.ident instanceof Ident)
+            this.declareIdent(<Ident>vv.ident);
+        else
+            vv.ident.accept(this);
         vv.type.accept(this);
     }
 
@@ -151,7 +154,10 @@ class Namer implements AstVisitor<void> {
 
 
     visitTypeVar (tv : TypeVar) : void {
-        tv.type.accept(this);
+        if (tv.type instanceof Ident)
+            this.declareIdent(<Ident>tv.type);
+        else
+            tv.type.accept(this);
         tv.constraint.accept(this);
     }
 
@@ -212,12 +218,6 @@ class Namer implements AstVisitor<void> {
 
 
     visitIdent (i : Ident) : void {
-        if (i.isOp || i.name === "print" || i.name === "count" ||
-            i.name === "at" || i.name === "add" || i.name === "Ref" ||
-            i.name === "target" || i.name === "@builtin") {
-            i.isBuiltin = true;
-            return;
-        }
         var sc = Namer.getScope(this.currentScope, i.name);
         i.scopeId = sc.id;
         i.declaredBy = sc.declrs[i.name];

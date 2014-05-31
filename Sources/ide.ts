@@ -6,6 +6,7 @@
 /// <reference path="parser.ts"/>
 /// <reference path="interpreter.ts"/>
 /// <reference path="namer.ts"/>
+/// <reference path="prelude.ts"/>
 
 
 class Ide {
@@ -94,10 +95,10 @@ class Ide {
 
     static usages (code : string) {
         var al = Ide.parser.parse(code);
-        var sc = new Scope(undefined, al);
+        var sc = new Scope(undefined, combineAsiLists(prelude, al));
         sc.accept(Ide.namer);
-        Ide.outputView.show(al);
-        Ide.outputAstView.show(al);
+        Ide.outputView.show(sc.list);
+        Ide.outputAstView.show(sc.list);
     }
 
 
@@ -107,7 +108,8 @@ class Ide {
         var al = Ide.parser.parse(code);
         Ide.outputView.clear();
         Ide.outputAstView.clear();
-        var res = Ide.interpreter.run(al);
+        var sc = new Scope(undefined, combineAsiLists(prelude, al));
+        var res = Ide.interpreter.run(sc);
         Ide.outputView.write(res);
         Ide.outputAstView.write(res);
     }

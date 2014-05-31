@@ -91,12 +91,11 @@ class Interpreter implements AstVisitor<Exp> {
 
 
 
-    run (al : AsiList) : Exp {
-        if (al.items.length === 0)
+    run (sc : Scope) : Exp {
+        if (sc.list.items.length === 0)
             return Void.instance;
-        var code = combineAsiLists(prelude, al);
         try {
-            return this.visitScope(new Scope(undefined, code));
+            return this.visitScope(sc);
         } catch (ex) {
             if (ex instanceof String) {
                 var arr = Interpreter.createStringArr(ex);

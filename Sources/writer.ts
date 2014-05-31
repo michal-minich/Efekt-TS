@@ -60,13 +60,13 @@ interface CodeWriter {
 
     key(value : string) : CodeWriter;
     ident(value : string, cssClass? : string) : CodeWriter;
-    type(value : string) : CodeWriter;
-    attr(value : string) : CodeWriter;
+    type(value : string, cssClass? : string) : CodeWriter;
+    attr(value : string, cssClass? : string) : CodeWriter;
     markup(value : string) : CodeWriter;
     comment(value : string) : CodeWriter;
     text(value : string) : CodeWriter;
     num(value : string) : CodeWriter;
-    writeOp(value : string) : CodeWriter;
+    writeOp(value : string, cssClass? : string) : CodeWriter;
 
     newLine() : CodeWriter;
     space() : CodeWriter;
@@ -282,13 +282,13 @@ class HtmlCodeWriter implements CodeWriter {
         return this;
     }
 
-    type (value : string) : CodeWriter {
-        this.w('Type', value);
+    type (value : string, cssClass : string = "") : CodeWriter {
+        this.w('Type', value, cssClass);
         return this;
     }
 
-    attr (value : string) : CodeWriter {
-        this.w('Attr', value);
+    attr (value : string, cssClass : string = "") : CodeWriter {
+        this.w('Attr', value, cssClass);
         return this;
     }
 
@@ -312,8 +312,8 @@ class HtmlCodeWriter implements CodeWriter {
         return this;
     }
 
-    writeOp (value : string) : CodeWriter {
-        this.w('Op', value);
+    writeOp (value : string, cssClass : string = "") : CodeWriter {
+        this.w('Op', value, cssClass);
         return this;
     }
 
@@ -363,12 +363,12 @@ class PlainTextCodeWriter implements CodeWriter {
         return this;
     }
 
-    type (value : string) : CodeWriter {
+    type (value : string, cssClass : string = "") : CodeWriter {
         this.tw.write(value);
         return this;
     }
 
-    attr (value : string) : CodeWriter {
+    attr (value : string, cssClass : string = "") : CodeWriter {
         this.tw.write(value);
         return this;
     }
@@ -393,7 +393,7 @@ class PlainTextCodeWriter implements CodeWriter {
         return this;
     }
 
-    writeOp (value : string) : CodeWriter {
+    writeOp (value : string, cssClass : string = "") : CodeWriter {
         this.tw.write(value);
         return this;
     }

@@ -426,7 +426,6 @@ class Ident extends Exp {
     public usages : Ident[];
     public scopeId : number;
     public isWrite : boolean;
-    public isBuiltin : boolean;
 
     constructor (attrs : ExpList, name : string) {
         super(attrs);

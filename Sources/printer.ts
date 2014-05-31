@@ -263,32 +263,33 @@ class Printer implements AstVisitor<void> {
 
     visitIdent (i : Ident) : void {
         this.printAttributes(i);
+        var fn : (value : string, cssClass? : string) => CodeWriter;
         if (i.isOp) {
             if (!(i.parent instanceof BinOpApply))
                 this.cw.key("op");
-            this.cw.writeOp(i.name);
+            fn = this.cw.writeOp
         } else if (i.isKey)
-            this.cw.key(i.name);
+            fn = this.cw.key;
         else if (i.isType)
-            this.cw.type(i.name);
+            fn = this.cw.type;
         else if (i.isAttr)
-            this.cw.attr(i.name);
+            fn = this.cw.attr;
         else {
-            if (i.isBuiltin) {
-                this.cw.ident(i.name, "sc_0_" + i.name + " builtin");
-            } else if (i.scopeId) {
-                var cssClass = "sc_" + i.scopeId + "_" + i.name;
-                if (i.declaredBy) {
-                    if (i.isWrite)
-                        this.cw.ident(i.name, cssClass + " write");
-                    else
-                        this.cw.ident(i.name, cssClass);
-                }
+            fn = this.cw.ident;
+        }
+
+        if (i.scopeId) {
+            var cssClass = "sc_" + i.scopeId + "_" + i.name;
+            if (i.declaredBy) {
+                if (i.isWrite)
+                    fn.call(this.cw, i.name, cssClass + " write");
                 else
-                    this.cw.ident(i.name, cssClass + " declr");
-            } else {
-                this.cw.ident(i.name);
+                    fn.call(this.cw, i.name, cssClass);
             }
+            else
+                fn.call(this.cw, i.name, cssClass + " declr");
+        } else {
+            fn.call(this.cw, i.name);
         }
     }
 

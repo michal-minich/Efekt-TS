@@ -149,7 +149,8 @@ class Test {
         };
         var interpreter = new Interpreter(this.logger, this.logger,
                                           this.logger);
-        var evaled = interpreter.run(this.parsed);
+        var sc = new Scope(undefined, combineAsiLists(prelude, this.parsed));
+        var evaled = interpreter.run(sc);
         testReport.addEval(this.code, expected, evaled);
         return this;
     }
