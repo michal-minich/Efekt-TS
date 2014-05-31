@@ -36,7 +36,7 @@ class ShortCircuitFnVisitor implements AstVisitor<boolean> {
 
 
 
-    // helpers
+    // helpers ===============================================
 
 
 
@@ -62,7 +62,7 @@ class ShortCircuitFnVisitor implements AstVisitor<boolean> {
 
 
 
-    // statements
+    // statements ===============================================
 
 
 
@@ -143,7 +143,7 @@ class ShortCircuitFnVisitor implements AstVisitor<boolean> {
 
 
 
-    // expresions
+    // expressions ===============================================
 
 
 
@@ -238,7 +238,13 @@ class ShortCircuitFnVisitor implements AstVisitor<boolean> {
 
 
 
-    // values
+    // values ===============================================
+
+
+
+    visitBuiltin (bi : Builtin) : boolean {
+        return this.visitFn(bi.fn);
+    }
 
 
 
@@ -299,7 +305,7 @@ class ShortCircuitFnVisitor implements AstVisitor<boolean> {
 
 
 
-    // values / types
+    // values / types ===============================================
 
 
 
@@ -314,7 +320,7 @@ class ShortCircuitFnVisitor implements AstVisitor<boolean> {
 
 
 
-    // types (user defined)
+    // types (user defined) ===============================================
 
 
 
@@ -333,7 +339,7 @@ class ShortCircuitFnVisitor implements AstVisitor<boolean> {
 
 
 
-    // types (built in)
+    // types (built in) ===============================================
 
 
 

@@ -4,6 +4,17 @@
 /// <reference path="debugprinter.ts"/>
 
 
+function arrToStr (arr : Arr) : string{
+    var s : string[] = [];
+    var items = arr.list.items;
+    for (var i = 0; i < items.length; ++i)
+        s.push((<Char>items[i]).value);
+    return s.join("");
+}
+
+
+
+
 function asiToString (asi : Asi) : string {
     var sw = new StringWriter();
     var cw = new PlainTextCodeWriter(sw);

@@ -281,6 +281,11 @@ class Namer implements AstVisitor<void> {
 
 
 
+    visitBuiltin (bi : Builtin) : void {
+    }
+
+
+
 
     visitErr (er : Err) : void {
         er.item.accept(this);
@@ -342,8 +347,9 @@ class Namer implements AstVisitor<void> {
 
     visitFn (fn : Fn) : void {
         var prevScope = this.currentScope;
+        if (!fn.body)
+            return;
         this.currentScope = fn.body;
-
         if (fn.params.list) {
             var el = <ExpList>fn.params.list;
             for (var i = 0; i < el.items.length; ++i) {
@@ -357,11 +363,9 @@ class Namer implements AstVisitor<void> {
                 }
             }
         }
-
         if (fn.returnType)
             fn.returnType.accept(this);
         fn.body.accept(this);
-
         this.currentScope = prevScope;
     }
 

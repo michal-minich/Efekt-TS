@@ -358,6 +358,13 @@ class Printer implements AstVisitor<void> {
 
 
 
+    visitBuiltin (bi : Builtin) : void {
+        this.visitFn(bi.fn);
+    }
+
+
+
+
     visitErr (er : Err) : void {
         this.cw.key("error").space().markup("(");
         er.item.accept(this);
@@ -404,10 +411,7 @@ class Printer implements AstVisitor<void> {
 
     visitArr (arr : Arr) : void {
         if (arr.itemType && arr.itemType instanceof TypeChar) {
-            var s = "";
-            for (var i = 0; i < arr.list.items.length; ++i)
-                s += (<Char>arr.list.items[i]).value;
-            this.cw.text('"').text(s).text('"');
+            this.cw.text('"').text(arrToStr(arr)).text('"');;
         } else {
             this.cw.markup("[");
             arr.list.accept(this);
@@ -441,7 +445,8 @@ class Printer implements AstVisitor<void> {
             this.cw.markup("->").space();
             fn.returnType.accept(this);
         }
-        fn.body.accept(this);
+        if (fn.body)
+            fn.body.accept(this);
     }
 
 

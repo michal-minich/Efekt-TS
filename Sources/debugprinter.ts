@@ -353,10 +353,19 @@ class DebugPrinter implements AstVisitor<void> {
 
 
 
+    visitBuiltin (bi : Builtin) : void {
+        this.cw.key("Builtin").tab().newLine().markup("fn").space();
+        this.visitFn(bi.fn);
+        this.cw.unTab();
+    }
+
+
+
+
     visitErr (er : Err) : void {
-        this.cw.key("error").space().markup("(");
+        this.cw.key("Error").tab().newLine().markup("item").space();
         er.item.accept(this);
-        this.cw.markup(")");
+        this.cw.unTab();
     }
 
 
@@ -436,8 +445,10 @@ class DebugPrinter implements AstVisitor<void> {
             this.cw.markup("returnType").space();
             fn.returnType.accept(this);
         }
-        this.cw.newLine().markup("body").space();
-        fn.body.accept(this);
+        if (fn.body) {
+            this.cw.newLine().markup("body").space();
+            fn.body.accept(this);
+        }
         this.cw.unTab();
     }
 

@@ -584,6 +584,31 @@ class TypeOf extends Exp {
 
 
 
+interface BuiltinFn {
+    (args : Exp[]) : Exp;
+}
+
+
+class Builtin extends Exp {
+
+    public fn : Fn;
+    public impl : BuiltinFn;
+
+    constructor (fn : Fn, impl : BuiltinFn) {
+        super(undefined);
+        this.fn = fn;
+        fn.parent = this;
+        this.impl = impl;
+    }
+
+    accept<T> (v : AstVisitor<T>) : T {
+        return v.visitBuiltin(this);
+    }
+}
+
+
+
+
 class Err extends Exp {
 
     public item : Asi;
@@ -738,9 +763,11 @@ class Fn extends Exp {
     constructor (attrs : ExpList, params : Braced, body : Scope) {
         super(attrs);
         this.params = params;
-        this.body = body;
         params.parent = this;
-        body.parent = this;
+        if (this.body) {
+            this.body = body;
+            body.parent = this;
+        }
     }
 
     accept<T> (v : AstVisitor<T>) : T {

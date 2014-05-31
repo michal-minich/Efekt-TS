@@ -4,15 +4,6 @@
 /// <reference path="writer.ts"/>
 /// <reference path="printer.ts"/>
 /// <reference path="builtin.ts"/>
-
-
-
-
-interface BuiltinFn {
-    (params : Exp[]) : Exp;
-}
-
-
 interface BinFn {
     (a : Exp, b : Exp) : Exp;
 }
@@ -390,6 +381,11 @@ class Interpreter implements AstVisitor<Exp> {
         }
 
         var exp = fna.fn.accept(this);
+
+        if (exp instanceof Builtin) {
+            return exp.impl(args);
+        }
+
         if (exp instanceof Fn) {
             var fn = <Fn>exp;
             for (var i = 0; i < args.length; ++i) {
@@ -487,6 +483,12 @@ class Interpreter implements AstVisitor<Exp> {
 
 
 
+    visitBuiltin (bi : Builtin) : Builtin {
+        return bi;
+    }
+
+
+
     visitErr (er : Err) : Err {
         return er;
     }
@@ -548,7 +550,21 @@ class Interpreter implements AstVisitor<Exp> {
 
 
 
-    visitFn (fn : Fn) : Fn {
+    visitFn (fn : Fn) : Exp {
+        if (!fn.body) {
+            for (var i = 0; i < fn.attrs.items.length; i++) {
+                var attr = fn.attrs.items[i];
+                if (attr instanceof FnApply) {
+                    var fnAttr = <FnApply>attr;
+                    if (fnAttr.fn instanceof Ident &&
+                        (<Ident>fnAttr.fn).name == "@builtin") {
+                        var name = arrToStr(<Arr>fnAttr.args.list.items[0]);
+                        return new Builtin(fn, builtins[name]);
+                    }
+                }
+            }
+            return fn;
+        }
         var f = new Fn(undefined, fn.params,
                        new Scope(undefined,
                                  new AsiList(undefined, fn.body.list.items)));

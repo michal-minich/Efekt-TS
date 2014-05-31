@@ -1,6 +1,26 @@
 /// <reference path="common.ts"/>
 /// <reference path="ast.ts"/>
 
+interface BuiltinsList {
+    [fnName : string] : BuiltinFn;
+}
+
+var builtins : BuiltinsList = {
+    'print': function (args : Exp[]) {
+        var outputView = <HTMLPreElement>$id("outputView");
+        var outputAstView = <HTMLPreElement>$id("outputAstView");
+        for (var i = 0; i < args.length; ++i) {
+            outputView.innerHTML += asiToHtmlString(args[i]) +
+                "<br>";
+            outputAstView.innerHTML += asiToAstString(args[i]) +
+                "<br>";
+        }
+        return Void.instance;
+    }
+};
+
+
+
 class BuiltIns {
 
     static fn (name : string) : BuiltinFn {

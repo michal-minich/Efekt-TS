@@ -34,6 +34,7 @@ interface AstVisitor<T> extends TerminalAstVisitor<T> {
     visitTypeOf (tof : TypeOf) : T;
 
     // values
+    visitBuiltin (bi : Builtin) : T;
     visitErr (er : Err) : T;
     //visitVoid (vo : Void) : T;
     //visitBool (b : Bool) : T;
