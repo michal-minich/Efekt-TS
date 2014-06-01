@@ -230,7 +230,8 @@ class Namer implements AstVisitor<void> {
 
     visitMember (m : Member) : void {
         m.bag.accept(this);
-        m.ident.accept(this);
+        // solve aliasing :)
+        // m.ident.accept(this);
     }
 
 

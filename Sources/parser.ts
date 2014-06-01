@@ -32,16 +32,16 @@ class BinOpBuilder {
         "*": 130, "/": 130, "%": 130,
         "+": 120, "-": 120,
         "<<": 110, ">>": 110,
-        "<": 100, ">": 90, ">=": 80, "<=": 70,
+        "<": 100, ">": 100, ">=": 100, "<=": 100,
         "==": 60, "!=": 60,
         "&": 50,
         "^": 40,
         "|": 30,
         "&&": 20, "and": 20,
         "||": 10, "or": 10,
-        ",": 5,
         "=": 3, "*=": 3, "/=": 3, "%=": 3, "+=": 3, "-=": 3, "<<=": 3, ">>=": 3,
-        "&==": 3, "^=": 3, "|=": 3
+        "&==": 3, "^=": 3, "|=": 3,
+        ",": 2
     };
 
     private logger : LogWritter;
@@ -97,7 +97,9 @@ class BinOpBuilder {
             for (var i = opOp.length - 1; i !== 0; --i) {
                 var op = opOp[i];
                 var opPrev = opOp[i - 1];
-                if (!right.contains(opPrev) && prec[op] <= prec[opPrev])
+                if ((op != opPrev
+                    && right.contains(opPrev) && right.contains(op))
+                    || prec[op] <= prec[opPrev])
                     continue;
                 opExp[i] = this.combineExp(op, opExp[i], opExp[i + 1]);
                 opExp.removeAt(i + 1);
@@ -286,9 +288,9 @@ class Parser {
 
     private parseVar () : Var {
         var v = this.parseSimpleKeyword<Var>(Var, true);
-        if (!(v.exp instanceof Ident || v.exp instanceof Assign
+        /*if (!(v.exp instanceof Ident || v.exp instanceof Assign
             || v.exp instanceof ValueVar || v.exp instanceof TypeVar))
-            this.logger.error("Expected identifier after var.");
+            this.logger.error("Expected identifier after var.");*/
         return v;
     }
 

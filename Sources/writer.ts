@@ -159,7 +159,7 @@ class OutputLogger implements Logger, ExceptionHandler, OutputWriter {
 
     fatal (msg : string) : void {
         this.log('fatal', msg);
-        throw msg;
+        //throw msg;
     }
 
     error (msg : string) : void {
@@ -210,7 +210,7 @@ class ConsoleLogger implements LogWritter, ExceptionHandler, OutputWriter {
 
     fatal (msg : string) : void {
         this.log('fatal', msg);
-        throw msg;
+        //throw msg;
     }
 
     error (msg : string) : void {
