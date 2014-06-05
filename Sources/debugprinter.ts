@@ -19,7 +19,7 @@ class DebugPrinter implements AstVisitor<void> {
 
 
 
-    private writeList (items : Asi[]) : CodeWriter {
+    private items (items : Asi[]) : CodeWriter {
         this.cw.tab().newLine().markup("items");
         if (items.length === 0) {
             this.cw.space().markup("&lt;empty&gt;");
@@ -32,14 +32,13 @@ class DebugPrinter implements AstVisitor<void> {
             if (i + 1 !== items.length)
                 this.cw.newLine();
         }
-        this.cw.unTab();
-        return this.cw;
+        return this.cw.unTab().tab();
     }
 
 
 
 
-    private printKey (name : string, asi : Asi) : CodeWriter {
+    private key (name : string, asi : Asi) : DebugPrinter {
         this.cw.key(name);
         return this.printCommon(asi);
     }
@@ -47,7 +46,7 @@ class DebugPrinter implements AstVisitor<void> {
 
 
 
-    private printType (name : string, asi : Asi) : CodeWriter {
+    private type (name : string, asi : Asi) : DebugPrinter {
         this.cw.type(name);
         return this.printCommon(asi);
     }
@@ -55,21 +54,22 @@ class DebugPrinter implements AstVisitor<void> {
 
 
 
-    private printField (name : string, asi : Asi) : CodeWriter {
+    private field (name : string, asi : Asi) : DebugPrinter {
         this.cw.tab().newLine().markup(name).space();
         asi.accept(this);
-        return this.cw.unTab();
+        this.cw.unTab();
+        return this;
     }
 
 
 
 
-    private printCommon (asi : Asi) : CodeWriter {
+    private printCommon (asi : Asi) : DebugPrinter {
         if (asi.attrs)
-            this.printField("attrs", asi.attrs);
+            this.field("attrs", asi.attrs);
         if (asi.type && !(asi.type instanceof TypeVoid))
-            this.printField("typeVar", asi.type);
-        return this.cw;
+            this.field("typeVar", asi.type);
+        return this;
     }
 
 
@@ -81,18 +81,14 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitAsiList (al : AsiList) : void {
-        this.printKey("AsiList", al);
-        this.writeList(al.items);
-        this.cw.unTab();
+        this.key("AsiList", al).items(al.items);
     }
 
 
 
 
     visitExpList (el : ExpList) : void {
-        this.printKey("ExpList", el);
-        this.writeList(el.items);
-        this.cw.unTab();
+        this.key("ExpList", el).items(el.items);
     }
 
 
@@ -102,8 +98,7 @@ class DebugPrinter implements AstVisitor<void> {
         if (this.invisibleBraced && bc.list.items.length === 1) {
             bc.list.items[0].accept(this);
         } else {
-            this.printKey("Braced", bc);
-            this.printField("value", bc.list);
+            this.key("Braced", bc).field("value", bc.list);
         }
     }
 
@@ -116,84 +111,76 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitLoop (l : Loop) : void {
-        this.printKey("Loop", l);
-        this.printField("body", l.body);
+        this.key("Loop", l).field("body", l.body);
     }
 
 
 
 
     visitBreak (b : Break) : void {
-        this.printKey("Break", b);
+        this.key("Break", b);
     }
 
 
 
 
     visitContinue (c : Continue) : void {
-        this.printKey("Continue", c);
+        this.key("Continue", c);
     }
 
 
 
 
     visitLabel (lb : Label) : void {
-        this.printKey("Label", lb);
-        this.printField("ident", lb.ident);
+        this.key("Label", lb).field("ident", lb.ident);
     }
 
 
 
 
     visitGoto (gt : Goto) : void {
-        this.printKey("Goto", gt);
-        this.printField("ident", gt.ident);
+        this.key("Goto", gt).field("ident", gt.ident);
     }
 
 
 
 
     visitImport (im : Import) : void {
-        this.printKey("Import", im);
-        this.printField("value", im.value);
+        this.key("Import", im).field("value", im.value);
     }
 
 
 
 
     visitReturn (r : Return) : void {
-        this.printKey("Return", r);
+        this.key("Return", r);
         if (r.value)
-            this.printField("value", r.value);
+            this.field("value", r.value);
     }
 
 
 
 
     visitThrow (th : Throw) : void {
-        this.printKey("Throw", th);
+        this.key("Throw", th);
         if (th.ex)
-            this.printField("ex", th.ex);
+            this.field("ex", th.ex);
     }
 
 
 
 
     visitTry (tr : Try) : void {
-        this.printKey("Try", tr);
-        this.printField("body", tr.body);
+        this.key("Try", tr).field("body", tr.body);
         if (tr.catches) {
             for (var i = 0; i < tr.catches.length; i++) {
                 var c = tr.catches[i];
-                if (c.on) {
-                    this.printField("on", c.on);
-                    this.printField("body", c.body);
-                }
+                if (c.on)
+                    this.field("on", c.on).field("body", c.body);
             }
         }
-
         if (tr.fin)
-            this.printField("fin", tr.fin);
+            this.field("fin", tr.fin);
     }
 
 
@@ -205,50 +192,47 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitVar (v : Var) : void {
-        this.printKey("Var", v);
-        this.printField("exp", v.exp);
+        this.key("Var", v).field("exp", v.exp);
     }
 
 
 
 
     visitValueVar (vv : ValueVar) : void {
-        this.printKey("Var", vv);
-        this.printField("ident", vv.ident);
-        this.printField("typeVar", vv.typeVar);
+        this.key("Var", vv)
+            .field("ident", vv.ident)
+            .field("typeVar", vv.typeVar);
     }
 
 
 
 
     visitTypeVar (tv : TypeVar) : void {
-        this.printKey("TypeVar", tv);
-        this.printField("typeVar", tv.typeVar);
-        this.printField("constraint", tv.constraint);
+        this.key("TypeVar", tv)
+            .field("typeVar", tv.typeVar)
+            .field("constraint", tv.constraint);
     }
 
 
 
 
     visitAssign (a : Assign) : void {
-        this.printKey("Assign", a);
-        this.printField("slot", a.slot);
-        this.printField("value", a.value);
+        this.key("Assign", a).field("slot", a.slot).field("value", a.value);
     }
 
 
 
 
     visitScope (sc : Scope) : void {
-        this.printKey("Scope", sc);
-        this.printField("list", sc.list);
+        this.key("Scope", sc).field("items", sc.list);
     }
 
 
 
 
     visitIdent (i : Ident) : void {
-        this.printKey("Ident", i).tab().newLine();
+        this.key("Ident", i);
+        this.cw.tab().newLine();
         this.cw.markup("name").space();
         if (i.isOp)
             this.cw.writeOp(i.name);
@@ -267,55 +251,47 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitMember (m : Member) : void {
-        this.printKey("Member", m);
-        this.printField("bag", m.ident);
-        this.printField("ident", m.ident);
+        this.key("Member", m).field("bag", m.ident).field("ident", m.ident);
     }
 
 
 
 
     visitFnApply (fna : FnApply) : void {
-        this.printKey("FnApply", fna);
-        this.printField("fn", fna.fn);
-        this.printField("args", fna.args);
+        this.key("FnApply", fna).field("fn", fna.fn).field("args", fna.args);
     }
 
 
 
 
     visitBinOpApply (opa : BinOpApply) : void {
-        this.printKey("BinOpApply", opa);
-        this.printField("op", opa.op);
-        this.printField("op1", opa.op1);
-        this.printField("op2", opa.op2);
+        this.key("BinOpApply", opa)
+            .field("op", opa.op)
+            .field("op1", opa.op1)
+            .field("op2", opa.op2);
     }
 
 
 
 
     visitIf (i : If) : void {
-        this.printKey("If", i);
-        this.printField("test", i.test);
-        this.printField("then", i.then);
+        this.key("If", i).field("test", i.test).field("then", i.then);
         if (i.otherwise)
-            this.printField("otherwise", i.otherwise);
+            this.field("otherwise", i.otherwise);
     }
 
 
 
 
     visitNew (nw : New) : void {
-        this.printKey("New", nw);
-        this.printField("value", nw.value);
+        this.key("New", nw).field("value", nw.value);
     }
 
 
 
 
     visitTypeOf (tof : TypeOf) : void {
-        this.printKey("TypeOf", tof);
-        this.printField("value", tof.value);
+        this.key("TypeOf", tof).field("value", tof.value);
     }
 
 
@@ -327,23 +303,21 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitBuiltin (bi : Builtin) : void {
-        this.printKey("Builtin", bi);
-        this.printField("fn", bi.fn);
+        this.key("Builtin", bi).field("fn", bi.fn);
     }
 
 
 
 
     visitErr (er : Err) : void {
-        this.printKey("Error", er);
-        this.printField("item", er.item);
+        this.key("Error", er).field("item", er.item);
     }
 
 
 
 
     visitVoid (vo : Void) : void {
-        this.printKey("Void", vo);
+        this.key("Void", vo);
         this.printCommon(vo);
     }
 
@@ -351,7 +325,8 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitBool (b : Bool) : void {
-        this.printKey("Bool", b).tab().newLine().markup("value")
+        this.key("Bool", b);
+        this.cw.tab().newLine().markup("value").space()
             .key(b.value === true ? "true" : "false").unTab();
     }
 
@@ -359,7 +334,8 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitInt (ii : Int) : void {
-        this.printKey("Int", ii).tab().newLine().markup("value")
+        this.key("Int", ii);
+        this.cw.tab().newLine().markup("value").space()
             .num(ii.value).unTab();
     }
 
@@ -367,7 +343,8 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitFloat (f : Float) : void {
-        this.printKey("Float", f).tab().newLine().markup("value")
+        this.key("Float", f);
+        this.cw.tab().newLine().markup("value").space()
             .num(f.value).unTab();
     }
 
@@ -375,7 +352,8 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitChar (ch : Char) : void {
-        this.printKey("Char", ch).tab().newLine().markup("value")
+        this.key("Char", ch);
+        this.cw.tab().newLine().markup("value").space()
             .text("'").text(ch.value).text("'").unTab();
     }
 
@@ -383,16 +361,14 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitArr (arr : Arr) : void {
-        this.printKey("Arr", arr);
-        this.printField("list", arr.list);
+        this.key("Arr", arr).field("items", arr.list);
     }
 
 
 
 
     visitRef (rf : Ref) : void {
-        this.printKey("Ref", rf);
-        this.printField("item", rf.item);
+        this.key("Ref", rf).field("item", rf.item);
     }
 
 
@@ -404,12 +380,11 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitFn (fn : Fn) : void {
-        this.printKey("Fn", fn);
-        this.printField("params", fn.params);
+        this.key("Fn", fn).field("params", fn.params);
         if (fn.returnType)
-            this.printField("returnType", fn.returnType);
+            this.field("returnType", fn.returnType);
         if (fn.body)
-            this.printField("body", fn.body);
+            this.field("body", fn.body);
     }
 
 
@@ -421,15 +396,13 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitStruct (st : Struct) : void {
-        this.printKey("Struct", st);
-        this.printField("body", st.body);
+        this.key("Struct", st).field("body", st.body);
     }
 
 
 
     visitInterface (ifc : Interface) : void {
-        this.printKey("Interface", ifc);
-        this.printField("body", ifc.body);
+        this.key("Interface", ifc).field("body", ifc.body);
     }
 
 
@@ -441,74 +414,71 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitTypeAny (ta : TypeAny) : void {
-        this.printType("TypeAny", ta);
+        this.type("TypeAny", ta);
     }
 
 
 
 
     visitTypeAnyOf (tao : TypeAnyOf) : void {
-        this.printType("TypeAnyOf", tao);
-        this.printField("choices", tao.choices);
+        this.type("TypeAnyOf", tao).field("choices", tao.choices);
     }
 
 
 
 
     visitTypeErr (te : TypeErr) : void {
-        this.printType("TypeErr", te);
-        this.printField("elementType", te.elementType);
+        this.type("TypeErr", te).field("elementType", te.elementType);
     }
 
 
 
 
     visitTypeVoid (tvo : TypeVoid) : void {
-        this.printType("TypeVoid", tvo);
+        this.type("TypeVoid", tvo);
     }
 
 
 
 
     visitTypeBool (tb : TypeBool) : void {
-        this.printType("TypeBool", tb);
+        this.type("TypeBool", tb);
     }
 
 
 
 
     visitTypeInt (tii : TypeInt) : void {
-        this.printType("TypeInt", tii);
+        this.type("TypeInt", tii);
     }
 
 
 
 
     visitTypeFloat (tf : TypeFloat) : void {
-        this.printType("TypeFloat", tf);
+        this.type("TypeFloat", tf);
     }
 
 
 
 
     visitTypeChar (tch : TypeChar) : void {
-        this.printType("TypeChar", tch);
+        this.type("TypeChar", tch);
     }
 
 
 
 
     visitTypeArr (tarr : TypeArr) : void {
-        this.printType("TypeArr", tarr);
-        this.printField("elementType", tarr.elementType);
-        this.printField("length", tarr.length);
+        this.type("TypeArr", tarr)
+            .field("elementType", tarr.elementType)
+            .field("length", tarr.length);
     }
 
 
 
 
     visitTypeRef (trf : TypeRef) : void {
-        this.printType("TypeRef", trf);
-        this.printField("elementType", trf.elementType);
+        this.type("TypeRef", trf).field("elementType", trf.elementType);
     }
 }
