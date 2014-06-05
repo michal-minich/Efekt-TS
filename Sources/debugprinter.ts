@@ -19,11 +19,11 @@ class DebugPrinter implements AstVisitor<void> {
 
 
 
-    private writeList (items : Asi[]) {
+    private writeList (items : Asi[]) : CodeWriter {
         this.cw.markup("items");
         if (items.length === 0) {
             this.cw.space().markup("&lt;empty&gt;");
-            return;
+            return this.cw;
         }
         this.cw.tab().newLine();
         for (var i = 0; i < items.length; i++) {
@@ -33,17 +33,26 @@ class DebugPrinter implements AstVisitor<void> {
                 this.cw.newLine();
         }
         this.cw.unTab();
+        return this.cw;
     }
 
 
 
 
-    private printAttributes (asi : Asi) : void {
+    private printCommon (asi : Asi) : CodeWriter {
+        if (asi.attrs || asi.type)
+            this.cw.tab().newLine();
         if (asi.attrs) {
-            this.cw.markup("attrs").space().key("AsiList").tab().newLine();
-            this.writeList(asi.attrs.items);
-            this.cw.unTab().newLine();
+            this.cw.markup("attrs").space();
+            this.visitAsiList(asi.attrs);
+            this.cw.newLine();
         }
+        if (asi.type) {
+            this.cw.markup("typeVar").space();
+            asi.type.accept(this);
+            this.cw.newLine();
+        }
+        return this.cw;
     }
 
 
@@ -204,7 +213,7 @@ class DebugPrinter implements AstVisitor<void> {
 
     visitVar (v : Var) : void {
         this.cw.key("Var").tab().newLine();
-        this.printAttributes(v);
+        this.printCommon(v);
         this.cw.markup("exp").space();
         v.exp.accept(this);
         this.cw.unTab();
@@ -214,11 +223,11 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitValueVar (vv : ValueVar) : void {
-        this.cw.key("ValueVar").tab();
-        this.cw.newLine().markup("ident").space();
+        this.cw.key("ValueVar").tab().newLine();
+        this.printCommon(vv).markup("ident").space();
         vv.ident.accept(this);
-        this.cw.newLine().markup("type").space();
-        vv.type.accept(this);
+        this.cw.newLine().markup("typeVar").space();
+        vv.typeVar.accept(this);
         this.cw.unTab();
     }
 
@@ -226,9 +235,9 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitTypeVar (tv : TypeVar) : void {
-        this.cw.key("TypeVar").tab();
-        this.cw.newLine().markup("type").space();
-        tv.type.accept(this);
+        this.cw.key("TypeVar").tab().newLine();
+        this.printCommon(tv).markup("typeVar").space();
+        tv.typeVar.accept(this);
         this.cw.newLine().markup("constraint").space();
         tv.constraint.accept(this);
         this.cw.unTab();
@@ -238,8 +247,8 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitAssign (a : Assign) : void {
-        this.cw.key("Assign").tab();
-        this.cw.newLine().markup("slot").space();
+        this.cw.key("Assign").tab().newLine();
+        this.printCommon(a).markup("slot").space();
         a.slot.accept(this);
         this.cw.newLine().markup("value").space();
         a.value.accept(this);
@@ -251,7 +260,7 @@ class DebugPrinter implements AstVisitor<void> {
 
     visitScope (sc : Scope) : void {
         this.cw.key("Scope").tab().newLine();
-        this.printAttributes(sc);
+        this.printCommon(sc);
         this.cw.markup("list").space();
         sc.list.accept(this);
         this.cw.unTab();
@@ -262,7 +271,7 @@ class DebugPrinter implements AstVisitor<void> {
 
     visitIdent (i : Ident) : void {
         this.cw.key("Ident").tab().newLine();
-        this.printAttributes(i);
+        this.printCommon(i);
         this.cw.markup("name").space();
         if (i.isOp)
             this.cw.writeOp(i.name);
@@ -281,7 +290,8 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitMember (m : Member) : void {
-        this.cw.key("Member").tab().newLine().markup("bag").space();
+        this.cw.key("Member").tab().newLine();
+        this.printCommon(m).markup("bag").space();
         m.bag.accept(this);
         this.cw.newLine().markup("ident").space();
         this.visitIdent(m.ident);
@@ -292,7 +302,8 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitFnApply (fna : FnApply) : void {
-        this.cw.key("FnApply").tab().newLine().markup("fn").space();
+        this.cw.key("FnApply").tab().newLine();
+        this.printCommon(fna).markup("fn").space();
         fna.fn.accept(this);
         this.cw.newLine().markup("args").space();
         fna.args.accept(this);
@@ -303,7 +314,8 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitBinOpApply (opa : BinOpApply) : void {
-        this.cw.key("BinOpApply").tab().newLine().markup("op").space();
+        this.cw.key("BinOpApply").tab().newLine();
+        this.printCommon(opa).markup("op").space();
         opa.op.accept(this);
         this.cw.newLine().markup("op1").space();
         opa.op1.accept(this);
@@ -316,7 +328,8 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitIf (i : If) : void {
-        this.cw.key("If").tab().newLine().markup("test").space();
+        this.cw.key("If").tab().newLine();
+        this.printCommon(i).markup("test").space();
         i.test.accept(this);
         this.cw.newLine().markup("then").space();
         this.visitScope(i.then);
@@ -331,18 +344,20 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitNew (nw : New) : void {
-        this.cw.key("New").tab().newLine().markup("value").space();
+        this.cw.key("New").tab().newLine();
+        this.printCommon(nw).markup("value").space();
         nw.value.accept(this);
-        this.cw.unTab();
+        this.printCommon(nw).unTab();
     }
 
 
 
 
     visitTypeOf (tof : TypeOf) : void {
-        this.cw.key("TypeOf").tab().newLine().markup("value").space();
+        this.cw.key("TypeOf").tab().newLine();
+        this.printCommon(tof).markup("value").space();
         tof.value.accept(this);
-        this.cw.unTab();
+        this.printCommon(tof).unTab();
     }
 
 
@@ -354,7 +369,8 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitBuiltin (bi : Builtin) : void {
-        this.cw.key("Builtin").tab().newLine().markup("fn").space();
+        this.cw.key("Builtin").tab().newLine();
+        this.printCommon(bi).markup("fn").space();
         this.visitFn(bi.fn);
         this.cw.unTab();
     }
@@ -363,7 +379,8 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitErr (er : Err) : void {
-        this.cw.key("Error").tab().newLine().markup("item").space();
+        this.cw.key("Error").tab().newLine();
+        this.printCommon(er).markup("item").space();
         er.item.accept(this);
         this.cw.unTab();
     }
@@ -372,14 +389,16 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitVoid (vo : Void) : void {
-        this.cw.key("Void");
+        this.cw.key("Void").tab().newLine();
+        this.printCommon(vo);
     }
 
 
 
 
     visitBool (b : Bool) : void {
-        this.cw.key("Bool").tab().newLine().markup("value").space();
+        this.cw.key("Bool").tab().newLine();
+        this.printCommon(b).markup("value").space();
         this.cw.key(b.value === true ? "true" : "false");
         this.cw.unTab();
     }
@@ -388,8 +407,9 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitInt (ii : Int) : void {
-        this.cw.key("Int").tab().newLine().markup("value")
-            .space().num(ii.value).unTab();
+        this.cw.key("Int").tab().newLine();
+        this.printCommon(ii).markup("value").space().num(ii.value);
+        this.cw.unTab();
     }
 
 
@@ -404,7 +424,8 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitChar (ch : Char) : void {
-        this.cw.key("Char").tab().newLine().markup("value")
+        this.cw.key("Char").tab().newLine();
+        this.printCommon(ch).markup("value")
             .text("'").text(ch.value).text("'").unTab();
     }
 
@@ -412,7 +433,8 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitArr (arr : Arr) : void {
-        this.cw.key("Arr").tab().newLine().markup("list").space();
+        this.cw.key("Arr").tab().newLine();
+        this.printCommon(arr).markup("list").space();
         this.visitAsiList(arr.list);
         this.cw.unTab();
     }
@@ -421,10 +443,9 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitRef (rf : Ref) : void {
-        this.cw.key("Ref").space().tab().newLine().markup("item").space();
+        this.cw.key("Ref").tab().newLine();
+        this.printCommon(rf).markup("item").space();
         rf.item.accept(this);
-        //this.cw.newLine().markup("scope").space();
-        //rf.scope.accept(this);
     }
 
 
@@ -437,7 +458,7 @@ class DebugPrinter implements AstVisitor<void> {
 
     visitFn (fn : Fn) : void {
         this.cw.key("Fn").tab().newLine();
-        this.printAttributes(fn);
+        this.printCommon(fn);
         this.cw.markup("params").space();
         fn.params.accept(this);
         this.cw.space();
@@ -462,7 +483,7 @@ class DebugPrinter implements AstVisitor<void> {
 
     visitStruct (st : Struct) : void {
         this.cw.key("Struct").tab().newLine();
-        this.printAttributes(st);
+        this.printCommon(st);
         this.cw.markup("body").space();
         st.body.accept(this);
         this.cw.unTab();
@@ -472,7 +493,7 @@ class DebugPrinter implements AstVisitor<void> {
 
     visitInterface (ifc : Interface) : void {
         this.cw.key("Interface").tab().newLine();
-        this.printAttributes(ifc);
+        this.printCommon(ifc);
         this.cw.markup("body").space();
         ifc.body.accept(this);
         this.cw.unTab();
@@ -487,14 +508,16 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitTypeAny (ta : TypeAny) : void {
-        this.cw.type("Any");
+        this.cw.type("Any").tab().newLine();
+        this.printCommon(ta);
     }
 
 
 
 
     visitTypeAnyOf (tao : TypeAnyOf) : void {
-        this.cw.type("AnyOf");
+        this.cw.type("AnyOf").tab().newLine();
+        this.printCommon(tao);
         tao.choices.accept(this);
     }
 
@@ -502,61 +525,69 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitTypeErr (te : TypeErr) : void {
-        this.cw.type("Error");
+        this.cw.type("Error").tab().newLine();
+        this.printCommon(te);
     }
 
 
 
 
     visitTypeVoid (tvo : TypeVoid) : void {
-        this.cw.type("Void");
+        this.cw.type("Void").tab().newLine();
+        this.printCommon(tvo);
     }
 
 
 
 
     visitTypeBool (tb : TypeBool) : void {
-        this.cw.type("Bool");
+        this.cw.type("Bool").tab().newLine();
+        this.printCommon(tb);
     }
 
 
 
 
     visitTypeInt (tii : TypeInt) : void {
-        this.cw.type("Int");
+        this.cw.type("Int")
+        this.printCommon(tii);
     }
 
 
 
 
     visitTypeFloat (tf : TypeFloat) : void {
-        this.cw.type("Float");
+        this.cw.type("Float").tab().newLine();
+        this.printCommon(tf);
     }
 
 
 
 
     visitTypeChar (tch : TypeChar) : void {
-        this.cw.type("Char");
+        this.cw.type("Char").tab().newLine();
+        this.printCommon(tch);
     }
 
 
 
 
     visitTypeArr (tarr : TypeArr) : void {
-        this.cw.type("Array").markup("(");
+        this.cw.type("Array").tab().newLine();
+        this.printCommon(tarr).markup("elementType").space();
         tarr.elementType.accept(this);
-        this.cw.type(",").space();
+        this.cw.markup("length").space();
         tarr.length.accept(this);
-        this.cw.markup(")");
+        this.cw.unTab();
     }
 
 
 
 
     visitTypeRef (trf : TypeRef) : void {
-        this.cw.type("Ref").markup("(");
+        this.cw.type("Ref").tab().newLine();
+        this.printCommon(trf).markup("elementType").space();
         trf.elementType.accept(this);
-        this.cw.markup(")");
+        this.cw.unTab();
     }
 }

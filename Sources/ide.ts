@@ -6,6 +6,7 @@
 /// <reference path="parser.ts"/>
 /// <reference path="interpreter.ts"/>
 /// <reference path="namer.ts"/>
+/// <reference path="typer.ts"/>
 /// <reference path="prelude.ts"/>
 
 
@@ -19,6 +20,7 @@ class Ide {
     static outputLogger : OutputLogger;
     static parser : Parser;
     static namer : Namer;
+    static typer : Typer;
     static interpreter : Interpreter;
 
 
@@ -37,6 +39,7 @@ class Ide {
                                             Ide.outputAstView);
         Ide.parser = new Parser(Ide.outputLogger);
         Ide.namer = new Namer(Ide.outputLogger);
+        Ide.typer = new Typer(Ide.outputLogger);
         Ide.interpreter = new Interpreter(Ide.outputLogger,
                                           Ide.outputLogger,
                                           Ide.outputLogger);
@@ -53,6 +56,13 @@ class Ide {
             Ide.doWithExceptionHandling(()=> {
                 Ide.outputLogger.clear();
                 Ide.usages(codeEdit.value);
+            });
+        });
+
+        $id("typeButton").addEventListener('click', () => {
+            Ide.doWithExceptionHandling(()=> {
+                Ide.outputLogger.clear();
+                Ide.doType(codeEdit.value);
             });
         });
 
@@ -97,6 +107,18 @@ class Ide {
         var al = Ide.parser.parse(code);
         var sc = new Scope(undefined, combineAsiLists(prelude, al));
         sc.accept(Ide.namer);
+        Ide.outputView.show(sc.list);
+        Ide.outputAstView.show(sc.list);
+    }
+
+
+
+
+    static doType (code : string) {
+        var al = Ide.parser.parse(code);
+        var sc = new Scope(undefined, al);
+        //sc.accept(Ide.namer);
+        al.accept(Ide.typer);
         Ide.outputView.show(sc.list);
         Ide.outputAstView.show(sc.list);
     }

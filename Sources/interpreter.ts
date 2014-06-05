@@ -242,7 +242,7 @@ class Interpreter implements AstVisitor<Exp> {
 
 
     visitTypeVar (tv : TypeVar) : Exp {
-        return tv.type;
+        return tv.typeVar;
     }
 
 
@@ -285,10 +285,11 @@ class Interpreter implements AstVisitor<Exp> {
 
 
     private static copyStruct (s : Struct) : Struct {
-        var sc = new Scope(s.body.attrs, s.body.list);
+        var sc = new Scope(s.body.attrs ? s.body.attrs : undefined,
+                           s.body.list);
         for (var key in s.body.vars)
             sc.vars[key] = s.body.vars[key];
-        var c = new Struct(s.attrs, sc);
+        var c = new Struct(s.attrs ? s.attrs : undefined, sc);
         return c;
     }
 
@@ -412,7 +413,7 @@ class Interpreter implements AstVisitor<Exp> {
         else if (e instanceof ValueVar)
             return Interpreter.getName((<ValueVar>e).ident);
         else if (e instanceof TypeVar)
-            return Interpreter.getName((<TypeVar>e).type);
+            return Interpreter.getName((<TypeVar>e).typeVar);
         else
             throw "exp has no name";
     }

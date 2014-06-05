@@ -8,6 +8,6 @@ function start () {
 
     Ide.init();
 
-    Ide.usages((<HTMLTextAreaElement>$id("codeEdit")).value);
+    Ide.doType((<HTMLTextAreaElement>$id("codeEdit")).value);
 }
 

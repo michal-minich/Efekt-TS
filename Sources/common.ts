@@ -34,8 +34,7 @@ function asiToString (asi : Asi) : string {
     var cw = new PlainTextCodeWriter(sw);
     var p = new Printer(cw);
     asi.accept(p);
-    var str = sw.getString();
-    return str;
+    return sw.getString();
 }
 
 
@@ -46,8 +45,7 @@ function asiToHtmlAstString (asi : Asi, invisibleBraced = false) : string {
     var cw = new HtmlCodeWriter(sw);
     var p = new DebugPrinter(cw, invisibleBraced);
     asi.accept(p);
-    var str = sw.getString();
-    return str;
+    return sw.getString();
 }
 
 
@@ -58,8 +56,7 @@ function asiToHtmlString (asi : Asi) : string {
     var cw = new HtmlCodeWriter(sw);
     var p = new Printer(cw);
     asi.accept(p);
-    var str = sw.getString();
-    return str;
+    return sw.getString();
 }
 
 
@@ -90,8 +87,7 @@ function asiToAstString (asi : Asi, invisibleBraced = false) : string {
     var cw = new HtmlCodeWriter(sw);
     var p = new DebugPrinter(cw, invisibleBraced);
     asi.accept(p);
-    var str = sw.getString();
-    return str;
+    return sw.getString();
 }
 
 

@@ -29,12 +29,24 @@ class Printer implements AstVisitor<void> {
 
 
 
-    private printAttributes (asi : Asi) : void {
+    private printAttributes (asi : Asi) : CodeWriter {
         if (asi.attrs)
             for (var i = 0; i < asi.attrs.items.length; ++i) {
                 asi.attrs.items[i].accept(this);
                 this.cw.space();
             }
+        return this.cw;
+    }
+
+
+
+
+    private printType (asi : Asi) : CodeWriter {
+        if (asi.type) {
+            this.cw.space().markup(":").space();
+            asi.type.accept(this);
+        }
+        return this.cw;
     }
 
 
@@ -53,6 +65,7 @@ class Printer implements AstVisitor<void> {
                 this.cw.newLine();
             }
         }
+        this.printType(al);
     }
 
 
@@ -64,6 +77,7 @@ class Printer implements AstVisitor<void> {
             if (i < el.items.length - 1)
                 this.cw.markup(',').space();
         }
+        this.printType(el);
     }
 
 
@@ -78,6 +92,7 @@ class Printer implements AstVisitor<void> {
         bc.list.accept(this);
         if (showBraces)
             this.cw.markup(')');
+        this.printType(bc);
     }
 
 
@@ -189,6 +204,7 @@ class Printer implements AstVisitor<void> {
         this.printAttributes(v);
         this.cw.key("var").space();
         v.exp.accept(this);
+        this.printType(v);
     }
 
 
@@ -197,16 +213,18 @@ class Printer implements AstVisitor<void> {
     visitValueVar (vv : ValueVar) : void {
         vv.ident.accept(this);
         this.cw.space().writeOp(":").space();
-        vv.type.accept(this);
+        vv.typeVar.accept(this);
+        this.printType(vv);
     }
 
 
 
 
     visitTypeVar (tv : TypeVar) : void {
-        tv.type.accept(this);
+        tv.typeVar.accept(this);
         this.cw.space().writeOp("of").space();
         tv.constraint.accept(this);
+        this.printType(tv);
     }
 
 
@@ -216,6 +234,7 @@ class Printer implements AstVisitor<void> {
         a.slot.accept(this);
         this.cw.space().writeOp("=").space();
         a.value.accept(this);
+        this.printType(a);
     }
 
 
@@ -256,6 +275,7 @@ class Printer implements AstVisitor<void> {
             if (useBraces)
                 this.cw.space().markup("}");
         }
+        this.printType(sc);
     }
 
 
@@ -291,6 +311,7 @@ class Printer implements AstVisitor<void> {
         } else {
             fn.call(this.cw, i.name);
         }
+        this.printType(i);
     }
 
 
@@ -300,6 +321,7 @@ class Printer implements AstVisitor<void> {
         m.bag.accept(this);
         this.cw.writeOp(".");
         this.visitIdent(m.ident);
+        this.printType(m);
     }
 
 
@@ -308,6 +330,7 @@ class Printer implements AstVisitor<void> {
     visitFnApply (fna : FnApply) : void {
         fna.fn.accept(this);
         fna.args.accept(this);
+        this.printType(fna);
     }
 
 
@@ -321,6 +344,7 @@ class Printer implements AstVisitor<void> {
         this.cw.space();
         opa.op2.accept(this);
         this.cw.markup(")")
+        this.printType(opa);
     }
 
 
@@ -335,6 +359,7 @@ class Printer implements AstVisitor<void> {
             this.cw.space().key("else").space();
             this.visitScope(i.otherwise);
         }
+        this.printType(i);
     }
 
 
@@ -343,6 +368,7 @@ class Printer implements AstVisitor<void> {
     visitNew (nw : New) : void {
         this.cw.key("new").space();
         nw.value.accept(this);
+        this.printType(nw);
     }
 
 
@@ -351,6 +377,7 @@ class Printer implements AstVisitor<void> {
     visitTypeOf (tof : TypeOf) : void {
         this.cw.key("typeof").space();
         tof.value.accept(this);
+        this.printType(tof);
     }
 
 
@@ -372,6 +399,7 @@ class Printer implements AstVisitor<void> {
         this.cw.key("error").space().markup("(");
         er.item.accept(this);
         this.cw.markup(")");
+        this.printType(er);
     }
 
 
@@ -379,6 +407,7 @@ class Printer implements AstVisitor<void> {
 
     visitVoid (vo : Void) : void {
         this.cw.key("void");
+        this.printType(vo);
     }
 
 
@@ -386,6 +415,7 @@ class Printer implements AstVisitor<void> {
 
     visitBool (b : Bool) : void {
         this.cw.key(b.value === true ? "true" : "false");
+        this.printType(b);
     }
 
 
@@ -393,6 +423,7 @@ class Printer implements AstVisitor<void> {
 
     visitInt (ii : Int) : void {
         this.cw.num(ii.value);
+        this.printType(ii);
     }
 
 
@@ -400,6 +431,7 @@ class Printer implements AstVisitor<void> {
 
     visitFloat (f : Float) : void {
         this.cw.num(f.value);
+        this.printType(f);
     }
 
 
@@ -407,6 +439,7 @@ class Printer implements AstVisitor<void> {
 
     visitChar (ch : Char) : void {
         this.cw.text("'").text(ch.value).text("'");
+        this.printType(ch);
     }
 
 
@@ -421,6 +454,7 @@ class Printer implements AstVisitor<void> {
             arr.list.accept(this);
             this.cw.markup("]");
         }
+        this.printType(arr);
     }
 
 
@@ -430,6 +464,7 @@ class Printer implements AstVisitor<void> {
         this.cw.type("Ref").markup("(");
         rf.item.accept(this);
         this.cw.markup(")");
+        this.printType(rf);
     }
 
 
@@ -543,7 +578,7 @@ class Printer implements AstVisitor<void> {
     visitTypeArr (tarr : TypeArr) : void {
         this.cw.type("Array").markup("(");
         tarr.elementType.accept(this);
-        this.cw.type(",").space();
+        this.cw.markup(",").space();
         tarr.length.accept(this);
         this.cw.markup(")");
     }

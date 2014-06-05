@@ -156,14 +156,14 @@ class ShortCircuitFnVisitor implements AstVisitor<boolean> {
 
 
     visitValueVar (tv : ValueVar) : boolean {
-        return this.acceptTwo(tv.ident, tv.type);
+        return this.acceptTwo(tv.ident, tv.typeVar);
     }
 
 
 
 
     visitTypeVar (vv : TypeVar) : boolean {
-        return this.acceptTwo(vv.type, vv.constraint);
+        return this.acceptTwo(vv.typeVar, vv.constraint);
     }
 
 

@@ -8,6 +8,7 @@ class Asi {
 
     public parent : Asi;
     public attrs : ExpList;
+    public type : Exp;
 
     constructor (attrs : ExpList) {
         if (attrs) {
@@ -309,12 +310,12 @@ class Var extends Exp {
 class ValueVar extends Exp {
 
     public ident : Exp;
-    public type : Exp;
+    public typeVar : Exp;
 
     constructor (attrs : ExpList, ident : Exp, type : Exp) {
         super(attrs);
         this.ident = ident;
-        this.type = type;
+        this.typeVar = type;
         ident.parent = this;
         type.parent = this;
     }
@@ -329,12 +330,12 @@ class ValueVar extends Exp {
 
 class TypeVar extends Exp {
 
-    public type : Exp;
+    public typeVar : Exp;
     public constraint : Exp;
 
     constructor (attrs : ExpList, type : Exp, constraint : Exp) {
         super(attrs);
-        this.type = type;
+        this.typeVar = type;
         this.constraint = constraint;
         type.parent = this;
         constraint.parent = this;
@@ -852,6 +853,14 @@ class TypeAnyOf extends Exp {
 
 
 class TypeErr extends Exp {
+
+    public elementType : Exp;
+
+    constructor (attrs : ExpList, elementType : Exp) {
+        super(attrs);
+        this.elementType = elementType;
+        elementType.parent = this;
+    }
 
     accept<T> (v : AstVisitor<T>) : T {
         return v.visitTypeErr(this);

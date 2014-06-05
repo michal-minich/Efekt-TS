@@ -105,6 +105,25 @@ var @unsafe = attribute (a : A of Any, b : A)
 var @safe = attribute
 var @unsafe = attribute not @safe
 
+-- builtin
+var @builtin = attribute (name)
+var @propagating = attribute
+var @clear = attribute (attr)
+
+var @nondeterministic = @propagating attribute
+var @ioRead
+var @ioWrite
+var @readsState
+var @readsMutableState
+var @writesMutableState
+var @throws(ex... : Exception[])
+var @unsafe
+var @gc
+var @memAlloc
+var @escapes
+
+
+
 var Percent = struct () extends Int {
     invariant {
         assert value <= 100 and value >= 0
