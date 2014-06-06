@@ -176,6 +176,10 @@ class Namer implements AstVisitor<void> {
                 i.declaredBy = sc.declrs[i.name];
                 i.isWrite = true;
             }
+        } else if (a.slot instanceof Member) {
+            a.slot.accept(this);
+            var i = <Ident>(<Member>a.slot).ident;
+            i.isWrite = true;
         } else {
             a.slot.accept(this);
         }
@@ -217,8 +221,8 @@ class Namer implements AstVisitor<void> {
 
 
 
-    visitIdent (i : Ident) : void {
-        var sc = Namer.getScope(this.currentScope, i.name);
+    private processIdent (i : Ident, scope : Scope) {
+        var sc = Namer.getScope(scope, i.name);
         i.scopeId = sc.id;
         i.declaredBy = sc.declrs[i.name];
         if (!i.declaredBy)
@@ -228,9 +232,59 @@ class Namer implements AstVisitor<void> {
 
 
 
+    visitIdent (i : Ident) : void {
+        this.processIdent(i, this.currentScope);
+    }
+
+
+
+    private getIdentDeclaredValue (i : Ident) : Exp {
+        while (i.declaredBy !== undefined)
+            i = i.declaredBy;
+        if (i.parent instanceof Assign) {
+            var ia = <Assign>i.parent;
+            if (ia.value instanceof FnApply) {
+                var iaf = <FnApply>ia.value;
+                if (iaf.fn instanceof Ident) {
+                    var iafi = <Ident>iaf.fn;
+                    if (!iafi.isType) {
+                        this.logger.warn(
+                                "namer - can resolve only sturct" +
+                                "constructor, not function application");
+                    }
+                    return this.getIdentDeclaredValue(iafi);
+                }
+            } else if (ia.value instanceof Ident) {
+                return this.getIdentDeclaredValue(<Ident>ia.value);
+            } else {
+                return ia.value;
+            }
+        }
+        this.logger.error("namer - ident can be declared only bi assign")
+    }
+
+
+
+
     visitMember (m : Member) : void {
         m.bag.accept(this);
-        //this.visitIdent(m.ident);
+        var bi : Ident;
+        if (m.bag instanceof Ident) {
+            bi = <Ident>m.bag;
+        } else if (m.bag instanceof Member) {
+            bi = <Ident>(<Member>m.bag).ident;
+        } else {
+            this.logger.warn("namer - cannot resolve member access " +
+                                 "ident if bag is not ident");
+        }
+
+        var bis = this.getIdentDeclaredValue(bi);
+        if (bis instanceof Struct)
+            this.processIdent(m.ident, (<Struct>bis).body);
+        else
+            this.logger.warn("namer - member access is not on struct but " +
+                                 getTypeName(bis));
+
     }
 
 

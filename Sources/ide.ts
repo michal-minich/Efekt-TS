@@ -45,28 +45,28 @@ class Ide {
                                           Ide.outputLogger);
 
 
-        $id("parseButton").addEventListener('click', () => {
+        $id("parseButton").addEventListener('mousedown', () => {
             Ide.doWithExceptionHandling(()=> {
                 Ide.outputLogger.clear();
                 Ide.parse(codeEdit.value);
             });
         });
 
-        $id("usagesButton").addEventListener('click', () => {
+        $id("usagesButton").addEventListener('mousedown', () => {
             Ide.doWithExceptionHandling(()=> {
                 Ide.outputLogger.clear();
                 Ide.usages(codeEdit.value);
             });
         });
 
-        $id("typeButton").addEventListener('click', () => {
+        $id("typeButton").addEventListener('mousedown', () => {
             Ide.doWithExceptionHandling(()=> {
                 Ide.outputLogger.clear();
                 Ide.doType(codeEdit.value);
             });
         });
 
-        $id("runButton").addEventListener('click', () => {
+        $id("runButton").addEventListener('mousedown', () => {
             Ide.doWithExceptionHandling(()=> {
                 Ide.outputLogger.clear();
                 Ide.interpret(codeEdit.value);
@@ -107,8 +107,8 @@ class Ide {
         var al = Ide.parser.parse(code);
         var sc = new Scope(undefined, combineAsiLists(prelude, al));
         sc.accept(Ide.namer);
-        Ide.outputView.show(sc.list);
-        Ide.outputAstView.show(sc.list);
+        Ide.outputView.show(al);
+        Ide.outputAstView.show(al);
     }
 
 

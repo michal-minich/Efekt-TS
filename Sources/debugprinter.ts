@@ -23,7 +23,7 @@ class DebugPrinter implements AstVisitor<void> {
         this.cw.tab().newLine().markup("items");
         if (items.length === 0) {
             this.cw.space().markup("&lt;empty&gt;");
-            return this.cw;
+            return this.cw.unTab();
         }
         this.cw.tab().newLine();
         for (var i = 0; i < items.length; i++) {
@@ -32,7 +32,7 @@ class DebugPrinter implements AstVisitor<void> {
             if (i + 1 !== items.length)
                 this.cw.newLine();
         }
-        return this.cw.unTab().tab();
+        return this.cw.unTab().unTab();
     }
 
 
@@ -251,7 +251,7 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitMember (m : Member) : void {
-        this.key("Member", m).field("bag", m.ident).field("ident", m.ident);
+        this.key("Member", m).field("bag", m.bag).field("ident", m.ident);
     }
 
 
