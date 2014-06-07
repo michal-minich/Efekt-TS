@@ -256,6 +256,8 @@ class Namer implements AstVisitor<void> {
                 }
             } else if (ia.value instanceof Ident) {
                 return this.getIdentDeclaredValue(<Ident>ia.value);
+            } else if (ia.value instanceof Member) {
+                return this.getIdentDeclaredValue((<Member>ia.value).ident);
             } else {
                 return ia.value;
             }

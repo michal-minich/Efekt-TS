@@ -87,7 +87,7 @@ class Ide {
         try {
             fn();
         } catch (ex) {
-            Ide.outputLogger.error(ex);
+            Ide.outputLogger.fatal(ex);
         }
     }
 
