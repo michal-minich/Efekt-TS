@@ -221,7 +221,7 @@ class Namer implements AstVisitor<void> {
 
 
 
-    private processIdent (i : Ident, scope : Scope) {
+    private processIdent (i : Ident, scope : Scope) : void {
         var sc = Namer.getScope(scope, i.name);
         i.scopeId = sc.id;
         i.declaredBy = sc.declrs[i.name];
@@ -263,6 +263,7 @@ class Namer implements AstVisitor<void> {
             }
         }
         this.logger.error("namer - ident can be declared only bi assign")
+        return undefined;
     }
 
 
