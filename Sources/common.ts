@@ -4,6 +4,79 @@
 /// <reference path="debugprinter.ts"/>
 
 
+interface EnvValues<T> {
+    [name : string] : T
+}
+
+
+
+
+class Env<T> {
+
+    public parent : Env<T>;
+    public id : number;
+
+    private static lastId = 0;
+    private values : EnvValues<T> = {};
+    private logger : LogWritter;
+
+    constructor (parent : Env<T>, logger : LogWritter) {
+        this.parent = parent;
+        this.logger = logger;
+        this.id = Env.lastId++;
+    }
+
+    contains (name : string) : boolean {
+        return this.getDeclaringEnv(name) !== undefined;
+    }
+
+    containsDirectly (name : string) : boolean {
+        return this.values[name] !== undefined;
+    }
+
+    containsIndirectly (name : string) : boolean {
+        return !this.containsDirectly(name) && this.contains(name);
+    }
+
+    declare (name : string, value : T) {
+        if (this.values[name])
+            this.logger.error("Variable '" + name + "' is already declared.");
+        this.values[name] = value;
+    }
+
+    get (name : string) : T {
+        var e = this.getDeclaringEnv(name);
+        if (e)
+            return e.values[name];
+        this.logger.error("Variable '" + name + "' is not declared.");
+        return undefined;
+    }
+
+    getDirectly (name : string) : T {
+        var value = this.values[name];
+        if (value)
+            return value;
+        this.logger.error("Variable '" + name + "' is not declared.");
+        return undefined;
+    }
+
+    set (name : string, value : T) {
+        this.getDeclaringEnv(name).values[name] = value;
+    }
+
+    getDeclaringEnv (name : string) : Env<T> {
+        var e = this;
+        do {
+            var item = e.values[name];
+            if (item)
+                return e;
+            e = e.parent;
+        } while (e);
+        return undefined;
+    }
+}
+
+
 
 
 function combineAsiLists (first : AsiList, second : AsiList) : AsiList {

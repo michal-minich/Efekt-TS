@@ -386,18 +386,14 @@ interface Declrs {
 
 class Scope extends Exp {
 
-    private static lastId = 0;
-    public id : number;
     public list : AsiList;
     public vars : Vars = {};
-    public declrs : Declrs = {};
     public currentAsiIx = -1;
 
     constructor (attrs : ExpList, list : AsiList) {
         super(attrs);
         this.list = list;
         list.parent = this;
-        this.id = Scope.lastId++;
     }
 
     accept<T> (v : AstVisitor<T>) : T {
@@ -424,9 +420,8 @@ class Ident extends Exp {
     public isOp : boolean = false;
     public isKey : boolean = false;
     public declaredBy : Ident;
-    public usages : Ident[];
-    public scopeId : number;
-    public isWrite : boolean;
+    public declaringEnv : Env<Ident>;
+    public assignedValue : Exp;
 
     constructor (attrs : ExpList, name : string) {
         super(attrs);

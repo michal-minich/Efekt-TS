@@ -298,10 +298,10 @@ class Printer implements AstVisitor<void> {
             fn = this.cw.ident;
         }
 
-        if (i.scopeId) {
-            var cssClass = "sc_" + i.scopeId + "_" + i.name;
+        if (i.declaringEnv) {
+            var cssClass = "sc_" + i.declaringEnv.id + "_" + i.name;
             if (i.declaredBy) {
-                if (i.isWrite)
+                if (i.assignedValue)
                     fn.call(this.cw, i.name, cssClass + " write");
                 else
                     fn.call(this.cw, i.name, cssClass);

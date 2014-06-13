@@ -199,7 +199,7 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitValueVar (vv : ValueVar) : void {
-        this.key("Var", vv)
+        this.key("ValueVar", vv)
             .field("ident", vv.ident)
             .field("typeVar", vv.typeVar);
     }

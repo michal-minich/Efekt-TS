@@ -3,19 +3,143 @@
 /// <reference path="visitor.ts"/>
 
 
+class SlotResolver {
+
+    public self : AstVisitor<Ident> = <any>this;
+
+    // helpers
+
+    visitExpList (el : ExpList) : Ident {
+        if (el.items.length !== 1)
+            throw "slot resolver braced explist legnth expected to be 1, it is"
+                + el.items.length;
+        return el.items[0].accept(this.self);
+    }
+
+    visitBraced (bc : Braced) : Ident {
+        return this.visitExpList(bc.list);
+    }
+
+    // expresions
+
+    visitValueVar (tv : ValueVar) : Ident {
+        return tv.ident.accept(this.self);
+    }
+
+    visitTypeVar (vv : TypeVar) : Ident {
+        return vv.typeVar.accept(this.self);
+    }
+
+    visitAssign (a : Assign) : Ident {
+        return a.slot.accept(this.self);
+    }
+
+    visitIdent (i : Ident) : Ident {
+        return i;
+    }
+
+    visitMember (m : Member) : Ident {
+        return m.ident;
+    }
+}
+
+
+
+
+class ValueResolver {
+
+    private self : AstVisitor<Ident> = <any>this;
+    private logger : LogWritter;
+
+    constructor (logger : LogWritter) {
+        this.logger = logger;
+    }
+
+    // helpers
+
+    visitExpList (el : ExpList) : Ident {
+        if (el.items.length !== 1)
+            throw "slot resolver braced explist legnth expected to be 1, it is"
+                + el.items.length;
+        return el.items[0].accept(this.self);
+    }
+
+    visitBraced (bc : Braced) : Ident {
+        return this.visitExpList(bc.list);
+    }
+
+    // expresions
+
+    visitAssign (a : Assign) : Ident {
+        return a.value.accept(this.self);
+    }
+
+    visitIdent (i : Ident) : Ident {
+        var i2 = i;
+        while (i2.declaredBy)
+            i2 = i2.declaredBy;
+        var a = i2.parent;
+        while (!(a instanceof Assign))
+            a = a.parent;
+        return this.visitAssign(<Assign>a);
+    }
+
+    visitMember (m : Member) : Ident {
+        throw undefined;
+    }
+
+    visitFnApply (fna : FnApply) : Ident {
+        if (fna.fn instanceof Ident) {
+            var fnaFn = <Ident>fna.fn;
+            if (!fnaFn.isType) {
+                this.logger.warn(
+                        "namer - can resolve only sturct" +
+                        "constructor, not function application");
+            }
+            return fnaFn.accept(this.self);
+        }
+        throw undefined;
+    }
+}
+
+
+
+
 class Namer implements AstVisitor<void> {
 
 
 
 
     private logger : LogWritter;
-    private currentScope : Scope;
+    private slotResolver = new SlotResolver();
+    private valueResolver : ValueResolver;
+    private env : Env<Ident>;
 
 
 
 
     constructor (logger : LogWritter) {
         this.logger = logger;
+        this.valueResolver = new ValueResolver(this.logger);
+    }
+
+
+
+
+    public static declareIdent (i : Ident, env : Env<Ident>) : void {
+        env.declare(i.name, i);
+        i.declaringEnv = env;
+    }
+
+
+
+
+    public static processIdent (i : Ident, env : Env<Ident>) : void {
+        var e = env.getDeclaringEnv(i.name);
+        i.declaringEnv = e;
+        i.declaredBy = e.getDirectly(i.name);
+        if (!i.declaredBy)
+            throw "variable " + i.name + " is not declared";
     }
 
 
@@ -133,32 +257,25 @@ class Namer implements AstVisitor<void> {
 
 
     visitVar (v : Var) : void {
-        if (v.exp instanceof Ident)
-            this.declareIdent(<Ident>v.exp);
-        else
-            v.exp.accept(this);
+        var slot = v.exp.accept(this.slotResolver.self);
+        Namer.declareIdent(slot, this.env);
+        v.exp.accept(this);
     }
 
 
 
 
     visitValueVar (vv : ValueVar) : void {
-        if (vv.ident instanceof Ident)
-            this.declareIdent(<Ident>vv.ident);
-        else
-            vv.ident.accept(this);
         vv.typeVar.accept(this);
+        vv.ident.accept(this);
     }
 
 
 
 
     visitTypeVar (tv : TypeVar) : void {
-        if (tv.typeVar instanceof Ident)
-            this.declareIdent(<Ident>tv.typeVar);
-        else
-            tv.typeVar.accept(this);
         tv.constraint.accept(this);
+        tv.typeVar.accept(this);
     }
 
 
@@ -166,128 +283,38 @@ class Namer implements AstVisitor<void> {
 
     visitAssign (a : Assign) : void {
         a.value.accept(this);
-        if (a.slot instanceof Ident) {
-            var i = <Ident>a.slot;
-            if (a.parent instanceof Var) {
-                this.declareIdent(i);
-            } else {
-                var sc = Namer.getScope(this.currentScope, i.name);
-                i.scopeId = sc.id;
-                i.declaredBy = sc.declrs[i.name];
-                i.isWrite = true;
-            }
-        } else if (a.slot instanceof Member) {
-            a.slot.accept(this);
-            var i = <Ident>(<Member>a.slot).ident;
-            i.isWrite = true;
-        } else {
-            a.slot.accept(this);
-        }
-    }
-
-
-
-
-    private declareIdent (i : Ident) : void {
-        this.currentScope.declrs[i.name] = i;
-        i.scopeId = this.currentScope.id;
+        a.slot.accept(this);
+        if (a.slot instanceof Ident)
+            (<Ident>a.slot).assignedValue = a.value;
     }
 
 
 
 
     visitScope (sc : Scope) : void {
-        var prevScope = this.currentScope;
-        this.currentScope = sc;
+        this.env = new Env<Ident>(this.env ? this.env : undefined,  this.logger);
         this.visitAsiList(sc.list);
-        this.currentScope = prevScope;
-    }
-
-
-
-
-    private static getScope (scope : Scope, name : string) : Scope {
-        var sc = scope;
-        while (sc) {
-            var asi = sc.declrs[name];
-            if (asi)
-                return sc;
-            sc = sc.parentScope;
-        }
-
-        throw "variable " + name + " is undeclared.";
-    }
-
-
-
-
-    private processIdent (i : Ident, scope : Scope) : void {
-        var sc = Namer.getScope(scope, i.name);
-        i.scopeId = sc.id;
-        i.declaredBy = sc.declrs[i.name];
-        if (!i.declaredBy)
-            throw "variable " + i.name + " is not declared";
+        this.env = this.env.parent;
     }
 
 
 
 
     visitIdent (i : Ident) : void {
-        this.processIdent(i, this.currentScope);
-    }
-
-
-
-    private getIdentDeclaredValue (i : Ident) : Exp {
-        while (i.declaredBy !== undefined)
-            i = i.declaredBy;
-        if (i.parent instanceof Assign) {
-            var ia = <Assign>i.parent;
-            if (ia.value instanceof FnApply) {
-                var iaf = <FnApply>ia.value;
-                if (iaf.fn instanceof Ident) {
-                    var iafi = <Ident>iaf.fn;
-                    if (!iafi.isType) {
-                        this.logger.warn(
-                                "namer - can resolve only sturct" +
-                                "constructor, not function application");
-                    }
-                    return this.getIdentDeclaredValue(iafi);
-                }
-            } else if (ia.value instanceof Ident) {
-                return this.getIdentDeclaredValue(<Ident>ia.value);
-            } else if (ia.value instanceof Member) {
-                return this.getIdentDeclaredValue((<Member>ia.value).ident);
-            } else {
-                return ia.value;
-            }
-        }
-        this.logger.error("namer - ident can be declared only bi assign")
-        return undefined;
+        if (!i.declaringEnv)
+            Namer.processIdent(i, this.env);
     }
 
 
 
 
     visitMember (m : Member) : void {
+        /*if (m.bag instanceof Ident) {
+            var i = <Ident>m.bag;
+            this.visitIdent(i);
+            //this.processIdent(m.ident, i.declaringEnv)
+        }*/
         m.bag.accept(this);
-        var bi : Ident;
-        if (m.bag instanceof Ident) {
-            bi = <Ident>m.bag;
-        } else if (m.bag instanceof Member) {
-            bi = <Ident>(<Member>m.bag).ident;
-        } else {
-            this.logger.warn("namer - cannot resolve member access " +
-                                 "ident if bag is not ident");
-        }
-
-        var bis = this.getIdentDeclaredValue(bi);
-        if (bis instanceof Struct)
-            this.processIdent(m.ident, (<Struct>bis).body);
-        else
-            this.logger.warn("namer - member access is not on struct but " +
-                                 getTypeName(bis));
-
     }
 
 
@@ -403,17 +430,15 @@ class Namer implements AstVisitor<void> {
 
 
     visitFn (fn : Fn) : void {
-        var prevScope = this.currentScope;
         if (!fn.body)
             return;
-        this.currentScope = fn.body;
+        this.env = new Env(this.env, this.logger);
         if (fn.params.list) {
             var el = <ExpList>fn.params.list;
             for (var i = 0; i < el.items.length; ++i) {
                 if (el.items[i] instanceof Ident) {
                     var ident = <Ident>el.items[i];
-                    this.declareIdent(ident);
-                    ident.scopeId = fn.body.id;
+                    Namer.declareIdent(ident, this.env);
                 }
                 else {
                     el.items[i].accept(this);
@@ -423,7 +448,7 @@ class Namer implements AstVisitor<void> {
         if (fn.returnType)
             fn.returnType.accept(this);
         fn.body.accept(this);
-        this.currentScope = prevScope;
+        this.env = this.env.parent;
     }
 
 
