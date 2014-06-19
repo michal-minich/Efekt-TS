@@ -10,13 +10,13 @@ class Typer implements AstVisitor<void> {
 
 
 
-    private logger : LogWritter;
+    private logger : LogWriter;
     private currentScope : Scope;
 
 
 
 
-    constructor (logger : LogWritter) {
+    constructor (logger : LogWriter) {
         this.logger = logger;
     }
 
@@ -440,6 +440,32 @@ class Typer implements AstVisitor<void> {
 
 
     visitTypeRef (trf : TypeRef) : void {
+        throw undefined;
+    }
+
+
+
+
+    // semantic ===============================================
+
+
+
+
+    visitDeclr (d : Declr) : void {
+        throw undefined;
+    }
+
+
+
+
+    visitClosure (cls : Closure) : void {
+        throw undefined;
+    }
+
+
+
+
+    visitRefSlot (rs : RefSlot) : void {
         throw undefined;
     }
 }

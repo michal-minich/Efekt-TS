@@ -481,4 +481,27 @@ class DebugPrinter implements AstVisitor<void> {
     visitTypeRef (trf : TypeRef) : void {
         this.type("TypeRef", trf).field("elementType", trf.elementType);
     }
+
+
+
+
+    // semantic ===============================================
+
+
+
+
+    visitDeclr (d : Declr) : void {
+    }
+
+
+
+
+    visitClosure (cls : Closure) : void {
+    }
+
+
+
+
+    visitRefSlot (rs : RefSlot) : void {
+    }
 }

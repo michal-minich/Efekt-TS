@@ -1,7 +1,8 @@
 /// <reference path="ast.ts"/>
 
 
-interface AstVisitor<T> extends TerminalAstVisitor<T> {
+interface AstVisitor<T> extends TerminalAstVisitor<T>,
+                                SemanticAstVisitor<T> {
 
     // helpers
     visitAsiList (al : AsiList) : T;
@@ -19,7 +20,7 @@ interface AstVisitor<T> extends TerminalAstVisitor<T> {
     visitThrow (th : Throw) : T;
     visitTry (tr : Try) : T;
 
-    // expresions
+    // expressions
     visitVar (v : Var) : T;
     visitValueVar (tv : ValueVar) : T;
     visitTypeVar (vv : TypeVar) : T;
@@ -62,6 +63,22 @@ interface AstVisitor<T> extends TerminalAstVisitor<T> {
     //visitTypeChar (tch : TypeChar) : T;
     visitTypeArr (tarr : TypeArr) : T;
     visitTypeRef (trf : TypeRef) : T;
+
+    // semantic
+    //visitDeclr(d : Declr);
+    //visitClosure(cls : Closure);
+    //visitRefSlot(rs : RefSlot);
+}
+
+
+
+
+interface SemanticAstVisitor<T> {
+
+    // semantic
+    visitDeclr (d : Declr) : T;
+    visitClosure (cls : Closure) : T;
+    visitRefSlot (rs : RefSlot) : T;
 }
 
 
@@ -73,7 +90,7 @@ interface TerminalAstVisitor<T> {
     visitBreak (b : Break) : T;
     visitContinue (c : Continue) : T;
 
-    // expresions
+    // expressions
     visitIdent (i : Ident) : T;
 
     // values

@@ -2,7 +2,8 @@
 
 var prelude : AsiList;
 
-var preludeStr = "";/*
+var preludeStr = "";
+/*
     ' var print = @builtin("print") @ioWrite fn (@params a)' +
     ' var op+ = @builtin("+") fn (a, b)' +
     ' var op- = @builtin("-") fn (a, b)' +

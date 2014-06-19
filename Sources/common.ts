@@ -18,9 +18,9 @@ class Env<T> {
 
     private static lastId = 0;
     private values : EnvValues<T> = {};
-    private logger : LogWritter;
+    private logger : LogWriter;
 
-    constructor (parent : Env<T>, logger : LogWritter) {
+    constructor (parent : Env<T>, logger : LogWriter) {
         this.parent = parent;
         this.logger = logger;
         this.id = Env.lastId++;
@@ -136,7 +136,7 @@ function asiToHtmlString (asi : Asi) : string {
 
 
 function codeToAstString (code : string,
-                          logger : LogWritter,
+                          logger : LogWriter,
                           invisibleBraced = false) : string {
     var parser = new Parser(logger);
     var al = parser.parse(code);
@@ -146,7 +146,7 @@ function codeToAstString (code : string,
 
 
 
-function codeToHtmlString (code : string, logger : LogWritter) : string {
+function codeToHtmlString (code : string, logger : LogWriter) : string {
     var parser = new Parser(logger);
     var al = parser.parse(code);
     return asiToHtmlString(al);

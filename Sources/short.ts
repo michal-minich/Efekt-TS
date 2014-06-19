@@ -410,6 +410,32 @@ class ShortCircuitFnVisitor implements AstVisitor<boolean> {
     visitTypeRef (trf : TypeRef) : boolean {
         return trf.elementType.accept(this);
     }
+
+
+
+
+    // semantic ===============================================
+
+
+
+
+    visitDeclr (d : Declr) : boolean {
+        return d.exp.accept(this);
+    }
+
+
+
+
+    visitClosure (cls : Closure) : boolean {
+        return undefined;
+    }
+
+
+
+
+    visitRefSlot (rs : RefSlot) : boolean {
+        return undefined;
+    }
 }
 
 

@@ -1,4 +1,5 @@
 /// <reference path="visitor.ts"/>
+/// <reference path="common.ts"/>
 
 
 // base ===============================================
@@ -950,3 +951,56 @@ class TypeRef extends Exp {
         return v.visitTypeRef(this);
     }
 }
+
+
+
+
+// semantic ===============================================
+
+
+
+
+class Declr extends Exp {
+
+    public exp : Exp;
+
+    constructor (attrs : ExpList, exp : Exp) {
+        super(attrs);
+        this.exp = exp;
+        exp.parent = this;
+    }
+
+    accept<T> (v : AstVisitor<T>) : T {
+        return v.visitDeclr(this);
+    }
+}
+
+
+
+
+class Closure extends Exp {
+
+    constructor (attrs : ExpList) {
+        super(attrs);
+    }
+
+    accept<T> (v : AstVisitor<T>) : T {
+        return v.visitClosure(this);
+    }
+}
+
+
+
+
+class RefSlot extends Exp {
+
+    constructor (attrs : ExpList) {
+        super(attrs);
+    }
+
+    accept<T> (v : AstVisitor<T>) : T {
+        return v.visitRefSlot(this);
+    }
+}
+
+

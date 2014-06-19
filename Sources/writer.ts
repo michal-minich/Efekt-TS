@@ -7,7 +7,7 @@ interface ExceptionHandler {
 
 
 
-interface LogWritter {
+interface LogWriter {
     fatal (msg : string) : void;
     error (msg : string) : void;
     warn (msg : string) : void;
@@ -19,7 +19,7 @@ interface LogWritter {
 
 
 
-interface Logger extends LogWritter {
+interface Logger extends LogWriter {
     clear () : void;
 }
 
@@ -206,7 +206,7 @@ class OutputLogger implements Logger, ExceptionHandler, OutputWriter {
 
 
 
-class ConsoleLogger implements LogWritter, ExceptionHandler, OutputWriter {
+class ConsoleLogger implements LogWriter, ExceptionHandler, OutputWriter {
 
     fatal (msg : string) : void {
         this.log('fatal', msg);

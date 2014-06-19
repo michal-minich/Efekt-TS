@@ -44,12 +44,12 @@ class BinOpBuilder {
         ",": 2
     };
 
-    private logger : LogWritter;
+    private logger : LogWriter;
 
 
 
 
-    constructor (logger : LogWritter) {
+    constructor (logger : LogWriter) {
         this.logger = logger;
     }
 
@@ -155,7 +155,7 @@ class BinOpBuilder {
 
 class Parser {
 
-    private logger : LogWritter;
+    private logger : LogWriter;
 
     private code : string;
     private index : number;
@@ -165,7 +165,7 @@ class Parser {
 
 
 
-    constructor (logger : LogWritter) {
+    constructor (logger : LogWriter) {
         this.logger = logger;
     }
 

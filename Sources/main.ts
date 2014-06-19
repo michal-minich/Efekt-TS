@@ -11,4 +11,3 @@ function start () {
 
     Ide.usages((<HTMLTextAreaElement>$id("codeEdit")).value);
 }
-

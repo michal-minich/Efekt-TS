@@ -12,7 +12,7 @@
 class Interpreter implements AstVisitor<Exp> {
 
     private exceptionHandler : ExceptionHandler;
-    private logger : LogWritter;
+    private logger : LogWriter;
     private writer : OutputWriter;
 
     private isBreak : boolean;
@@ -23,7 +23,7 @@ class Interpreter implements AstVisitor<Exp> {
 
 
     constructor (exceptionHandler : ExceptionHandler,
-                 logger : LogWritter,
+                 logger : LogWriter,
                  writer : OutputWriter) {
         this.exceptionHandler = exceptionHandler;
         this.logger = logger;
@@ -276,7 +276,7 @@ class Interpreter implements AstVisitor<Exp> {
                     getTypeName(fnRes);
             }
         } else {
-            throw "assing to " + getTypeName(a.slot) + " is not supported";
+            throw "assign to " + getTypeName(a.slot) + " is not supported";
         }
         return val;
     }
@@ -667,5 +667,31 @@ class Interpreter implements AstVisitor<Exp> {
 
     visitTypeRef (trf : TypeRef) : TypeRef {
         return trf;
+    }
+
+
+
+
+    // semantic ===============================================
+
+
+
+
+    visitDeclr (d : Declr) : Declr {
+        return d;
+    }
+
+
+
+
+    visitClosure (cls : Closure) : Closure {
+        return cls;
+    }
+
+
+
+
+    visitRefSlot (rs : RefSlot) : RefSlot {
+        return rs;
     }
 }

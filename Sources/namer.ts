@@ -11,7 +11,7 @@ class SlotResolver {
 
     visitExpList (el : ExpList) : Ident {
         if (el.items.length !== 1)
-            throw "slot resolver braced explist legnth expected to be 1, it is"
+            throw "slot resolver braced explist length expected to be 1, it is"
                 + el.items.length;
         return el.items[0].accept(this.self);
     }
@@ -20,7 +20,7 @@ class SlotResolver {
         return this.visitExpList(bc.list);
     }
 
-    // expresions
+    // expressions
 
     visitValueVar (tv : ValueVar) : Ident {
         return tv.ident.accept(this.self);
@@ -49,9 +49,9 @@ class SlotResolver {
 class ValueResolver {
 
     private self : AstVisitor<Ident> = <any>this;
-    private logger : LogWritter;
+    private logger : LogWriter;
 
-    constructor (logger : LogWritter) {
+    constructor (logger : LogWriter) {
         this.logger = logger;
     }
 
@@ -68,7 +68,7 @@ class ValueResolver {
         return this.visitExpList(bc.list);
     }
 
-    // expresions
+    // expressions
 
     visitAssign (a : Assign) : Ident {
         return a.value.accept(this.self);
@@ -110,7 +110,7 @@ class Namer implements AstVisitor<void> {
 
 
 
-    private logger : LogWritter;
+    private logger : LogWriter;
     private slotResolver = new SlotResolver();
     private valueResolver : ValueResolver;
     private env : Env<Ident>;
@@ -118,7 +118,7 @@ class Namer implements AstVisitor<void> {
 
 
 
-    constructor (logger : LogWritter) {
+    constructor (logger : LogWriter) {
         this.logger = logger;
         this.valueResolver = new ValueResolver(this.logger);
     }
@@ -292,7 +292,7 @@ class Namer implements AstVisitor<void> {
 
 
     visitScope (sc : Scope) : void {
-        this.env = new Env<Ident>(this.env ? this.env : undefined,  this.logger);
+        this.env = new Env<Ident>(this.env ? this.env : undefined, this.logger);
         this.visitAsiList(sc.list);
         this.env = this.env.parent;
     }
@@ -535,5 +535,31 @@ class Namer implements AstVisitor<void> {
 
     visitTypeRef (trf : TypeRef) : void {
         trf.elementType.accept(this);
+    }
+
+
+
+
+    // semantic ===============================================
+
+
+
+
+    visitDeclr (d : Declr) : Declr {
+        return d;
+    }
+
+
+
+
+    visitClosure (cls : Closure) : Closure {
+        return cls;
+    }
+
+
+
+
+    visitRefSlot (rs : RefSlot) : RefSlot {
+        return rs;
     }
 }

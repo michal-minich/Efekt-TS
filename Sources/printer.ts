@@ -591,6 +591,29 @@ class Printer implements AstVisitor<void> {
         trf.elementType.accept(this);
         this.cw.markup(")");
     }
+
+
+
+
+    // semantic ===============================================
+
+
+
+
+    visitDeclr (d : Declr) : void {
+    }
+
+
+
+
+    visitClosure (cls : Closure) : void {
+    }
+
+
+
+
+    visitRefSlot (rs : RefSlot) : void {
+    }
 }
 
 
@@ -611,7 +634,7 @@ class IsInline implements TerminalAstVisitor<boolean> {
 
 
 
-    // expresions
+    // expressions
     visitIdent (i : Ident) : boolean {
         return true;
     }
