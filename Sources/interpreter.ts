@@ -257,14 +257,14 @@ class Interpreter implements AstVisitor<Exp> {
             Interpreter.set(this.currentScope, (<Ident>a.slot).name, val,
                             a.parent instanceof Var);
         } else if (a.slot instanceof MemberAccess) {
-            var m = <MemberAccess>a.slot;
-            var exp = m.bag.accept(this);
+            var ma = <MemberAccess>a.slot;
+            var exp = ma.bag.accept(this);
             if (exp instanceof Struct) {
                 var s = <Struct>exp;
-                Interpreter.set(s.body, m.ident.name, val, false);
+                Interpreter.set(s.body, (<Ident>ma.member).name, val, false);
             } else {
                 throw "assign to member - expected struct, got: " +
-                    getTypeName(m);
+                    getTypeName(ma);
             }
         } else if (a.slot instanceof FnApply) {
             var fnRes = <Ref>a.slot.accept(this);
@@ -332,10 +332,10 @@ class Interpreter implements AstVisitor<Exp> {
 
 
     visitMember (ma : MemberAccess) : Exp {
-        var exp = m.bag.accept(this);
+        var exp = ma.bag.accept(this);
         if (exp instanceof Struct) {
             var bag = <Struct>exp;
-            return Interpreter.get(bag.body, m.ident.name);
+            return Interpreter.get(bag.body, (<Ident>ma.member).name);
         }
         throw "expected struct before member access, got: " + getTypeName(exp);
     }
@@ -370,12 +370,12 @@ class Interpreter implements AstVisitor<Exp> {
         }
 
         if (fna.fn instanceof MemberAccess) {
-            var m = <MemberAccess>fna.fn;
-            args.splice(0, 0, m.bag);
+            var ma = <MemberAccess>fna.fn;
+            args.splice(0, 0, ma.bag);
             var fna2 = new FnApply(
                 undefined,
                 new Braced(undefined, new ExpList(undefined, args)),
-                m.ident);
+                ma.member);
             return this.visitFnApply(fna2);
         }
 

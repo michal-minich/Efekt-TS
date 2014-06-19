@@ -8,6 +8,7 @@
 /// <reference path="namer.ts"/>
 /// <reference path="typer.ts"/>
 /// <reference path="prelude.ts"/>
+/// <reference path="fixer.ts"/>
 
 
 class Ide {
@@ -19,6 +20,7 @@ class Ide {
     static outputAstView : OutputView;
     static outputLogger : OutputLogger;
     static parser : Parser;
+    static fixer : Fixer;
     static namer : Namer;
     static typer : Typer;
     static interpreter : Interpreter;
@@ -38,17 +40,24 @@ class Ide {
                                             Ide.outputView,
                                             Ide.outputAstView);
         Ide.parser = new Parser(Ide.outputLogger);
+        Ide.fixer = new Fixer(Ide.outputLogger);
         Ide.namer = new Namer(Ide.outputLogger);
         Ide.typer = new Typer(Ide.outputLogger);
         Ide.interpreter = new Interpreter(Ide.outputLogger,
                                           Ide.outputLogger,
                                           Ide.outputLogger);
 
-
         $id("parseButton").addEventListener('mousedown', () => {
             Ide.doWithExceptionHandling(()=> {
                 Ide.outputLogger.clear();
                 Ide.parse(codeEdit.value);
+            });
+        });
+
+        $id("fixButton").addEventListener('mousedown', () => {
+            Ide.doWithExceptionHandling(()=> {
+                Ide.outputLogger.clear();
+                Ide.fix(codeEdit.value);
             });
         });
 
@@ -103,8 +112,26 @@ class Ide {
 
 
 
-    static usages (code : string) {
+    static fix (code : string) : void {
+        var al = Ide.parseAndFix(code);
+        Ide.outputView.show(al);
+        Ide.outputAstView.show(al);
+    }
+
+
+
+
+    static parseAndFix (code : string) : AsiList {
         var al = Ide.parser.parse(code);
+        al = <AsiList>al.accept(Ide.fixer);
+        return al;
+    }
+
+
+
+
+    static usages (code : string) {
+        var al = Ide.parseAndFix(code);
         var sc = new Scope(undefined, combineAsiLists(prelude, al));
         sc.accept(Ide.namer);
         Ide.outputView.show(al);
@@ -115,7 +142,7 @@ class Ide {
 
 
     static doType (code : string) {
-        var al = Ide.parser.parse(code);
+        var al = Ide.parseAndFix(code);
         var sc = new Scope(undefined, al);
         //sc.accept(Ide.namer);
         al.accept(Ide.typer);
@@ -127,7 +154,7 @@ class Ide {
 
 
     static interpret (code : string) {
-        var al = Ide.parser.parse(code);
+        var al = Ide.parseAndFix(code);
         Ide.outputView.clear();
         Ide.outputAstView.clear();
         var sc = new Scope(undefined, combineAsiLists(prelude, al));

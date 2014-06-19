@@ -202,9 +202,9 @@ class Fixer implements AstVisitor<Asi> {
 
 
     visitMember (ma : MemberAccess) : Asi {
-        m.bag.accept(this);
+        ma.bag.accept(this);
         //this.visitIdent(m.ident);
-        return m;
+        return ma;
     }
 
 
