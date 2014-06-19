@@ -256,8 +256,8 @@ class Interpreter implements AstVisitor<Exp> {
         if (a.slot instanceof Ident) {
             Interpreter.set(this.currentScope, (<Ident>a.slot).name, val,
                             a.parent instanceof Var);
-        } else if (a.slot instanceof Member) {
-            var m = <Member>a.slot;
+        } else if (a.slot instanceof MemberAccess) {
+            var m = <MemberAccess>a.slot;
             var exp = m.bag.accept(this);
             if (exp instanceof Struct) {
                 var s = <Struct>exp;
@@ -331,7 +331,7 @@ class Interpreter implements AstVisitor<Exp> {
 
 
 
-    visitMember (m : Member) : Exp {
+    visitMember (ma : MemberAccess) : Exp {
         var exp = m.bag.accept(this);
         if (exp instanceof Struct) {
             var bag = <Struct>exp;
@@ -369,8 +369,8 @@ class Interpreter implements AstVisitor<Exp> {
             }
         }
 
-        if (fna.fn instanceof Member) {
-            var m = <Member>fna.fn;
+        if (fna.fn instanceof MemberAccess) {
+            var m = <MemberAccess>fna.fn;
             args.splice(0, 0, m.bag);
             var fna2 = new FnApply(
                 undefined,

@@ -317,11 +317,11 @@ class Printer implements AstVisitor<void> {
 
 
 
-    visitMember (m : Member) : void {
-        m.bag.accept(this);
+    visitMember (ma : MemberAccess) : void {
+        ma.bag.accept(this);
         this.cw.writeOp(".");
-        this.visitIdent(m.ident);
-        this.printType(m);
+        ma.member.accept(this);
+        this.printType(ma);
     }
 
 

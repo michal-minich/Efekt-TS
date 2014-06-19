@@ -125,9 +125,9 @@ class BinOpBuilder {
 
     private combineExp (op : string, op1 : Exp, op2 : Exp) : Exp {
         if (op === ".") {
-            if (!(op2 instanceof Ident))
-                this.logger.fatal("Expected identifier after '.'.");
-            return new Member(undefined, op1, <Ident>op2);
+            //if (!(op2 instanceof Ident))
+            //    this.logger.fatal("Expected identifier after '.'.");
+            return new MemberAccess(undefined, op1, <Ident>op2);
         } else if (op === "\n") {
             return new FnApply(undefined, <Braced>op2, op1);
         } else if (op === "=") {

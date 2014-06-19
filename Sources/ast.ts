@@ -445,17 +445,17 @@ class Ident extends Exp {
 
 
 
-class Member extends Exp {
+class MemberAccess extends Exp {
 
     public bag : Exp;
-    public ident : Ident;
+    public member : Exp;
 
-    constructor (attrs : ExpList, bag : Exp, ident : Ident) {
+    constructor (attrs : ExpList, bag : Exp, member : Exp) {
         super(attrs);
         this.bag = bag;
-        this.ident = ident;
+        this.member = member;
         bag.parent = this;
-        ident.parent = this;
+        member.parent = this;
     }
 
     accept<T> (v : AstVisitor<T>) : T {

@@ -38,7 +38,7 @@ class SlotResolver {
         return i;
     }
 
-    visitMember (m : Member) : Ident {
+    visitMember (ma : MemberAccess) : Ident {
         return m.ident;
     }
 }
@@ -84,7 +84,7 @@ class ValueResolver {
         return this.visitAssign(<Assign>a);
     }
 
-    visitMember (m : Member) : Ident {
+    visitMember (ma : MemberAccess) : Ident {
         throw undefined;
     }
 
@@ -308,7 +308,7 @@ class Namer implements AstVisitor<void> {
 
 
 
-    visitMember (m : Member) : void {
+    visitMember (ma : MemberAccess) : void {
         /*if (m.bag instanceof Ident) {
             var i = <Ident>m.bag;
             this.visitIdent(i);

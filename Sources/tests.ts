@@ -260,6 +260,10 @@ function parseTests () : void {
     // return
     t("return \n return 1 + 2").parse("return\nreturn (1 + 2)");
 
+    // return
+    t("import a").parse("import a");
+    t("import a.b").parse("import a.b");
+    t("import a.(b, c)").parse("import a.(b, c)");
 
     // break
     t("break continue").parse("break\ncontinue");
