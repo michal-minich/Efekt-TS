@@ -234,15 +234,15 @@ class Interpreter implements AstVisitor<Exp> {
 
 
 
-    visitValueVar (vv : ValueVar) : Exp {
-        return vv.ident;
+    visitTyping (tpg : Typing) : Exp {
+        return tpg.value;
     }
 
 
 
 
-    visitTypeVar (tv : TypeVar) : Exp {
-        return tv.typeVar;
+    visitConstraining (csg : Constraining) : Exp {
+        return csg.type;
     }
 
 
@@ -410,10 +410,10 @@ class Interpreter implements AstVisitor<Exp> {
     private static getName (e : Exp) : string {
         if (e instanceof Ident)
             return (<Ident>e).name;
-        else if (e instanceof ValueVar)
-            return Interpreter.getName((<ValueVar>e).ident);
-        else if (e instanceof TypeVar)
-            return Interpreter.getName((<TypeVar>e).typeVar);
+        else if (e instanceof Typing)
+            return Interpreter.getName((<Typing>e).value);
+        else if (e instanceof Constraining)
+            return Interpreter.getName((<Constraining>e).type);
         else
             throw "exp has no name";
     }

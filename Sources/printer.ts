@@ -42,9 +42,9 @@ class Printer implements AstVisitor<void> {
 
 
     private printType (asi : Asi) : CodeWriter {
-        if (asi.type) {
+        if (asi.infType) {
             this.cw.space().markup(":").space();
-            asi.type.accept(this);
+            asi.infType.accept(this);
         }
         return this.cw;
     }
@@ -210,21 +210,21 @@ class Printer implements AstVisitor<void> {
 
 
 
-    visitValueVar (vv : ValueVar) : void {
-        vv.ident.accept(this);
+    visitTyping (tpg : Typing) : void {
+        tpg.value.accept(this);
         this.cw.space().writeOp(":").space();
-        vv.typeVar.accept(this);
-        this.printType(vv);
+        tpg.type.accept(this);
+        this.printType(tpg);
     }
 
 
 
 
-    visitTypeVar (tv : TypeVar) : void {
-        tv.typeVar.accept(this);
+    visitConstraining (csg : Constraining) : void {
+        csg.type.accept(this);
         this.cw.space().writeOp("of").space();
-        tv.constraint.accept(this);
-        this.printType(tv);
+        csg.constraint.accept(this);
+        this.printType(csg);
     }
 
 
@@ -601,6 +601,7 @@ class Printer implements AstVisitor<void> {
 
 
     visitDeclr (d : Declr) : void {
+        this.visitIdent(d.ident);
     }
 
 

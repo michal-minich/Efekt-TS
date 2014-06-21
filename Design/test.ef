@@ -92,12 +92,14 @@ writesIO
 readsIO
 modifiesVar
 
-var a
-var a = 1
-var a : A = 1
-var a : A of Any = 1
-var     A = Int
-var     A of Any = Int
+var 'a
+var 'a = 1
+var 'a : A = 1
+var 'a : A of Any = 1
+var     'A = Int
+var     'A of Any = Int
+var 'a = b = 1
+var 'a = var 'b = 1
 
 
 var @unsafe = attribute (a : A of Any, b : A)

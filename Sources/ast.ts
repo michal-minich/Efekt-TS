@@ -9,7 +9,7 @@ class Asi {
 
     public parent : Asi;
     public attrs : ExpList;
-    public type : Exp;
+    public infType : Exp;
 
     constructor (attrs : ExpList) {
         if (attrs) {
@@ -308,42 +308,42 @@ class Var extends Exp {
 
 
 
-class ValueVar extends Exp {
+class Typing extends Exp {
 
-    public ident : Exp;
-    public typeVar : Exp;
+    public value : Exp;
+    public type : Exp;
 
     constructor (attrs : ExpList, ident : Exp, type : Exp) {
         super(attrs);
-        this.ident = ident;
-        this.typeVar = type;
+        this.value = ident;
+        this.type = type;
         ident.parent = this;
         type.parent = this;
     }
 
     accept<T> (v : AstVisitor<T>) : T {
-        return v.visitValueVar(this);
+        return v.visitTyping(this);
     }
 }
 
 
 
 
-class TypeVar extends Exp {
+class Constraining extends Exp {
 
-    public typeVar : Exp;
+    public type : Exp;
     public constraint : Exp;
 
     constructor (attrs : ExpList, type : Exp, constraint : Exp) {
         super(attrs);
-        this.typeVar = type;
+        this.type = type;
         this.constraint = constraint;
         type.parent = this;
         constraint.parent = this;
     }
 
     accept<T> (v : AstVisitor<T>) : T {
-        return v.visitTypeVar(this);
+        return v.visitConstraining(this);
     }
 }
 
@@ -962,12 +962,12 @@ class TypeRef extends Exp {
 
 class Declr extends Exp {
 
-    public exp : Exp;
+    public ident : Ident;
 
-    constructor (attrs : ExpList, exp : Exp) {
+    constructor (attrs : ExpList, ident : Ident) {
         super(attrs);
-        this.exp = exp;
-        exp.parent = this;
+        this.ident = ident;
+        ident.parent = this;
     }
 
     accept<T> (v : AstVisitor<T>) : T {

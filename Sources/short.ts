@@ -5,11 +5,11 @@
 
 class ShortCircuitFnVisitor implements AstVisitor<boolean> {
 
-    private tv : TerminalAstVisitor<boolean>;
+    private csg : TerminalAstVisitor<boolean>;
 
 
-    constructor (tv : TerminalAstVisitor<boolean>) {
-        this.tv = tv;
+    constructor (csg : TerminalAstVisitor<boolean>) {
+        this.csg = csg;
     }
 
 
@@ -75,14 +75,14 @@ class ShortCircuitFnVisitor implements AstVisitor<boolean> {
 
 
     visitBreak (b : Break) : boolean {
-        return this.tv.visitBreak(b);
+        return this.csg.visitBreak(b);
     }
 
 
 
 
     visitContinue (c : Continue) : boolean {
-        return this.tv.visitContinue(c);
+        return this.csg.visitContinue(c);
     }
 
 
@@ -155,15 +155,15 @@ class ShortCircuitFnVisitor implements AstVisitor<boolean> {
 
 
 
-    visitValueVar (tv : ValueVar) : boolean {
-        return this.acceptTwo(tv.ident, tv.typeVar);
+    visitTyping (tpg : Typing) : boolean {
+        return this.acceptTwo(tpg.value, tpg.type);
     }
 
 
 
 
-    visitTypeVar (vv : TypeVar) : boolean {
-        return this.acceptTwo(vv.typeVar, vv.constraint);
+    visitConstraining (csg : Constraining) : boolean {
+        return this.acceptTwo(csg.type, csg.constraint);
     }
 
 
@@ -184,7 +184,7 @@ class ShortCircuitFnVisitor implements AstVisitor<boolean> {
 
 
     visitIdent (i : Ident) : boolean {
-        return this.tv.visitIdent(i);
+        return this.csg.visitIdent(i);
     }
 
 
@@ -257,35 +257,35 @@ class ShortCircuitFnVisitor implements AstVisitor<boolean> {
 
 
     visitVoid (vo : Void) : boolean {
-        return this.tv.visitVoid(vo);
+        return this.csg.visitVoid(vo);
     }
 
 
 
 
     visitBool (b : Bool) : boolean {
-        return this.tv.visitBool(b);
+        return this.csg.visitBool(b);
     }
 
 
 
 
     visitInt (ii : Int) : boolean {
-        return this.tv.visitInt(ii);
+        return this.csg.visitInt(ii);
     }
 
 
 
 
     visitFloat (f : Float) : boolean {
-        return this.tv.visitFloat(f);
+        return this.csg.visitFloat(f);
     }
 
 
 
 
     visitChar (ch : Char) : boolean {
-        return this.tv.visitChar(ch);
+        return this.csg.visitChar(ch);
     }
 
 
@@ -345,7 +345,7 @@ class ShortCircuitFnVisitor implements AstVisitor<boolean> {
 
 
     visitTypeAny (ta : TypeAny) : boolean {
-        return this.tv.visitTypeAny(ta);
+        return this.csg.visitTypeAny(ta);
     }
 
 
@@ -359,42 +359,42 @@ class ShortCircuitFnVisitor implements AstVisitor<boolean> {
 
 
     visitTypeErr (ter : TypeErr) : boolean {
-        return this.tv.visitTypeErr(ter);
+        return this.csg.visitTypeErr(ter);
     }
 
 
 
 
     visitTypeVoid (tvo : TypeVoid) : boolean {
-        return this.tv.visitTypeVoid(tvo);
+        return this.csg.visitTypeVoid(tvo);
     }
 
 
 
 
     visitTypeBool (tb : TypeBool) : boolean {
-        return this.tv.visitTypeBool(tb);
+        return this.csg.visitTypeBool(tb);
     }
 
 
 
 
     visitTypeInt (tii : TypeInt) : boolean {
-        return this.tv.visitTypeInt(tii);
+        return this.csg.visitTypeInt(tii);
     }
 
 
 
 
     visitTypeFloat (tf : TypeFloat) : boolean {
-        return this.tv.visitTypeFloat(tf);
+        return this.csg.visitTypeFloat(tf);
     }
 
 
 
 
     visitTypeChar (tch : TypeChar) : boolean {
-        return this.tv.visitTypeChar(tch);
+        return this.csg.visitTypeChar(tch);
     }
 
 
@@ -420,7 +420,7 @@ class ShortCircuitFnVisitor implements AstVisitor<boolean> {
 
 
     visitDeclr (d : Declr) : boolean {
-        return d.exp.accept(this);
+        return d.ident.accept(this);
     }
 
 

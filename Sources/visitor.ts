@@ -22,8 +22,8 @@ interface AstVisitor<T> extends TerminalAstVisitor<T>,
 
     // expressions
     visitVar (v : Var) : T;
-    visitValueVar (tv : ValueVar) : T;
-    visitTypeVar (vv : TypeVar) : T;
+    visitTyping (tpg : Typing) : T;
+    visitConstraining (csg : Constraining) : T;
     visitAssign (a : Assign) : T;
     visitScope (sc : Scope) : T;
     //visitIdent (i : Ident) : T;

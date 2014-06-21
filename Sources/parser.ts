@@ -20,8 +20,7 @@ class BinOpBuilder {
     private opOp : string[] = [];
 
     private static rightAssociativeOps =
-        [":", "of", "=", "*=", "/=", "%=", "+=", "-=", "<<=", ">>=",
-         "&==", "^=", "|="];
+        ["=", "*=", "/=", "%=", "+=", "-=", "<<=", ">>=", "&==", "^=", "|="];
 
     // \n is virtual operator that binds fn exp to braced to make fn apply
     private static opPrecedence : Precedence = {
@@ -92,22 +91,19 @@ class BinOpBuilder {
     private reorderBinOpsSequence (opExp : Exp[], opOp : string[]) : void {
         var prec = BinOpBuilder.opPrecedence;
         var right = BinOpBuilder.rightAssociativeOps;
-        do {
-            var numChanges = 0;
-            for (var i = opOp.length - 1; i !== 0; --i) {
-                var op = opOp[i];
-                var opPrev = opOp[i - 1];
-                if ((op != opPrev
-                    && right.contains(opPrev) && right.contains(op))
-                    || prec[op] <= prec[opPrev])
-                    continue;
-                opExp[i] = this.combineExp(op, opExp[i], opExp[i + 1]);
-                opExp.removeAt(i + 1);
-                opOp.removeAt(i);
-                ++numChanges;
-                i = opOp.length;
-            }
-        } while (numChanges !== 0);
+        var i = opOp.length;
+        while (i !== 0) {
+            --i;
+            var op = opOp[i];
+            var opPrev = opOp[i - 1];
+            if (prec[op] <= prec[opPrev]
+                && !(right.contains(opPrev) && right.contains(op)))
+                continue;
+            opExp[i] = this.combineExp(op, opExp[i], opExp[i + 1]);
+            opExp.removeAt(i + 1);
+            opOp.removeAt(i);
+            i = opOp.length;
+        }
     }
 
 
@@ -133,9 +129,9 @@ class BinOpBuilder {
         } else if (op === "=") {
             return new Assign(undefined, op1, op2);
         } else if (op === ":") {
-            return new ValueVar(undefined, op1, op2);
+            return new Typing(undefined, op1, op2);
         } else if (op === "of") {
-            return new TypeVar(undefined, op1, op2);
+            return new Constraining(undefined, op1, op2);
         } else if (op === ",") {
             if (op1 instanceof ExpList) {
                 var el = <ExpList>op1;

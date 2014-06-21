@@ -27,7 +27,7 @@ class Typer implements AstVisitor<void> {
         for (var i = 0; i < types.length; i++) {
             types[i].accept(this);
         }
-        return types[0].type;
+        return types[0].infType;
     }
 
 
@@ -39,7 +39,7 @@ class Typer implements AstVisitor<void> {
 
 
     visitAsiList (al : AsiList) : void {
-        al.type = new TypeVoid(undefined);
+        al.infType = new TypeVoid(undefined);
         for (var i = 0; i < al.items.length; i++) {
             al.items[i].accept(this);
         }
@@ -49,7 +49,7 @@ class Typer implements AstVisitor<void> {
 
 
     visitExpList (el : ExpList) : void {
-        el.type = new TypeVoid(undefined);
+        el.infType = new TypeVoid(undefined);
         for (var i = 0; i < el.items.length; i++) {
             el.items[i].accept(this);
         }
@@ -59,9 +59,9 @@ class Typer implements AstVisitor<void> {
 
 
     visitBraced (bc : Braced) : void {
-        bc.type = bc.list.items.length === 0
+        bc.infType = bc.list.items.length === 0
             ? new TypeVoid(undefined)
-            : bc.list.items[0].type;
+            : bc.list.items[0].infType;
     }
 
 
@@ -73,28 +73,28 @@ class Typer implements AstVisitor<void> {
 
 
     visitLoop (l : Loop) : void {
-        l.type = new TypeVoid(undefined);
+        l.infType = new TypeVoid(undefined);
         this.visitScope(l.body);
     }
 
 
 
     visitBreak (b : Break) : void {
-        b.type = new TypeVoid(undefined);
+        b.infType = new TypeVoid(undefined);
     }
 
 
 
 
     visitContinue (c : Continue) : void {
-        c.type = new TypeVoid(undefined);
+        c.infType = new TypeVoid(undefined);
     }
 
 
 
 
     visitLabel (lb : Label) : void {
-        lb.type = new TypeVoid(undefined);
+        lb.infType = new TypeVoid(undefined);
         //this.visitIdent(lb.ident);
     }
 
@@ -102,7 +102,7 @@ class Typer implements AstVisitor<void> {
 
 
     visitGoto (gt : Goto) : void {
-        gt.type = new TypeVoid(undefined);
+        gt.infType = new TypeVoid(undefined);
         //this.visitIdent(gt.ident);
     }
 
@@ -110,7 +110,7 @@ class Typer implements AstVisitor<void> {
 
 
     visitImport (im : Import) : void {
-        im.type = new TypeVoid(undefined);
+        im.infType = new TypeVoid(undefined);
         //im.value.accept(this);
     }
 
@@ -118,7 +118,7 @@ class Typer implements AstVisitor<void> {
 
 
     visitReturn (r : Return) : void {
-        r.type = new TypeVoid(undefined);
+        r.infType = new TypeVoid(undefined);
         r.value.accept(this);
     }
 
@@ -127,14 +127,14 @@ class Typer implements AstVisitor<void> {
 
     visitThrow (th : Throw) : void {
         th.ex.accept(this);
-        th.type = new TypeVoid(undefined);
+        th.infType = new TypeVoid(undefined);
     }
 
 
 
 
     visitTry (tr : Try) : void {
-        tr.type = new TypeVoid(undefined);
+        tr.infType = new TypeVoid(undefined);
         tr.body.accept(this);
         if (tr.catches) {
             for (var i = 0; i < tr.catches.length; i++) {
@@ -159,25 +159,25 @@ class Typer implements AstVisitor<void> {
 
     visitVar (v : Var) : void {
         v.exp.accept(this);
-        v.type = v.exp.type;
+        v.infType = v.exp.infType;
     }
 
 
 
 
-    visitValueVar (vv : ValueVar) : void {
-        vv.ident.accept(this);
-        vv.typeVar.accept(this);
-        vv.type = vv.typeVar;
+    visitTyping (tpg : Typing) : void {
+        tpg.value.accept(this);
+        tpg.type.accept(this);
+        tpg.infType = tpg.type;
     }
 
 
 
 
-    visitTypeVar (tv : TypeVar) : void {
-        tv.constraint.accept(this);
-        tv.typeVar.accept(this);
-        tv.type = tv.typeVar;
+    visitConstraining (csg : Constraining) : void {
+        csg.constraint.accept(this);
+        csg.type.accept(this);
+        csg.infType = csg.type;
     }
 
 
@@ -186,7 +186,7 @@ class Typer implements AstVisitor<void> {
     visitAssign (a : Assign) : void {
         a.value.accept(this);
         a.slot.accept(this);
-        a.type = a.value.type;
+        a.infType = a.value.infType;
     }
 
 
@@ -196,9 +196,9 @@ class Typer implements AstVisitor<void> {
         this.currentScope = sc;
         this.visitAsiList(sc.list);
         this.currentScope = prevScope;
-        sc.type = sc.list.items.length === 0
+        sc.infType = sc.list.items.length === 0
             ? new TypeVoid(undefined)
-            : sc.list.items[0].type;
+            : sc.list.items[0].infType;
     }
 
 
@@ -206,9 +206,9 @@ class Typer implements AstVisitor<void> {
 
     visitIdent (i : Ident) : void {
         if (i.declaredBy)
-            i.type = i.declaredBy.type;
+            i.infType = i.declaredBy.infType;
         else
-            i.type = new TypeVoid(undefined);
+            i.infType = new TypeVoid(undefined);
     }
 
 
@@ -244,9 +244,9 @@ class Typer implements AstVisitor<void> {
         i.then.accept(this);
         if (i.otherwise) {
             i.otherwise.accept(this);
-            i.type = this.commonType([i.then.type, i.otherwise.type])
+            i.infType = this.commonType([i.then.infType, i.otherwise.infType])
         } else {
-            i.type = i.then.type;
+            i.infType = i.then.infType;
         }
     }
 
@@ -255,7 +255,7 @@ class Typer implements AstVisitor<void> {
 
     visitNew (nw : New) : void {
         nw.value.accept(this);
-        nw.type = nw.value.type;
+        nw.infType = nw.value.infType;
     }
 
 
@@ -263,7 +263,7 @@ class Typer implements AstVisitor<void> {
 
     visitTypeOf (tof : TypeOf) : void {
         tof.value.accept(this);
-        tof.type = tof.value.type;
+        tof.infType = tof.value.infType;
     }
 
 
@@ -281,43 +281,43 @@ class Typer implements AstVisitor<void> {
 
 
     visitErr (er : Err) : void {
-        er.item.type.accept(this);
-        er.type = new TypeErr(undefined, er.item.type);
+        er.item.infType.accept(this);
+        er.infType = new TypeErr(undefined, er.item.infType);
     }
 
 
 
 
     visitVoid (vo : Void) : void {
-        vo.type = new TypeVoid(undefined);
+        vo.infType = new TypeVoid(undefined);
     }
 
 
 
 
     visitBool (b : Bool) : void {
-        b.type = new TypeBool(undefined);
+        b.infType = new TypeBool(undefined);
     }
 
 
 
 
     visitInt (ii : Int) : void {
-        ii.type = new TypeInt(undefined);
+        ii.infType = new TypeInt(undefined);
     }
 
 
 
 
     visitFloat (f : Float) : void {
-        f.type = new TypeFloat(undefined);
+        f.infType = new TypeFloat(undefined);
     }
 
 
 
 
     visitChar (ch : Char) : void {
-        ch.type = new TypeChar(undefined);
+        ch.infType = new TypeChar(undefined);
     }
 
 
@@ -327,7 +327,7 @@ class Typer implements AstVisitor<void> {
         this.visitExpList(arr.list);
         var t = this.commonType(arr.list.items);
         var len = new Int(undefined, "" + arr.list.items.length);
-        arr.type = new TypeArr(undefined, t, len);
+        arr.infType = new TypeArr(undefined, t, len);
     }
 
 
@@ -335,7 +335,7 @@ class Typer implements AstVisitor<void> {
 
     visitRef (rf : Ref) : void {
         rf.item.accept(this);
-        rf.type = new TypeRef(undefined, rf.item.type);
+        rf.infType = new TypeRef(undefined, rf.item.infType);
     }
 
 

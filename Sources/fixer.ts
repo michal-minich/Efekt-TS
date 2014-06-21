@@ -144,28 +144,49 @@ class Fixer implements AstVisitor<Asi> {
 
 
 
+    private static convertToDeclr (parent : any, property: string) {
+        var i = <Ident>parent[property];
+        var d = new Declr(undefined, i);
+        d.parent = parent;
+        parent[property] = d;
+    }
+
+
 
     visitVar (v : Var) : Asi {
         v.exp.accept(this);
+
+        if (v.exp instanceof Ident)
+            Fixer.convertToDeclr(v, 'exp');
+        else if (v.exp instanceof Typing)
+            Fixer.convertToDeclr(v.exp, 'value');
+        else if (v.exp instanceof Constraining)
+            Fixer.convertToDeclr(v.exp, 'type');
+        else if (v.exp instanceof Assign) {
+            var s = (<Assign>v.exp).slot;
+            if (s instanceof Ident)
+                Fixer.convertToDeclr(v.exp, 'slot');
+            else if (s instanceof Typing)
+                Fixer.convertToDeclr(s, 'value');
+            else if (s instanceof Constraining)
+                Fixer.convertToDeclr(s, 'type');
+        }
+
         return v;
     }
 
 
-
-
-    visitValueVar (vv : ValueVar) : Asi {
-        vv.ident.accept(this);
-        vv.typeVar.accept(this);
-        return vv;
+    visitTyping (tpg : Typing) : Asi {
+        tpg.value.accept(this);
+        return tpg;
     }
 
 
 
 
-    visitTypeVar (tv : TypeVar) : Asi {
-        tv.constraint.accept(this);
-        tv.typeVar.accept(this);
-        return tv;
+    visitConstraining (csg : Constraining) : Asi {
+        csg.constraint.accept(this);
+        return csg;
     }
 
 
@@ -191,10 +212,6 @@ class Fixer implements AstVisitor<Asi> {
 
 
     visitIdent (i : Ident) : Asi {
-        if (i.declaredBy)
-            i.type = i.declaredBy.type;
-        else
-            i.type = new TypeVoid(undefined);
         return i;
     }
 
@@ -270,7 +287,6 @@ class Fixer implements AstVisitor<Asi> {
 
 
     visitErr (er : Err) : Asi {
-        er.item.type.accept(this);
         return er;
     }
 
@@ -334,6 +350,9 @@ class Fixer implements AstVisitor<Asi> {
 
 
     visitFn (fn : Fn) : Asi {
+        //for (var i = 0; i < fn.params.list.items.length; ++i) {
+        //    if (fn)
+        //}
         return fn;
     }
 

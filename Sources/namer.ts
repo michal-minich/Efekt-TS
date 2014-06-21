@@ -22,12 +22,12 @@ class SlotResolver {
 
     // expressions
 
-    visitValueVar (tv : ValueVar) : Ident {
-        return tv.ident.accept(this.self);
+    visitTyping (tpg : Typing) : Ident {
+        return tpg.value.accept(this.self);
     }
 
-    visitTypeVar (vv : TypeVar) : Ident {
-        return vv.typeVar.accept(this.self);
+    visitConstraining (csg : Constraining) : Ident {
+        return csg.type.accept(this.self);
     }
 
     visitAssign (a : Assign) : Ident {
@@ -39,7 +39,7 @@ class SlotResolver {
     }
 
     visitMember (ma : MemberAccess) : Ident {
-        return m.ident;
+        return <Ident>ma.member;
     }
 }
 
@@ -265,17 +265,17 @@ class Namer implements AstVisitor<void> {
 
 
 
-    visitValueVar (vv : ValueVar) : void {
-        vv.typeVar.accept(this);
-        vv.ident.accept(this);
+    visitTyping (tpg : Typing) : void {
+        tpg.type.accept(this);
+        tpg.value.accept(this);
     }
 
 
 
 
-    visitTypeVar (tv : TypeVar) : void {
-        tv.constraint.accept(this);
-        tv.typeVar.accept(this);
+    visitConstraining (csg : Constraining) : void {
+        csg.constraint.accept(this);
+        csg.type.accept(this);
     }
 
 
@@ -314,7 +314,7 @@ class Namer implements AstVisitor<void> {
             this.visitIdent(i);
             //this.processIdent(m.ident, i.declaringEnv)
         }*/
-        m.bag.accept(this);
+        ma.bag.accept(this);
     }
 
 

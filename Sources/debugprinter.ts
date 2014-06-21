@@ -67,8 +67,8 @@ class DebugPrinter implements AstVisitor<void> {
     private printCommon (asi : Asi) : DebugPrinter {
         if (asi.attrs)
             this.field("attrs", asi.attrs);
-        if (asi.type && !(asi.type instanceof TypeVoid))
-            this.field("typeVar", asi.type);
+        if (asi.infType && !(asi.infType instanceof TypeVoid))
+            this.field("infType", asi.infType);
         return this;
     }
 
@@ -198,19 +198,19 @@ class DebugPrinter implements AstVisitor<void> {
 
 
 
-    visitValueVar (vv : ValueVar) : void {
-        this.key("ValueVar", vv)
-            .field("ident", vv.ident)
-            .field("typeVar", vv.typeVar);
+    visitTyping (tpg : Typing) : void {
+        this.key("Typing", tpg)
+            .field("value", tpg.value)
+            .field("type", tpg.type);
     }
 
 
 
 
-    visitTypeVar (tv : TypeVar) : void {
-        this.key("TypeVar", tv)
-            .field("typeVar", tv.typeVar)
-            .field("constraint", tv.constraint);
+    visitConstraining (csg : Constraining) : void {
+        this.key("Constraining", csg)
+            .field("type", csg.type)
+            .field("constraint", csg.constraint);
     }
 
 
@@ -492,17 +492,20 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitDeclr (d : Declr) : void {
+        this.key("Declr", d).field("ident", d.ident);
     }
 
 
 
 
     visitClosure (cls : Closure) : void {
+        this.key("Closure", cls);
     }
 
 
 
 
     visitRefSlot (rs : RefSlot) : void {
+        this.key("RefSlot", rs);
     }
 }
