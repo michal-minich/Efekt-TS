@@ -11,7 +11,7 @@ class Typer implements AstVisitor<void> {
 
 
     private logger : LogWriter;
-    private currentScope : Scope;
+    private env : Env<Ident>;
 
 
 
@@ -59,6 +59,7 @@ class Typer implements AstVisitor<void> {
 
 
     visitBraced (bc : Braced) : void {
+        this.visitExpList(bc.list);
         bc.infType = bc.list.items.length === 0
             ? new TypeVoid(undefined)
             : bc.list.items[0].infType;
@@ -187,15 +188,37 @@ class Typer implements AstVisitor<void> {
         a.value.accept(this);
         a.slot.accept(this);
         a.infType = a.value.infType;
+        if (a.slot instanceof Declr) {
+            a.slot.infType = a.infType;
+            var i = (<Declr>a.slot).ident;
+            i.infType = a.infType;
+        } else if (a.slot instanceof Typing) {
+            if ((<Typing>a.slot).value instanceof Declr) {
+                (<Typing>a.slot).value.infType = a.infType;
+                (<Declr>(<Typing>a.slot).value).ident.infType = a.infType;
+            } else if ((<Typing>a.slot).value instanceof Ident) {
+                (<Ident>a.slot).infType = a.infType;
+            }
+        } else if (a.slot instanceof Ident) {
+            var i = <Ident>a.slot;
+            i.infType = a.infType;
+            var e = this.env.getDeclaringEnv(i.name);
+            if (e) {
+                var di = e.getDirectly(i.name);
+                di.infType = a.infType;
+                di.parent.infType = a.infType;
+                di.parent.parent.infType = a.infType;
+            }
+        }
     }
 
 
 
+
     visitScope (sc : Scope) : void {
-        var prevScope = this.currentScope;
-        this.currentScope = sc;
+        this.env = new Env<Ident>(this.env ? this.env : undefined, this.logger);
         this.visitAsiList(sc.list);
-        this.currentScope = prevScope;
+        this.env = this.env.parent;
         sc.infType = sc.list.items.length === 0
             ? new TypeVoid(undefined)
             : sc.list.items[0].infType;
@@ -205,10 +228,12 @@ class Typer implements AstVisitor<void> {
 
 
     visitIdent (i : Ident) : void {
-        if (i.declaredBy)
-            i.infType = i.declaredBy.infType;
-        else
+        var e = this.env.getDeclaringEnv(i.name);
+        if (e) {
+            i.infType = e.getDirectly(i.name).infType;
+        } else {
             i.infType = new TypeErr(undefined, new TypeVoid(undefined));
+        }
     }
 
 
@@ -225,6 +250,7 @@ class Typer implements AstVisitor<void> {
     visitFnApply (fna : FnApply) : void {
         this.visitBraced(fna.args);
         fna.fn.accept(this);
+        fna.infType = fna.fn.infType;
     }
 
 
@@ -347,11 +373,19 @@ class Typer implements AstVisitor<void> {
 
 
     visitFn (fn : Fn) : void {
+        this.env = new Env(this.env, this.logger);
         this.visitBraced(fn.params);
-        this.visitScope(fn.body);
-        if (fn.body.list.items.length === 1) {
-            fn.infType = fn.body.list.items[0].infType;
+        if (fn.body) {
+            this.env = new Env(this.env, this.logger);
+            this.visitScope(fn.body);
+            if (fn.body.list.items.length === 1) {
+               // var fnt = new Fn(undefined, undefined, undefined);
+                //fnt.returnType = fn.body.list.items[0].infType;
+                fn.infType = fn.body.list.items[0].infType;
+            }
+            this.env = this.env.parent;
         }
+        this.env = this.env.parent;
     }
 
 
@@ -456,7 +490,7 @@ class Typer implements AstVisitor<void> {
 
 
     visitDeclr (d : Declr) : void {
-        this.visitIdent(d.ident);
+        this.env.declare(d.ident.name, d.ident);
         d.infType = d.ident.infType;
     }
 

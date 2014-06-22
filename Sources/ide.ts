@@ -143,11 +143,11 @@ class Ide {
 
     static doType (code : string) {
         var al = Ide.parseAndFix(code);
-        var sc = new Scope(undefined, al);
-        //sc.accept(Ide.namer);
-        al.accept(Ide.typer);
-        Ide.outputView.show(sc.list);
-        Ide.outputAstView.show(sc.list);
+        var sc = new Scope(undefined, combineAsiLists(prelude, al));
+        sc.accept(Ide.namer);
+        sc.accept(Ide.typer);
+        Ide.outputView.show(al);
+        Ide.outputAstView.show(al);
     }
 
 

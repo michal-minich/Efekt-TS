@@ -603,7 +603,7 @@ class Printer implements AstVisitor<void> {
 
     visitDeclr (d : Declr) : void {
         this.visitIdent(d.ident);
-        this.printType(d.ident);
+        this.printType(d);
     }
 
 

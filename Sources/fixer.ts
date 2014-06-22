@@ -177,8 +177,9 @@ class Fixer implements AstVisitor<Asi> {
 
     private static makeDeclr (exp : Exp) : Exp {
         if (exp instanceof Ident) {
+            var p = exp.parent;
             var d = new Declr(undefined, <Ident>exp);
-            exp.parent = d;
+            d.parent = p;
             return d;
         }
         else if (exp instanceof Typing)
@@ -380,7 +381,7 @@ class Fixer implements AstVisitor<Asi> {
         fn.params = this.visitBraced(fn.params);
         var items = fn.params.list.items;
         for (var i = 0; i < items.length; ++i)
-            items[0] = Fixer.makeDeclr(items[0]);
+            items[i] = Fixer.makeDeclr(items[i]);
         if (fn.body)
             fn.body = this.visitScope(fn.body);
         return fn;
