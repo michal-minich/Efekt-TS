@@ -92,7 +92,7 @@ class BinOpBuilder {
         var prec = BinOpBuilder.opPrecedence;
         var right = BinOpBuilder.rightAssociativeOps;
         var i = opOp.length;
-        while (i !== 0) {
+        while (i !== 1) {
             --i;
             var op = opOp[i];
             var opPrev = opOp[i - 1];

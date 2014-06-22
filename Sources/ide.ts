@@ -123,7 +123,7 @@ class Ide {
 
     static parseAndFix (code : string) : AsiList {
         var al = Ide.parser.parse(code);
-        al = <AsiList>al.accept(Ide.fixer);
+        al = <AsiList>Ide.fixer.fix(al);
         return al;
     }
 

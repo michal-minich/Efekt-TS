@@ -250,7 +250,7 @@ class DebugPrinter implements AstVisitor<void> {
 
 
 
-    visitMember (ma : MemberAccess) : void {
+    visitMemberAccess (ma : MemberAccess) : void {
         this.key("MemberAccess", ma)
             .field("bag", ma.bag).field("member", ma.member);
     }

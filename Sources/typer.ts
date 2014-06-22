@@ -214,7 +214,7 @@ class Typer implements AstVisitor<void> {
 
 
 
-    visitMember (ma : MemberAccess) : void {
+    visitMemberAccess (ma : MemberAccess) : void {
         ma.bag.accept(this);
         //this.visitIdent(m.ident);
     }

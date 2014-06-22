@@ -3,116 +3,12 @@
 /// <reference path="visitor.ts"/>
 
 
-class SlotResolver {
-
-    public self : AstVisitor<Ident> = <any>this;
-
-    // helpers
-
-    visitExpList (el : ExpList) : Ident {
-        if (el.items.length !== 1)
-            throw "slot resolver braced explist length expected to be 1, it is"
-                + el.items.length;
-        return el.items[0].accept(this.self);
-    }
-
-    visitBraced (bc : Braced) : Ident {
-        return this.visitExpList(bc.list);
-    }
-
-    // expressions
-
-    visitTyping (tpg : Typing) : Ident {
-        return tpg.value.accept(this.self);
-    }
-
-    visitConstraining (csg : Constraining) : Ident {
-        return csg.type.accept(this.self);
-    }
-
-    visitAssign (a : Assign) : Ident {
-        return a.slot.accept(this.self);
-    }
-
-    visitIdent (i : Ident) : Ident {
-        return i;
-    }
-
-    visitMember (ma : MemberAccess) : Ident {
-        return <Ident>ma.member;
-    }
-}
-
-
-
-
-class ValueResolver {
-
-    private self : AstVisitor<Ident> = <any>this;
-    private logger : LogWriter;
-
-    constructor (logger : LogWriter) {
-        this.logger = logger;
-    }
-
-    // helpers
-
-    visitExpList (el : ExpList) : Ident {
-        if (el.items.length !== 1)
-            throw "slot resolver braced explist legnth expected to be 1, it is"
-                + el.items.length;
-        return el.items[0].accept(this.self);
-    }
-
-    visitBraced (bc : Braced) : Ident {
-        return this.visitExpList(bc.list);
-    }
-
-    // expressions
-
-    visitAssign (a : Assign) : Ident {
-        return a.value.accept(this.self);
-    }
-
-    visitIdent (i : Ident) : Ident {
-        var i2 = i;
-        while (i2.declaredBy)
-            i2 = i2.declaredBy;
-        var a = i2.parent;
-        while (!(a instanceof Assign))
-            a = a.parent;
-        return this.visitAssign(<Assign>a);
-    }
-
-    visitMember (ma : MemberAccess) : Ident {
-        throw undefined;
-    }
-
-    visitFnApply (fna : FnApply) : Ident {
-        if (fna.fn instanceof Ident) {
-            var fnaFn = <Ident>fna.fn;
-            if (!fnaFn.isType) {
-                this.logger.warn(
-                        "namer - can resolve only sturct" +
-                        "constructor, not function application");
-            }
-            return fnaFn.accept(this.self);
-        }
-        throw undefined;
-    }
-}
-
-
-
-
 class Namer implements AstVisitor<void> {
 
 
 
 
     private logger : LogWriter;
-    private slotResolver = new SlotResolver();
-    private valueResolver : ValueResolver;
     private env : Env<Ident>;
 
 
@@ -120,7 +16,6 @@ class Namer implements AstVisitor<void> {
 
     constructor (logger : LogWriter) {
         this.logger = logger;
-        this.valueResolver = new ValueResolver(this.logger);
     }
 
 
@@ -134,12 +29,15 @@ class Namer implements AstVisitor<void> {
 
 
 
-    public static processIdent (i : Ident, env : Env<Ident>) : void {
+    public processIdent (i : Ident, env : Env<Ident>) : void {
         var e = env.getDeclaringEnv(i.name);
+        if (!e) {
+            this.logger.error("variable " + i.name + " is not declared");
+            i.isUndefined = true;
+            return;
+        }
         i.declaringEnv = e;
         i.declaredBy = e.getDirectly(i.name);
-        if (!i.declaredBy)
-            throw "variable " + i.name + " is not declared";
     }
 
 
@@ -257,8 +155,6 @@ class Namer implements AstVisitor<void> {
 
 
     visitVar (v : Var) : void {
-        var slot = v.exp.accept(this.slotResolver.self);
-        Namer.declareIdent(slot, this.env);
         v.exp.accept(this);
     }
 
@@ -301,14 +197,13 @@ class Namer implements AstVisitor<void> {
 
 
     visitIdent (i : Ident) : void {
-        if (!i.declaringEnv)
-            Namer.processIdent(i, this.env);
+        this.processIdent(i, this.env);
     }
 
 
 
 
-    visitMember (ma : MemberAccess) : void {
+    visitMemberAccess (ma : MemberAccess) : void {
         /*if (m.bag instanceof Ident) {
             var i = <Ident>m.bag;
             this.visitIdent(i);
@@ -545,21 +440,20 @@ class Namer implements AstVisitor<void> {
 
 
 
-    visitDeclr (d : Declr) : Declr {
-        return d;
+    visitDeclr (d : Declr) : void {
+        Namer.declareIdent(d.ident, this.env);
     }
 
 
 
 
-    visitClosure (cls : Closure) : Closure {
-        return cls;
+    visitClosure (cls : Closure) : void {
+
     }
 
 
 
 
-    visitRefSlot (rs : RefSlot) : RefSlot {
-        return rs;
+    visitRefSlot (rs : RefSlot) : void {
     }
 }

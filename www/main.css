@@ -257,4 +257,8 @@ pre {
     background-color: pink;
 }
 
+.usageUndefined {
+    border-bottom: 1px dotted red;
+}
+
 /* other ========================================= */

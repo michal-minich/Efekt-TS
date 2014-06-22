@@ -308,6 +308,8 @@ class Printer implements AstVisitor<void> {
             }
             else
                 fn.call(this.cw, i.name, cssClass + " declr");
+        } else if (i.isUndefined) {
+            fn.call(this.cw, i.name, "usageUndefined");
         } else {
             fn.call(this.cw, i.name);
         }
@@ -317,7 +319,7 @@ class Printer implements AstVisitor<void> {
 
 
 
-    visitMember (ma : MemberAccess) : void {
+    visitMemberAccess (ma : MemberAccess) : void {
         ma.bag.accept(this);
         this.cw.writeOp(".");
         ma.member.accept(this);

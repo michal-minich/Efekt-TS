@@ -27,7 +27,7 @@ interface AstVisitor<T> extends TerminalAstVisitor<T>,
     visitAssign (a : Assign) : T;
     visitScope (sc : Scope) : T;
     //visitIdent (i : Ident) : T;
-    visitMember (ma : MemberAccess) : T;
+    visitMemberAccess (ma : MemberAccess) : T;
     visitFnApply (fna : FnApply) : T;
     visitBinOpApply(opa : BinOpApply) : T;
     visitIf (i : If) : T;

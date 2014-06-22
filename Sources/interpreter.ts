@@ -331,7 +331,7 @@ class Interpreter implements AstVisitor<Exp> {
 
 
 
-    visitMember (ma : MemberAccess) : Exp {
+    visitMemberAccess (ma : MemberAccess) : Exp {
         var exp = ma.bag.accept(this);
         if (exp instanceof Struct) {
             var bag = <Struct>exp;

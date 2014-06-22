@@ -23,6 +23,17 @@ class Fixer implements AstVisitor<Asi> {
 
 
 
+    public fix (asi : Asi) : Asi {
+        if (!preludeIsFixed) {
+            prelude = <AsiList>prelude.accept(this);
+            preludeIsFixed = true;
+        }
+        return asi.accept(this);
+    }
+
+
+
+
     // helpers ===============================================
 
 
@@ -144,12 +155,13 @@ class Fixer implements AstVisitor<Asi> {
 
 
 
-    private static convertToDeclr (parent : any, property: string) {
-        var i = <Ident>parent[property];
-        var d = new Declr(undefined, i);
+
+    private static convertToDeclr (parent : any, property : string) : void {
+        var d = new Declr(undefined, <Ident>parent[property]);
         d.parent = parent;
         parent[property] = d;
     }
+
 
 
 
@@ -174,6 +186,8 @@ class Fixer implements AstVisitor<Asi> {
 
         return v;
     }
+
+
 
 
     visitTyping (tpg : Typing) : Asi {
@@ -218,7 +232,7 @@ class Fixer implements AstVisitor<Asi> {
 
 
 
-    visitMember (ma : MemberAccess) : Asi {
+    visitMemberAccess (ma : MemberAccess) : Asi {
         ma.bag.accept(this);
         //this.visitIdent(m.ident);
         return ma;

@@ -2,6 +2,8 @@
 
 var prelude : AsiList;
 
+var preludeIsFixed = false;
+
 var preludeStr =
     ' var print = @builtin("print") @ioWrite fn (@params a)' +
     ' var op+ = @builtin("+") fn (a, b)' +

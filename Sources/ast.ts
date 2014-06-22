@@ -423,6 +423,7 @@ class Ident extends Exp {
     public declaredBy : Ident;
     public declaringEnv : Env<Ident>;
     public assignedValue : Exp;
+    public isUndefined : boolean;
 
     constructor (attrs : ExpList, name : string) {
         super(attrs);
@@ -459,7 +460,7 @@ class MemberAccess extends Exp {
     }
 
     accept<T> (v : AstVisitor<T>) : T {
-        return v.visitMember(this);
+        return v.visitMemberAccess(this);
     }
 }
 

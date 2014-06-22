@@ -190,7 +190,7 @@ class ShortCircuitFnVisitor implements AstVisitor<boolean> {
 
 
 
-    visitMember (ma : MemberAccess) : boolean {
+    visitMemberAccess (ma : MemberAccess) : boolean {
         return this.acceptTwo(ma.bag, ma.member);
     }
 
