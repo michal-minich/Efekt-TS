@@ -357,7 +357,7 @@ class Interpreter implements AstVisitor<Exp> {
 
         if (fna.fn instanceof Ident) {
             var fni = <Ident>fna.fn;
-            if (fni.name === "Ref") {
+            if (fni.name === "ref") {
                 if (fna.args.list.items.length === 1 &&
                     fna.args.list.items[0] instanceof Ident) {
                     var ident = <Ident>fna.args.list.items[0];

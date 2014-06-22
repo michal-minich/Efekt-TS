@@ -21,28 +21,6 @@ class Namer implements AstVisitor<void> {
 
 
 
-    public static declareIdent (i : Ident, env : Env<Ident>) : void {
-        env.declare(i.name, i);
-        i.declaringEnv = env;
-    }
-
-
-
-
-    public processIdent (i : Ident, env : Env<Ident>) : void {
-        var e = env.getDeclaringEnv(i.name);
-        if (!e) {
-            this.logger.error("variable " + i.name + " is not declared");
-            i.isUndefined = true;
-            return;
-        }
-        i.declaringEnv = e;
-        i.declaredBy = e.getDirectly(i.name);
-    }
-
-
-
-
     // helpers ===============================================
 
 
@@ -197,7 +175,14 @@ class Namer implements AstVisitor<void> {
 
 
     visitIdent (i : Ident) : void {
-        this.processIdent(i, this.env);
+        var e = this.env.getDeclaringEnv(i.name);
+        if (!e) {
+            this.logger.error("variable " + i.name + " is not declared");
+            i.isUndefined = true;
+            return;
+        }
+        i.declaringEnv = e;
+        i.declaredBy = e.getDirectly(i.name);
     }
 
 
@@ -328,18 +313,7 @@ class Namer implements AstVisitor<void> {
         if (!fn.body)
             return;
         this.env = new Env(this.env, this.logger);
-        if (fn.params.list) {
-            var el = <ExpList>fn.params.list;
-            for (var i = 0; i < el.items.length; ++i) {
-                if (el.items[i] instanceof Ident) {
-                    var ident = <Ident>el.items[i];
-                    Namer.declareIdent(ident, this.env);
-                }
-                else {
-                    el.items[i].accept(this);
-                }
-            }
-        }
+        this.visitBraced(fn.params);
         if (fn.returnType)
             fn.returnType.accept(this);
         fn.body.accept(this);
@@ -441,7 +415,8 @@ class Namer implements AstVisitor<void> {
 
 
     visitDeclr (d : Declr) : void {
-        Namer.declareIdent(d.ident, this.env);
+        this.env.declare(d.ident.name, d.ident);
+        d.ident.declaringEnv = this.env;
     }
 
 

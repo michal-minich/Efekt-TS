@@ -202,6 +202,8 @@ class Ide {
                 ucl.toggle('usageWrite');
             else if (ucl.contains('builtin'))
                 ucl.toggle('usageBuiltin');
+            else if (ucl.contains('undefined'))
+                ucl.toggle('usageUndefined');
             else
                 ucl.toggle('usageRead');
         }

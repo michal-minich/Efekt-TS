@@ -254,10 +254,14 @@ pre {
 }
 
 .usageBuiltin {
-    background-color: pink;
+    background-color: lightsteelblue;
 }
 
 .usageUndefined {
+    background-color: lightpink;
+}
+
+.sc_0__ {
     border-bottom: 1px dotted red;
 }
 

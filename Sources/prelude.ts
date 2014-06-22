@@ -16,6 +16,7 @@ var preludeStr =
     ' var at = @builtin("at") fn (arr, index)' +
     ' var count = @builtin("count") fn (arr)' +
     ' var add = @builtin("add") fn (arr, item)' +
+    ' var ref = @builtin("ref") fn (a)' +
     ' var target = @builtin("target") fn (ref)' +
     ' var random = @builtin("target") @readsMutableState @writesMutableState fn (min, max)' +
     ' var input = @builtin("target") @nondeterministic fn (output)' +

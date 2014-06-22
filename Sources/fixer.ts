@@ -39,9 +39,9 @@ class Fixer implements AstVisitor<Asi> {
 
 
 
-    visitAsiList (al : AsiList) : Asi {
+    visitAsiList (al : AsiList) : AsiList {
         for (var i = 0; i < al.items.length; i++) {
-            al.items[i].accept(this);
+            al.items[i] = al.items[i].accept(this);
         }
         return al;
     }
@@ -49,9 +49,9 @@ class Fixer implements AstVisitor<Asi> {
 
 
 
-    visitExpList (el : ExpList) : Asi {
+    visitExpList (el : ExpList) : ExpList {
         for (var i = 0; i < el.items.length; i++) {
-            el.items[i].accept(this);
+            el.items[i] = el.items[i].accept(this);
         }
         return el;
     }
@@ -59,7 +59,8 @@ class Fixer implements AstVisitor<Asi> {
 
 
 
-    visitBraced (bc : Braced) : Asi {
+    visitBraced (bc : Braced) : Braced {
+        bc.list = this.visitExpList(bc.list);
         return bc;
     }
 
@@ -71,28 +72,28 @@ class Fixer implements AstVisitor<Asi> {
 
 
 
-    visitLoop (l : Loop) : Asi {
-        this.visitScope(l.body);
+    visitLoop (l : Loop) : Loop {
+        l.body = this.visitScope(l.body);
         return l;
     }
 
 
 
-    visitBreak (b : Break) : Asi {
+    visitBreak (b : Break) : Break {
         return b;
     }
 
 
 
 
-    visitContinue (c : Continue) : Asi {
+    visitContinue (c : Continue) : Continue {
         return c;
     }
 
 
 
 
-    visitLabel (lb : Label) : Asi {
+    visitLabel (lb : Label) : Label {
         //this.visitIdent(lb.ident);
         return lb;
     }
@@ -100,7 +101,7 @@ class Fixer implements AstVisitor<Asi> {
 
 
 
-    visitGoto (gt : Goto) : Asi {
+    visitGoto (gt : Goto) : Goto {
         //this.visitIdent(gt.ident);
         return gt;
     }
@@ -108,7 +109,7 @@ class Fixer implements AstVisitor<Asi> {
 
 
 
-    visitImport (im : Import) : Asi {
+    visitImport (im : Import) : Import {
         //im.value.accept(this);
         return im;
     }
@@ -116,8 +117,8 @@ class Fixer implements AstVisitor<Asi> {
 
 
 
-    visitReturn (r : Return) : Asi {
-        r.value.accept(this);
+    visitReturn (r : Return) : Return {
+        r.value = r.value.accept(this);
         return r;
     }
 
@@ -125,26 +126,26 @@ class Fixer implements AstVisitor<Asi> {
 
 
     visitThrow (th : Throw) : Asi {
-        th.ex.accept(this);
+        th.ex = th.ex.accept(this);
         return th;
     }
 
 
 
 
-    visitTry (tr : Try) : Asi {
-        tr.body.accept(this);
+    visitTry (tr : Try) : Try {
+        tr.body = this.visitScope(tr.body);
         if (tr.catches) {
             for (var i = 0; i < tr.catches.length; i++) {
                 var c = tr.catches[i];
                 if (c.on) {
-                    c.on.accept(this);
-                    c.body.accept(this);
+                    c.on = this.visitVar(c.on);
+                    c.body = this.visitScope(c.body);
                 }
             }
         }
         if (tr.fin)
-            this.visitScope(tr.fin);
+            tr.fin = this.visitScope(tr.fin);
         return tr;
     }
 
@@ -165,59 +166,68 @@ class Fixer implements AstVisitor<Asi> {
 
 
 
-    visitVar (v : Var) : Asi {
-        v.exp.accept(this);
-
-        if (v.exp instanceof Ident)
-            Fixer.convertToDeclr(v, 'exp');
-        else if (v.exp instanceof Typing)
-            Fixer.convertToDeclr(v.exp, 'value');
-        else if (v.exp instanceof Constraining)
-            Fixer.convertToDeclr(v.exp, 'type');
-        else if (v.exp instanceof Assign) {
-            var s = (<Assign>v.exp).slot;
-            if (s instanceof Ident)
-                Fixer.convertToDeclr(v.exp, 'slot');
-            else if (s instanceof Typing)
-                Fixer.convertToDeclr(s, 'value');
-            else if (s instanceof Constraining)
-                Fixer.convertToDeclr(s, 'type');
-        }
-
+    visitVar (v : Var) : Var {
+        v.exp = v.exp.accept(this);
+        v.exp = Fixer.makeDeclr(v.exp);
         return v;
     }
 
 
 
 
-    visitTyping (tpg : Typing) : Asi {
-        tpg.value.accept(this);
+    private static makeDeclr (exp : Exp) : Exp {
+        if (exp instanceof Ident) {
+            var d = new Declr(undefined, <Ident>exp);
+            exp.parent = d;
+            return d;
+        }
+        else if (exp instanceof Typing)
+            Fixer.convertToDeclr(exp, 'value');
+        else if (exp instanceof Constraining)
+            Fixer.convertToDeclr(exp, 'type');
+        else if (exp instanceof Assign) {
+            var s = (<Assign>exp).slot;
+            if (s instanceof Ident)
+                Fixer.convertToDeclr(exp, 'slot');
+            else if (s instanceof Typing)
+                Fixer.convertToDeclr(s, 'value');
+            else if (s instanceof Constraining)
+                Fixer.convertToDeclr(s, 'type');
+        }
+        return exp;
+    }
+
+
+
+
+    visitTyping (tpg : Typing) : Typing {
+        tpg.value = tpg.value.accept(this);
         return tpg;
     }
 
 
 
 
-    visitConstraining (csg : Constraining) : Asi {
-        csg.constraint.accept(this);
+    visitConstraining (csg : Constraining) : Constraining {
+        csg.constraint = csg.constraint.accept(this);
         return csg;
     }
 
 
 
 
-    visitAssign (a : Assign) : Asi {
-        a.value.accept(this);
-        a.slot.accept(this);
+    visitAssign (a : Assign) : Assign {
+        a.value = a.value.accept(this);
+        a.slot = a.slot.accept(this);
         return a;
     }
 
 
 
-    visitScope (sc : Scope) : Asi {
+    visitScope (sc : Scope) : Scope {
         var prevScope = this.currentScope;
         this.currentScope = sc;
-        this.visitAsiList(sc.list);
+        sc.list = this.visitAsiList(sc.list);
         this.currentScope = prevScope;
         return sc;
     }
@@ -225,15 +235,15 @@ class Fixer implements AstVisitor<Asi> {
 
 
 
-    visitIdent (i : Ident) : Asi {
+    visitIdent (i : Ident) : Ident {
         return i;
     }
 
 
 
 
-    visitMemberAccess (ma : MemberAccess) : Asi {
-        ma.bag.accept(this);
+    visitMemberAccess (ma : MemberAccess) : MemberAccess {
+        ma.bag = ma.bag.accept(this);
         //this.visitIdent(m.ident);
         return ma;
     }
@@ -241,30 +251,33 @@ class Fixer implements AstVisitor<Asi> {
 
 
 
-    visitFnApply (fna : FnApply) : Asi {
-        this.visitBraced(fna.args);
-        fna.fn.accept(this);
+    visitFnApply (fna : FnApply) : Exp {
+        fna.args = this.visitBraced(fna.args);
+        fna.fn = fna.fn.accept(this);
+        /*if (fna.fn instanceof Ident && (<Ident>fna.fn).name === "ref") {
+            return new Ref(undefined, <Ident>fna.args.list.items[0]);
+        }*/
         return fna;
     }
 
 
 
 
-    visitBinOpApply (opa : BinOpApply) : Asi {
-        opa.op1.accept(this);
-        opa.op.accept(this);
-        opa.op2.accept(this);
+    visitBinOpApply (opa : BinOpApply) : BinOpApply {
+        opa.op1 = opa.op1.accept(this);
+        opa.op = this.visitIdent(opa.op);
+        opa.op2 = opa.op2.accept(this);
         return opa;
     }
 
 
 
 
-    visitIf (i : If) : Asi {
-        i.test.accept(this);
-        i.then.accept(this);
+    visitIf (i : If) : If {
+        i.test = i.test.accept(this);
+        i.then = this.visitScope(i.then);
         if (i.otherwise) {
-            i.otherwise.accept(this);
+            i.otherwise = this.visitScope(i.otherwise);
         } else {
         }
         return i;
@@ -273,16 +286,16 @@ class Fixer implements AstVisitor<Asi> {
 
 
 
-    visitNew (nw : New) : Asi {
-        nw.value.accept(this);
+    visitNew (nw : New) : New {
+        nw.value = nw.value.accept(this);
         return nw;
     }
 
 
 
 
-    visitTypeOf (tof : TypeOf) : Asi {
-        tof.value.accept(this);
+    visitTypeOf (tof : TypeOf) : TypeOf {
+        tof.value = tof.value.accept(this);
         return tof;
     }
 
@@ -293,65 +306,65 @@ class Fixer implements AstVisitor<Asi> {
 
 
 
-    visitBuiltin (bi : Builtin) : Asi {
+    visitBuiltin (bi : Builtin) : Builtin {
         return bi;
     }
 
 
 
 
-    visitErr (er : Err) : Asi {
+    visitErr (er : Err) : Err {
         return er;
     }
 
 
 
 
-    visitVoid (vo : Void) : Asi {
+    visitVoid (vo : Void) : Void {
         return vo;
     }
 
 
 
 
-    visitBool (b : Bool) : Asi {
+    visitBool (b : Bool) : Bool {
         return b;
     }
 
 
 
 
-    visitInt (ii : Int) : Asi {
+    visitInt (ii : Int) : Int {
         return ii;
     }
 
 
 
 
-    visitFloat (f : Float) : Asi {
+    visitFloat (f : Float) : Float {
         return f;
     }
 
 
 
 
-    visitChar (ch : Char) : Asi {
+    visitChar (ch : Char) : Char {
         return ch;
     }
 
 
 
 
-    visitArr (arr : Arr) : Asi {
-        this.visitExpList(arr.list);
+    visitArr (arr : Arr) : Arr {
+        arr.list = this.visitExpList(arr.list);
         return arr;
     }
 
 
 
 
-    visitRef (rf : Ref) : Asi {
-        rf.item.accept(this);
+    visitRef (rf : Ref) : Ref {
+        rf.item = this.visitIdent(rf.item);
         return rf;
     }
 
@@ -363,10 +376,13 @@ class Fixer implements AstVisitor<Asi> {
 
 
 
-    visitFn (fn : Fn) : Asi {
-        //for (var i = 0; i < fn.params.list.items.length; ++i) {
-        //    if (fn)
-        //}
+    visitFn (fn : Fn) : Fn {
+        fn.params = this.visitBraced(fn.params);
+        var items = fn.params.list.items;
+        for (var i = 0; i < items.length; ++i)
+            items[0] = Fixer.makeDeclr(items[0]);
+        if (fn.body)
+            fn.body = this.visitScope(fn.body);
         return fn;
     }
 
@@ -378,13 +394,13 @@ class Fixer implements AstVisitor<Asi> {
 
 
 
-    visitStruct (st : Struct) : Asi {
+    visitStruct (st : Struct) : Struct {
         return st;
     }
 
 
 
-    visitInterface (ifc : Interface) : Asi {
+    visitInterface (ifc : Interface) : Interface {
         return ifc;
     }
 
@@ -396,70 +412,70 @@ class Fixer implements AstVisitor<Asi> {
 
 
 
-    visitTypeAny (ta : TypeAny) : Asi {
+    visitTypeAny (ta : TypeAny) : TypeAny {
         return ta;
     }
 
 
 
 
-    visitTypeAnyOf (tao : TypeAnyOf) : Asi {
+    visitTypeAnyOf (tao : TypeAnyOf) : TypeAnyOf {
         return tao;
     }
 
 
 
 
-    visitTypeErr (te : TypeErr) : Asi {
+    visitTypeErr (te : TypeErr) : TypeErr {
         return te;
     }
 
 
 
 
-    visitTypeVoid (tvo : TypeVoid) : Asi {
+    visitTypeVoid (tvo : TypeVoid) : TypeVoid {
         return tvo;
     }
 
 
 
 
-    visitTypeBool (tb : TypeBool) : Asi {
+    visitTypeBool (tb : TypeBool) : TypeBool {
         return tb;
     }
 
 
 
 
-    visitTypeInt (tii : TypeInt) : Asi {
+    visitTypeInt (tii : TypeInt) : TypeInt {
         return tii;
     }
 
 
 
 
-    visitTypeFloat (tf : TypeFloat) : Asi {
+    visitTypeFloat (tf : TypeFloat) : TypeFloat {
         return tf;
     }
 
 
 
 
-    visitTypeChar (tch : TypeChar) : Asi {
+    visitTypeChar (tch : TypeChar) : TypeChar {
         return tch;
     }
 
 
 
 
-    visitTypeArr (tarr : TypeArr) : Asi {
+    visitTypeArr (tarr : TypeArr) : TypeArr {
         return tarr;
     }
 
 
 
 
-    visitTypeRef (trf : TypeRef) : Asi {
+    visitTypeRef (trf : TypeRef) : TypeRef {
         return trf;
     }
 
@@ -471,21 +487,21 @@ class Fixer implements AstVisitor<Asi> {
 
 
 
-    visitDeclr (d : Declr) : Asi {
+    visitDeclr (d : Declr) : Declr {
         return d;
     }
 
 
 
 
-    visitClosure (cls : Closure) : Asi {
+    visitClosure (cls : Closure) : Closure {
         return cls;
     }
 
 
 
 
-    visitRefSlot (rs : RefSlot) : Asi {
+    visitRefSlot (rs : RefSlot) : RefSlot {
         return rs;
     }
 }

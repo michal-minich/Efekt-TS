@@ -208,7 +208,7 @@ class Typer implements AstVisitor<void> {
         if (i.declaredBy)
             i.infType = i.declaredBy.infType;
         else
-            i.infType = new TypeVoid(undefined);
+            i.infType = new TypeErr(undefined, new TypeVoid(undefined));
     }
 
 
@@ -347,7 +347,11 @@ class Typer implements AstVisitor<void> {
 
 
     visitFn (fn : Fn) : void {
-        throw undefined;
+        this.visitBraced(fn.params);
+        this.visitScope(fn.body);
+        if (fn.body.list.items.length === 1) {
+            fn.infType = fn.body.list.items[0].infType;
+        }
     }
 
 
@@ -452,7 +456,8 @@ class Typer implements AstVisitor<void> {
 
 
     visitDeclr (d : Declr) : void {
-        throw undefined;
+        this.visitIdent(d.ident);
+        d.infType = d.ident.infType;
     }
 
 
