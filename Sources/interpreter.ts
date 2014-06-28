@@ -255,6 +255,11 @@ class Interpreter implements AstVisitor<Exp> {
         if (a.slot instanceof Ident) {
             Interpreter.set(this.currentScope, (<Ident>a.slot).name, val,
                             a.parent instanceof Var);
+        } else if (a.slot instanceof Declr) {
+            Interpreter.set(this.currentScope,
+                            (<Ident>(<Declr>a.slot).ident).name,
+                            val,
+                            a.parent instanceof Var);
         } else if (a.slot instanceof MemberAccess) {
             var ma = <MemberAccess>a.slot;
             var exp = ma.bag.accept(this);

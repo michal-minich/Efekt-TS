@@ -5,9 +5,9 @@
 
 function start () {
 
-    unitTests();
-
     Ide.init();
+
+    unitTests();
 
     Ide.doType((<HTMLTextAreaElement>$id("codeEdit")).value);
 }

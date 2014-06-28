@@ -19,11 +19,22 @@ class Ide {
     static outputView : HtmlOutputView;
     static outputAstView : OutputView;
     static outputLogger : OutputLogger;
+
     static parser : Parser;
     static fixer : Fixer;
     static namer : Namer;
     static typer : Typer;
     static interpreter : Interpreter;
+
+    static stringWriter : StringWriter;
+
+    static htmlCodeWriter : HtmlCodeWriter;
+    static printer : Printer;
+    static debugPrinter : DebugPrinter;
+
+    static plainCodeWriter : PlainTextCodeWriter;
+    static plainPrinter : Printer;
+    static plainDebugPrinter : DebugPrinter;
 
 
     static init () {
@@ -32,13 +43,14 @@ class Ide {
 
         Ide.outputView = new HtmlOutputView(
             <HTMLPreElement>$id("outputView"),
-            asiToHtmlString);
+            Ide.asiToHtmlString);
         Ide.outputAstView = new HtmlOutputView(
             <HTMLPreElement>$id("outputAstView"),
-            asiToAstString);
+            Ide.asiToHtmlDebugString);
         Ide.outputLogger = new OutputLogger(<HTMLDivElement>$id("logView"),
                                             Ide.outputView,
                                             Ide.outputAstView);
+
         Ide.parser = new Parser(Ide.outputLogger);
         Ide.fixer = new Fixer(Ide.outputLogger);
         Ide.namer = new Namer(Ide.outputLogger);
@@ -46,6 +58,16 @@ class Ide {
         Ide.interpreter = new Interpreter(Ide.outputLogger,
                                           Ide.outputLogger,
                                           Ide.outputLogger);
+
+        Ide.stringWriter = new StringWriter();
+
+        Ide.htmlCodeWriter = new HtmlCodeWriter(Ide.stringWriter);
+        Ide.printer = new Printer(Ide.htmlCodeWriter);
+        Ide.debugPrinter = new DebugPrinter(Ide.htmlCodeWriter);
+
+        Ide.plainCodeWriter = new PlainTextCodeWriter(Ide.stringWriter);
+        Ide.plainPrinter = new Printer(Ide.plainCodeWriter);
+        Ide.plainDebugPrinter = new DebugPrinter(Ide.plainCodeWriter);
 
         $id("parseButton").addEventListener('mousedown', () => {
             Ide.doWithExceptionHandling(()=> {
@@ -92,7 +114,46 @@ class Ide {
 
 
 
-    static doWithExceptionHandling (fn : () => void) {
+    static asiToHtmlString (asi : Asi) : string {
+        return Ide.asiToString(asi, Ide.printer);
+    }
+
+
+
+    static asiToHtmlDebugString (asi : Asi, invisibleBraced = false) : string {
+        Ide.debugPrinter.invisibleBraced = invisibleBraced;
+        return Ide.asiToString(asi, Ide.debugPrinter);
+    }
+
+
+
+
+    static asiToPlainString (asi : Asi) : string {
+        return Ide.asiToString(asi, Ide.plainPrinter);
+    }
+
+
+
+
+    static asiToPlainDebugString (asi : Asi, invisibleBraced = false) : string {
+        Ide.plainDebugPrinter.invisibleBraced = invisibleBraced;
+        return Ide.asiToString(asi, Ide.plainDebugPrinter);
+    }
+
+
+
+
+    static asiToString (asi : Asi, printer : AstVisitor<void>) : string {
+        asi.accept(printer);
+        var res = Ide.stringWriter.getString();
+        Ide.stringWriter.clear();
+        return res;
+    }
+
+
+
+
+    private static doWithExceptionHandling (fn : () => void) {
         try {
             fn();
         } catch (ex) {
@@ -106,6 +167,7 @@ class Ide {
     static parse (code : string) : void {
         var al = Ide.parser.parse(code);
         Ide.outputView.show(al);
+        Ide.debugPrinter.printInfTypes = false;
         Ide.outputAstView.show(al);
     }
 
@@ -115,6 +177,7 @@ class Ide {
     static fix (code : string) : void {
         var al = Ide.parseAndFix(code);
         Ide.outputView.show(al);
+        Ide.debugPrinter.printInfTypes = false;
         Ide.outputAstView.show(al);
     }
 
@@ -135,6 +198,7 @@ class Ide {
         var sc = new Scope(undefined, combineAsiLists(prelude, al));
         sc.accept(Ide.namer);
         Ide.outputView.show(al);
+        Ide.debugPrinter.printInfTypes = false;
         Ide.outputAstView.show(al);
     }
 
@@ -147,6 +211,7 @@ class Ide {
         sc.accept(Ide.namer);
         sc.accept(Ide.typer);
         Ide.outputView.show(al);
+        Ide.debugPrinter.printInfTypes = true;
         Ide.outputAstView.show(al);
     }
 
@@ -160,6 +225,7 @@ class Ide {
         var sc = new Scope(undefined, combineAsiLists(prelude, al));
         var res = Ide.interpreter.run(sc);
         Ide.outputView.write(res);
+        Ide.debugPrinter.printInfTypes = false;
         Ide.outputAstView.write(res);
     }
 

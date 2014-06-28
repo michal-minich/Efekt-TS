@@ -1,5 +1,6 @@
 /// <reference path="common.ts"/>
 /// <reference path="ast.ts"/>
+/// <reference path="ide.ts"/>
 
 
 interface BuiltinsList {
@@ -10,13 +11,9 @@ interface BuiltinsList {
 var builtins : BuiltinsList = {
 
     'print': function (args : Exp[]) {
-        var outputView = <HTMLPreElement>$id("outputView");
-        var outputAstView = <HTMLPreElement>$id("outputAstView");
         for (var i = 0; i < args.length; ++i) {
-            outputView.innerHTML += asiToHtmlString(args[i]) +
-                "<br>";
-            outputAstView.innerHTML += asiToAstString(args[i]) +
-                "<br>";
+            Ide.outputView.write(args[i]);
+            Ide.outputAstView.write(args[i]);
         }
         return Void.instance;
     },
@@ -48,14 +45,14 @@ var builtins : BuiltinsList = {
 
     '==': function (args) {
         return new Bool(undefined,
-                        asiToString(args[0]) ==
-                            asiToString(args[1]));
+                        Ide.asiToPlainString(args[0]) ==
+                            Ide.asiToPlainString(args[1]));
     },
 
     '!=': function (args) {
         return new Bool(undefined,
-                        asiToString(args[0]) !=
-                            asiToString(args[1]));
+                        Ide.asiToPlainString(args[0]) !=
+                            Ide.asiToPlainString(args[1]));
     },
 
     'at': function (args : Exp[]) {

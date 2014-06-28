@@ -3,6 +3,7 @@
 /// <reference path="writer.ts"/>
 /// <reference path="printer.ts"/>
 /// <reference path="interpreter.ts"/>
+/// <reference path="ide.ts"/>
 
 
 
@@ -53,29 +54,29 @@ class TestReprot {
 
         ++this.testCount;
 
-        var actualPlain = asiToString(actualAsi);
-        var actualHtml = asiToHtmlString(actualAsi);
-        var codeAst = codeToAstString(code, this.logger, true);
+        var actualPlain = Ide.asiToPlainString(actualAsi);
+        var actualHtml = Ide.asiToHtmlString(actualAsi);
+        var al = Ide.parser.parse(code);
+        var codeAst = Ide.asiToHtmlDebugString(al, true);
         var expectedAst : string;
 
         try {
+            var al = Ide.parser.parse(expected);
             if (isEval) {
-                var parser = new Parser(this.logger);
-                var al = parser.parse(expected);
                 expectedAst = "";
                 for (var i = 0; i < al.items.length; ++i) {
-                    expectedAst += asiToAstString(al.items[i], true);
+                    expectedAst += Ide.asiToHtmlDebugString(al.items[i], true);
                     if (i < al.items.length - 1)
                         expectedAst += "<br>";
                 }
             } else {
-                expectedAst = codeToAstString(expected, this.logger, true);
+                expectedAst = Ide.asiToHtmlDebugString(al, true);
             }
         } catch (ex) {
             expectedAst = ex;
         }
 
-        var actualAst = asiToHtmlAstString(actualAsi, true);
+        var actualAst = Ide.asiToHtmlDebugString(actualAsi, true);
 
 
         var ok = expected === actualPlain && expectedAst === actualAst;
@@ -438,9 +439,33 @@ function interpreterTests () : void {
     t("var a = 1 { var a = 2 } a").evalTo("1");
     t("var a = 1 { a = 2 } a").evalTo("2");
 
-    // loop
+    // loop, break
     t("var a = 0 loop { if a == 0 then break } a").evalTo("0");
     t("var a = 0 loop { a = a + 1 if a == 10 then break } a").evalTo("10");
+
+    // loop, continue
+
+    // label, goto
+
+    // import
+
+    // struct, member access
+
+    // array
+
+    // throw
+
+    // try, catch, throw
+
+    // try, finally, throw
+
+    // ref
+
+    // interface on struct
+
+    // typeof
+
+    // new
 
     // fn
     t("var f = fn () { 1 } f()").evalTo("1");

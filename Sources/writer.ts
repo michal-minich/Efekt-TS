@@ -1,4 +1,5 @@
 /// <reference path="common.ts"/>
+/// <reference path="ide.ts"/>
 
 interface ExceptionHandler {
     exception (ex : Exp) : void
@@ -234,13 +235,13 @@ class ConsoleLogger implements LogWriter, ExceptionHandler, OutputWriter {
     }
 
     exception (ex : Exp) : void {
-        console.log("Exception: " + asiToHtmlString(ex));
-        console.log("Exception: " + asiToHtmlAstString(ex));
+        console.log("Exception: " + Ide.asiToHtmlString(ex));
+        console.log("Exception: " + Ide.asiToHtmlDebugString(ex));
     }
 
     write (asi : Asi) : void {
-        console.log(asiToHtmlString(asi));
-        console.log(asiToHtmlAstString(asi));
+        console.log(Ide.asiToPlainString(asi));
+        console.log(Ide.asiToPlainDebugString(asi));
     }
 
     private log (img : string, msg : string) : void {

@@ -5,14 +5,15 @@
 class DebugPrinter implements AstVisitor<void> {
 
     private cw : CodeWriter;
-    private invisibleBraced : boolean;
+
+    public printInfTypes : boolean;
+    public invisibleBraced : boolean;
 
 
 
 
-    constructor (cw : CodeWriter, invisibleBraced = false) {
+    constructor (cw : CodeWriter) {
         this.cw = cw;
-        this.invisibleBraced = invisibleBraced;
     }
 
 
@@ -78,13 +79,15 @@ class DebugPrinter implements AstVisitor<void> {
         if (asi.attrs)
             this.field("attrs", asi.attrs);
 
-        if (asi.infType) {
-            if (!(asi instanceof Stm)) {
-                this.field("infType", asi.infType);
+        if (this.printInfTypes) {
+            if (asi.infType) {
+                if (!(asi instanceof Stm)) {
+                    this.field("infType", asi.infType);
+                }
+            } else {
+                this.cw.tab().newLine().markup("infType")
+                    .space().attr("&lt;undefined&gt;").unTab();
             }
-        } else {
-            this.cw.tab().newLine().markup("infType")
-                .space().attr("&lt;undefined&gt;").unTab();
         }
 
         return this;
@@ -346,7 +349,7 @@ class DebugPrinter implements AstVisitor<void> {
     visitBool (b : Bool) : void {
         this.key("Bool", b);
         this.cw.tab().newLine().markup("value").space()
-            .key(b.value === true ? "true" : "false").unTab();
+            .key(b.value === true ? "true" : "false").unTab().newLine();
     }
 
 
@@ -355,7 +358,7 @@ class DebugPrinter implements AstVisitor<void> {
     visitInt (ii : Int) : void {
         this.key("Int", ii);
         this.cw.tab().newLine().markup("value").space()
-            .num(ii.value).unTab();
+            .num(ii.value).unTab().newLine();
     }
 
 
@@ -364,7 +367,7 @@ class DebugPrinter implements AstVisitor<void> {
     visitFloat (f : Float) : void {
         this.key("Float", f);
         this.cw.tab().newLine().markup("value").space()
-            .num(f.value).unTab();
+            .num(f.value).unTab().newLine();
     }
 
 
@@ -373,7 +376,7 @@ class DebugPrinter implements AstVisitor<void> {
     visitChar (ch : Char) : void {
         this.key("Char", ch);
         this.cw.tab().newLine().markup("value").space()
-            .text("'").text(ch.value).text("'").unTab();
+            .text("'").text(ch.value).text("'").unTab().newLine();
     }
 
 
