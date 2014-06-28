@@ -159,12 +159,11 @@ class Continue extends Stm {
 
 class Label extends Stm {
 
-    public ident : Ident;
+    public name : string;
 
-    constructor (attrs : ExpList, ident : Ident) {
+    constructor (attrs : ExpList, name : string) {
         super(attrs);
-        this.ident = ident;
-        ident.parent = this;
+        this.name = name;
     }
 
     accept<T> (v : AstVisitor<T>) : T {
@@ -177,12 +176,11 @@ class Label extends Stm {
 
 class Goto extends Stm {
 
-    public ident : Ident;
+    public name : string;
 
-    constructor (attrs : ExpList, ident : Ident) {
+    constructor (attrs : ExpList, name : string) {
         super(attrs);
-        this.ident = ident;
-        ident.parent = this;
+        this.name = name;
     }
 
     accept<T> (v : AstVisitor<T>) : T {
@@ -826,6 +824,8 @@ class TypeAny extends Exp {
     accept<T> (v : AstVisitor<T>) : T {
         return v.visitTypeAny(this);
     }
+
+    public static instance = new TypeAny(undefined);
 }
 
 
@@ -872,6 +872,8 @@ class TypeVoid extends Exp {
     accept<T> (v : AstVisitor<T>) : T {
         return v.visitTypeVoid(this);
     }
+
+    public static instance = new TypeVoid(undefined);
 }
 
 
@@ -882,6 +884,8 @@ class TypeBool extends Exp {
     accept<T> (v : AstVisitor<T>) : T {
         return v.visitTypeBool(this);
     }
+
+    public static instance = new TypeBool(undefined);
 }
 
 
@@ -892,6 +896,8 @@ class TypeInt extends Exp {
     accept<T> (v : AstVisitor<T>) : T {
         return v.visitTypeInt(this);
     }
+
+    public static instance = new TypeInt(undefined);
 }
 
 
@@ -902,6 +908,8 @@ class TypeFloat extends Exp {
     accept<T> (v : AstVisitor<T>) : T {
         return v.visitTypeFloat(this);
     }
+
+    public static instance = new TypeFloat(undefined);
 }
 
 
@@ -912,6 +920,8 @@ class TypeChar extends Exp {
     accept<T> (v : AstVisitor<T>) : T {
         return v.visitTypeChar(this);
     }
+
+    public static instance = new TypeChar(undefined);
 }
 
 

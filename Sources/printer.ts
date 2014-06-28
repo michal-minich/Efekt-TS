@@ -126,16 +126,14 @@ class Printer implements AstVisitor<void> {
 
 
     visitLabel (lb : Label) : void {
-        this.cw.key("label").space();
-        lb.ident.accept(this);
+        this.cw.key("label").space().ident(lb.name);
     }
 
 
 
 
     visitGoto (gt : Goto) : void {
-        this.cw.key("goto").space();
-        gt.ident.accept(this);
+        this.cw.key("goto").space().ident(gt.name);
     }
 
 
@@ -631,6 +629,14 @@ class IsInline implements TerminalAstVisitor<boolean> {
     }
 
     visitContinue (c : Continue) : boolean {
+        return false;
+    }
+
+    visitLabel (lb : Label) : boolean {
+        return false;
+    }
+
+    visitGoto (gt : Goto) : boolean {
         return false;
     }
 

@@ -255,8 +255,8 @@ class Parser {
         "loop": () => this.parseLoop(),
         "break": () => new Break(undefined),
         "continue": () => new Continue(undefined),
-        "label": () => this.parseSimpleKeyword<Label>(Label, true),
-        "goto": () => this.parseSimpleKeyword<Goto>(Goto, true),
+        "label": () => this.parseLabel(),
+        "goto": () => this.parseGoto(),
         "import": () => this.parseSimpleKeyword<Import>(Import, true),
         "return": () => this.parseSimpleKeyword<Return>(Return, false),
         "throw": () => this.parseSimpleKeyword<Throw>(Throw, false),
@@ -509,6 +509,30 @@ class Parser {
         if (this.matchText("finally"))
             fin = this.parseScopedExp();
         return new Try(undefined, body, fin);
+    }
+
+
+
+
+    private parseLabel () : Label {
+        this.skipWhite();
+        if (this.match(Parser.isIdent)) {
+            return new Label(undefined, this.matched);
+        } else {
+            this.logger.error("expected name after label");
+        }
+    }
+
+
+
+
+    private parseGoto () : Goto {
+        this.skipWhite();
+        if (this.match(Parser.isIdent)) {
+            return new Goto(undefined, this.matched);
+        } else {
+            this.logger.error("expected name after goto");
+        }
     }
 
 

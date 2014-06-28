@@ -13,8 +13,8 @@ interface AstVisitor<T> extends TerminalAstVisitor<T>,
     visitLoop (l : Loop) : T;
     //visitBreak (b : Break) : T;
     //visitContinue (c : Continue) : T;
-    visitLabel (lb : Label) : T;
-    visitGoto (gt : Goto) : T;
+    //visitLabel (lb : Label) : T;
+    //visitGoto (gt : Goto) : T;
     visitImport (im : Import) : T;
     visitReturn (r : Return) : T;
     visitThrow (th : Throw) : T;
@@ -89,6 +89,8 @@ interface TerminalAstVisitor<T> {
     // statements
     visitBreak (b : Break) : T;
     visitContinue (c : Continue) : T;
+    visitLabel (lb : Label) : T;
+    visitGoto (gt : Goto) : T;
 
     // expressions
     visitIdent (i : Ident) : T;

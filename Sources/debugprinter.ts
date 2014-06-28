@@ -22,7 +22,7 @@ class DebugPrinter implements AstVisitor<void> {
     private items (items : Asi[]) : CodeWriter {
         this.cw.tab().newLine().markup("items");
         if (items.length === 0) {
-            this.cw.space().markup("&lt;empty&gt;");
+            this.cw.space().attr("&lt;empty&gt;");
             return this.cw.unTab();
         }
         this.cw.tab().newLine();
@@ -48,7 +48,9 @@ class DebugPrinter implements AstVisitor<void> {
 
     private type (name : string, asi : Asi) : DebugPrinter {
         this.cw.type(name);
-        return this.printCommon(asi);
+        if (asi.attrs)
+            this.field("attrs", asi.attrs);
+        return this;
     }
 
 
@@ -64,11 +66,28 @@ class DebugPrinter implements AstVisitor<void> {
 
 
 
+    private fieldStr (name : string, value : string) : DebugPrinter {
+        this.cw.tab().newLine().markup(name)
+            .space().ident(value).unTab();
+        return this;
+    }
+
+
+
+
     private printCommon (asi : Asi) : DebugPrinter {
         if (asi.attrs)
             this.field("attrs", asi.attrs);
-        if (asi.infType && !(asi.infType instanceof TypeVoid))
-            this.field("infType", asi.infType);
+
+        if (asi.infType) {
+            if (!(asi instanceof Stm)) {
+                this.field("infType", asi.infType);
+            }
+        } else {
+            this.cw.tab().newLine().markup("infType")
+                .space().attr("&lt;undefined&gt;").unTab();
+        }
+
         return this;
     }
 
@@ -132,14 +151,14 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitLabel (lb : Label) : void {
-        this.key("Label", lb).field("ident", lb.ident);
+        this.key("Label", lb).fieldStr("name", lb.name);
     }
 
 
 
 
     visitGoto (gt : Goto) : void {
-        this.key("Goto", gt).field("ident", gt.ident);
+        this.key("Goto", gt).fieldStr("name", gt.name);
     }
 
 

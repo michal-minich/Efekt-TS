@@ -24,10 +24,15 @@ class Typer implements AstVisitor<void> {
 
 
     private commonType (types : Exp[]) : Exp {
+        var unique : Exp[] = [];
         for (var i = 0; i < types.length; i++) {
             types[i].accept(this);
+            if (!unique.contains(types[i].infType))
+                unique.push(types[i].infType);
         }
-        return types[0].infType;
+        return unique.length === 1
+            ? unique[0]
+            : new TypeAnyOf(undefined, new ExpList(undefined, unique));
     }
 
 
@@ -39,7 +44,7 @@ class Typer implements AstVisitor<void> {
 
 
     visitAsiList (al : AsiList) : void {
-        al.infType = new TypeVoid(undefined);
+        al.infType = TypeVoid.instance;
         for (var i = 0; i < al.items.length; i++) {
             al.items[i].accept(this);
         }
@@ -49,7 +54,7 @@ class Typer implements AstVisitor<void> {
 
 
     visitExpList (el : ExpList) : void {
-        el.infType = new TypeVoid(undefined);
+        el.infType = TypeVoid.instance;
         for (var i = 0; i < el.items.length; i++) {
             el.items[i].accept(this);
         }
@@ -60,9 +65,13 @@ class Typer implements AstVisitor<void> {
 
     visitBraced (bc : Braced) : void {
         this.visitExpList(bc.list);
-        bc.infType = bc.list.items.length === 0
-            ? new TypeVoid(undefined)
-            : bc.list.items[0].infType;
+        if (bc.list.items.length === 0)
+            bc.infType = TypeVoid.instance;
+        if (bc.list.items.length === 1)
+            bc.infType = bc.list.items[0].infType;
+        else
+            bc.infType = TypeVoid.instance; // tuple type ?
+
     }
 
 
@@ -74,52 +83,50 @@ class Typer implements AstVisitor<void> {
 
 
     visitLoop (l : Loop) : void {
-        l.infType = new TypeVoid(undefined);
+        l.infType = TypeVoid.instance;
         this.visitScope(l.body);
     }
 
 
 
     visitBreak (b : Break) : void {
-        b.infType = new TypeVoid(undefined);
+        b.infType = TypeVoid.instance;
     }
 
 
 
 
     visitContinue (c : Continue) : void {
-        c.infType = new TypeVoid(undefined);
+        c.infType = TypeVoid.instance;
     }
 
 
 
 
     visitLabel (lb : Label) : void {
-        lb.infType = new TypeVoid(undefined);
-        //this.visitIdent(lb.ident);
+        lb.infType = TypeVoid.instance;
     }
 
 
 
 
     visitGoto (gt : Goto) : void {
-        gt.infType = new TypeVoid(undefined);
-        //this.visitIdent(gt.ident);
+        gt.infType = TypeVoid.instance;
     }
 
 
 
 
     visitImport (im : Import) : void {
-        im.infType = new TypeVoid(undefined);
-        //im.value.accept(this);
+        im.infType = TypeVoid.instance;
+        im.value.accept(this);
     }
 
 
 
 
     visitReturn (r : Return) : void {
-        r.infType = new TypeVoid(undefined);
+        r.infType = TypeVoid.instance;
         r.value.accept(this);
     }
 
@@ -127,15 +134,15 @@ class Typer implements AstVisitor<void> {
 
 
     visitThrow (th : Throw) : void {
+        th.infType = TypeVoid.instance;
         th.ex.accept(this);
-        th.infType = new TypeVoid(undefined);
     }
 
 
 
 
     visitTry (tr : Try) : void {
-        tr.infType = new TypeVoid(undefined);
+        tr.infType = TypeVoid.instance;
         tr.body.accept(this);
         if (tr.catches) {
             for (var i = 0; i < tr.catches.length; i++) {
@@ -169,16 +176,16 @@ class Typer implements AstVisitor<void> {
     visitTyping (tpg : Typing) : void {
         tpg.value.accept(this);
         tpg.type.accept(this);
-        tpg.infType = tpg.type;
+        tpg.infType = tpg.value.infType;
     }
 
 
 
 
     visitConstraining (csg : Constraining) : void {
-        csg.constraint.accept(this);
         csg.type.accept(this);
-        csg.infType = csg.type;
+        csg.constraint.accept(this);
+        csg.infType = csg.type.infType;
     }
 
 
@@ -192,14 +199,15 @@ class Typer implements AstVisitor<void> {
             a.slot.infType = a.infType;
             var i = (<Declr>a.slot).ident;
             i.infType = a.infType;
-        } else if (a.slot instanceof Typing) {
+        } /*else if (a.slot instanceof Typing) {
             if ((<Typing>a.slot).value instanceof Declr) {
                 (<Typing>a.slot).value.infType = a.infType;
                 (<Declr>(<Typing>a.slot).value).ident.infType = a.infType;
             } else if ((<Typing>a.slot).value instanceof Ident) {
                 (<Ident>a.slot).infType = a.infType;
             }
-        } else if (a.slot instanceof Ident) {
+        } else
+        if (a.slot instanceof Ident) {
             var i = <Ident>a.slot;
             i.infType = a.infType;
             var e = this.env.getDeclaringEnv(i.name);
@@ -209,7 +217,7 @@ class Typer implements AstVisitor<void> {
                 di.parent.infType = a.infType;
                 di.parent.parent.infType = a.infType;
             }
-        }
+        }*/
     }
 
 
@@ -220,7 +228,7 @@ class Typer implements AstVisitor<void> {
         this.visitAsiList(sc.list);
         this.env = this.env.parent;
         sc.infType = sc.list.items.length === 0
-            ? new TypeVoid(undefined)
+            ? TypeVoid.instance
             : sc.list.items[0].infType;
     }
 
@@ -232,7 +240,7 @@ class Typer implements AstVisitor<void> {
         if (e) {
             i.infType = e.getDirectly(i.name).infType;
         } else {
-            i.infType = new TypeErr(undefined, new TypeVoid(undefined));
+            i.infType = new TypeErr(undefined, TypeVoid.instance);
         }
     }
 
@@ -260,6 +268,7 @@ class Typer implements AstVisitor<void> {
         opa.op1.accept(this);
         opa.op.accept(this);
         opa.op2.accept(this);
+        opa.infType = opa.op.infType;
     }
 
 
@@ -289,7 +298,8 @@ class Typer implements AstVisitor<void> {
 
     visitTypeOf (tof : TypeOf) : void {
         tof.value.accept(this);
-        tof.infType = tof.value.infType;
+        tof.value.infType.accept(this);
+        tof.infType = tof.value.infType.infType;
     }
 
 
@@ -315,35 +325,35 @@ class Typer implements AstVisitor<void> {
 
 
     visitVoid (vo : Void) : void {
-        vo.infType = new TypeVoid(undefined);
+        vo.infType = TypeVoid.instance;
     }
 
 
 
 
     visitBool (b : Bool) : void {
-        b.infType = new TypeBool(undefined);
+        b.infType = TypeBool.instance;
     }
 
 
 
 
     visitInt (ii : Int) : void {
-        ii.infType = new TypeInt(undefined);
+        ii.infType = TypeInt.instance;
     }
 
 
 
 
     visitFloat (f : Float) : void {
-        f.infType = new TypeFloat(undefined);
+        f.infType = TypeFloat.instance;
     }
 
 
 
 
     visitChar (ch : Char) : void {
-        ch.infType = new TypeChar(undefined);
+        ch.infType = TypeChar.instance;
     }
 
 
@@ -353,6 +363,7 @@ class Typer implements AstVisitor<void> {
         this.visitExpList(arr.list);
         var t = this.commonType(arr.list.items);
         var len = new Int(undefined, "" + arr.list.items.length);
+        len.accept(this);
         arr.infType = new TypeArr(undefined, t, len);
     }
 
@@ -376,14 +387,18 @@ class Typer implements AstVisitor<void> {
         this.env = new Env(this.env, this.logger);
         this.visitBraced(fn.params);
         if (fn.body) {
-            this.env = new Env(this.env, this.logger);
-            this.visitScope(fn.body);
-            if (fn.body.list.items.length === 1) {
-               // var fnt = new Fn(undefined, undefined, undefined);
-                //fnt.returnType = fn.body.list.items[0].infType;
-                fn.infType = fn.body.list.items[0].infType;
+            if (fn.body.list.items.length === 0) {
+                fn.infType = TypeVoid.instance;
+            } else {
+                this.env = new Env(this.env, this.logger);
+                this.visitScope(fn.body);
+                if (fn.body.list.items.length === 1) {
+                    // var fnt = new Fn(undefined, undefined, undefined);
+                    //fnt.returnType = fn.body.list.items[0].infType;
+                    fn.infType = fn.body.list.items[0].infType;
+                }
+                this.env = this.env.parent;
             }
-            this.env = this.env.parent;
         }
         this.env = this.env.parent;
     }
