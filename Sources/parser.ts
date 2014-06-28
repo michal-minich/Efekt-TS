@@ -344,7 +344,7 @@ class Parser {
         if (this.match(Parser.isInt))
             return new Int(undefined, this.matched);
 
-        else if (this.match(Parser.isIdent)) {
+        else if (this.matchIdent()) {
             var i = new Ident(undefined, this.matched);
             if (this.nextIsAttr) {
                 i.name = "@" + i.name;
@@ -366,6 +366,32 @@ class Parser {
             return this.parseBracedOrArr<Arr>(Arr);
 
         return undefined;
+    }
+
+
+
+
+    private matchIdent () : boolean {
+        if (this.index >= this.code.length)
+            return false;
+        var start = this.index;
+        var ch = this.code[this.index];
+        if (ch === '@' || ch === '_' || this.match(Parser.isIdent)) {
+            this.match(function (ch) {
+                return Parser.isInt(ch) || Parser.isIdent(ch) || ch === '_';
+            });
+            this.matched = this.code.substr(start, this.index - start);
+            return true;
+        }
+        return false;
+    }
+
+
+
+
+    private static isIdent (ch : string) : boolean {
+        return (ch >= 'a' && ch <= 'z') ||
+            (ch >= 'A' && ch <= 'Z') || ch === '_';
     }
 
 
@@ -516,7 +542,7 @@ class Parser {
 
     private parseLabel () : Label {
         this.skipWhite();
-        if (this.match(Parser.isIdent)) {
+        if (this.matchIdent()) {
             return new Label(undefined, this.matched);
         } else {
             this.logger.error("expected name after label");
@@ -529,7 +555,7 @@ class Parser {
 
     private parseGoto () : Goto {
         this.skipWhite();
-        if (this.match(Parser.isIdent)) {
+        if (this.matchIdent()) {
             return new Goto(undefined, this.matched);
         } else {
             this.logger.error("expected name after goto");
@@ -574,11 +600,6 @@ class Parser {
             ch === '&' || ch === '/' || ch === '|' || ch === '<' ||
             ch === '>' || ch === '?' || ch === ',' || ch === '$' ||
             ch === '\\';
-    }
-
-    private static isIdent (ch : string) : boolean {
-        return (ch >= 'a' && ch <= 'z') ||
-            (ch >= 'A' && ch <= 'Z') || ch === '_' || ch === '@';
     }
 
 
