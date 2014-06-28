@@ -1,6 +1,5 @@
 /// <reference path="common.ts"/>
 /// <reference path="ast.ts"/>
-/// <reference path="visitor.ts"/>
 /// <reference path="prelude.ts"/>
 /// <reference path="interpreter.ts"/>
 
@@ -24,6 +23,8 @@ class Typer implements AstVisitor<void> {
 
 
     private commonType (types : Exp[]) : Exp {
+        if (types.length === 0)
+            return TypeVoid.instance;
         var unique : Exp[] = [];
         for (var i = 0; i < types.length; i++) {
             types[i].accept(this);

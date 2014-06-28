@@ -126,7 +126,7 @@ var @escapes
 
 
 
-var Percent = struct () extends Int {
+var Percent = struct extends Int {
     invariant {
         assert value <= 100 and value >= 0
     }
@@ -247,7 +247,7 @@ var ResetableIterator = interface (out T) Iterator(T) {
     property var reset() -> Void { ... }
 }
 
-var IteratorWithLegth = interface (out T) of Iterator(T) {
+var IteratorWithLength = interface (out T) of Iterator(T) {
     property var length = fn () { ... }
 }
 

@@ -1,6 +1,5 @@
 /// <reference path="common.ts"/>
 /// <reference path="ast.ts"/>
-/// <reference path="visitor.ts"/>
 
 
 class Namer implements AstVisitor<void> {

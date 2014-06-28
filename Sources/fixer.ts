@@ -1,6 +1,5 @@
 /// <reference path="common.ts"/>
 /// <reference path="ast.ts"/>
-/// <reference path="visitor.ts"/>
 /// <reference path="prelude.ts"/>
 /// <reference path="interpreter.ts"/>
 
