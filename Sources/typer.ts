@@ -258,7 +258,7 @@ class Typer implements AstVisitor<void> {
     visitFnApply (fna : FnApply) : void {
         this.visitBraced(fna.args);
         fna.fn.accept(this);
-        fna.infType = fna.fn.infType;
+        fna.infType = (<Fn>fna.fn.infType).returnType;
     }
 
 
@@ -393,9 +393,9 @@ class Typer implements AstVisitor<void> {
                 this.env = new Env(this.env, this.logger);
                 this.visitScope(fn.body);
                 if (fn.body.list.items.length === 1) {
-                    // var fnt = new Fn(undefined, undefined, undefined);
-                    //fnt.returnType = fn.body.list.items[0].infType;
-                    fn.infType = fn.body.list.items[0].infType;
+                    var fnt = new Fn(undefined, fn.params, undefined);
+                    fnt.returnType = fn.body.list.items[0].infType;
+                    fn.infType = fnt;
                 }
                 this.env = this.env.parent;
             }

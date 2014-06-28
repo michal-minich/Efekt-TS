@@ -520,6 +520,7 @@ class Parser {
             return new Label(undefined, this.matched);
         } else {
             this.logger.error("expected name after label");
+            throw undefined;
         }
     }
 
@@ -532,6 +533,7 @@ class Parser {
             return new Goto(undefined, this.matched);
         } else {
             this.logger.error("expected name after goto");
+            throw undefined;
         }
     }
 

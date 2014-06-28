@@ -768,6 +768,11 @@ class Fn extends Exp {
     accept<T> (v : AstVisitor<T>) : T {
         return v.visitFn(this);
     }
+
+
+    get isFnType () : boolean {
+        return this.body === undefined;
+    }
 }
 
 

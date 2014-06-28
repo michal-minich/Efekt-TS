@@ -475,6 +475,20 @@ class Printer implements AstVisitor<void> {
 
 
     visitFn (fn : Fn) : void {
+        if (fn.isFnType) {
+            this.cw.type("Fn").markup("(");
+            var items = fn.params.list.items;
+            for (var i = 0; i < items.length; ++i) {
+                if (items[i].infType)
+                    items[i].infType.accept(this);
+                else
+                    this.cw.type("Unknown");
+                this.cw.markup(",").space();
+            }
+            fn.returnType.accept(this);
+            this.cw.markup(")");
+            return;
+        }
         this.printAttributes(fn);
         this.cw.key("fn").space();
         fn.params.accept(this);
