@@ -147,9 +147,13 @@ class Test {
     evalTo (expected : string) : Test {
         var exHandler = function (ex : Asi) {
         };
+        var fixer = new Fixer(this.logger);
+        var typer = new Typer(this.logger);
         var interpreter = new Interpreter(this.logger, this.logger,
                                           this.logger);
         var sc = new Scope(undefined, combineAsiLists(prelude, this.parsed));
+        fixer.visitScope(sc);
+        typer.visitScope(sc);
         var evaled = interpreter.run(sc);
         testReport.addEval(this.code, expected, evaled);
         return this;
@@ -464,6 +468,11 @@ function interpreterTests () : void {
     // interface on struct
 
     // typeof
+    t("typeof 1").evalTo("Int");
+    t("typeof \"a\"").evalTo("Array(Char, 1)");
+    t("var a = true typeof a").evalTo("Bool");
+    t("typeof fn () { 1 }").evalTo("Fn(Int)");
+    t("typeof fn () { 1 }()").evalTo("Int");
 
     // new
 

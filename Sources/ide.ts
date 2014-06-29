@@ -208,8 +208,8 @@ class Ide {
     static doType (code : string) {
         var al = Ide.parseAndFix(code);
         var sc = new Scope(undefined, combineAsiLists(prelude, al));
-        sc.accept(Ide.namer);
-        sc.accept(Ide.typer);
+        Ide.namer.visitScope(sc);
+        Ide.typer.visitScope(sc);
         Ide.outputView.show(al);
         Ide.debugPrinter.printInfTypes = true;
         Ide.outputAstView.show(al);
@@ -223,6 +223,7 @@ class Ide {
         Ide.outputView.clear();
         Ide.outputAstView.clear();
         var sc = new Scope(undefined, combineAsiLists(prelude, al));
+        Ide.typer.visitScope(sc);
         var res = Ide.interpreter.run(sc);
         Ide.outputView.write(res);
         Ide.debugPrinter.printInfTypes = false;

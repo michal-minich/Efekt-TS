@@ -200,7 +200,7 @@ class Typer implements AstVisitor<void> {
             a.slot.infType = a.infType;
             var i = (<Declr>a.slot).ident;
             i.infType = a.infType;
-        } /*else if (a.slot instanceof Typing) {
+        } else if (a.slot instanceof Typing) {
             if ((<Typing>a.slot).value instanceof Declr) {
                 (<Typing>a.slot).value.infType = a.infType;
                 (<Declr>(<Typing>a.slot).value).ident.infType = a.infType;
@@ -218,7 +218,7 @@ class Typer implements AstVisitor<void> {
                 di.parent.infType = a.infType;
                 di.parent.parent.infType = a.infType;
             }
-        }*/
+        }
     }
 
 
@@ -280,7 +280,7 @@ class Typer implements AstVisitor<void> {
         i.then.accept(this);
         if (i.otherwise) {
             i.otherwise.accept(this);
-            i.infType = this.commonType([i.then.infType, i.otherwise.infType])
+            i.infType = this.commonType([i.then, i.otherwise])
         } else {
             i.infType = i.then.infType;
         }
@@ -299,8 +299,7 @@ class Typer implements AstVisitor<void> {
 
     visitTypeOf (tof : TypeOf) : void {
         tof.value.accept(this);
-        tof.value.infType.accept(this);
-        tof.infType = tof.value.infType.infType;
+        tof.infType = tof.value.infType;
     }
 
 
@@ -507,6 +506,7 @@ class Typer implements AstVisitor<void> {
 
     visitDeclr (d : Declr) : void {
         this.env.declare(d.ident.name, d.ident);
+        d.ident.infType = TypeAny.instance;
         d.infType = d.ident.infType;
     }
 

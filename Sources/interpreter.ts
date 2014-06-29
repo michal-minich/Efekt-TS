@@ -115,7 +115,7 @@ class Interpreter implements AstVisitor<Exp> {
 
 
     visitAsiList (al : AsiList) : Asi {
-        throw "Intrpreter.visitAsiList";
+        throw "Interpreter.visitAsiList";
     }
 
 
@@ -223,8 +223,8 @@ class Interpreter implements AstVisitor<Exp> {
 
 
     visitVar (v : Var) : Exp {
-        if (v.exp instanceof Ident)
-            Interpreter.set(this.currentScope, (<Ident>v.exp).name,
+        if (v.exp instanceof Declr)
+            Interpreter.set(this.currentScope, (<Declr>v.exp).ident.name,
                             Void.instance,
                             true);
         return v.exp.accept(this);
@@ -412,6 +412,8 @@ class Interpreter implements AstVisitor<Exp> {
 
 
     private static getName (e : Exp) : string {
+        if (e instanceof Declr)
+            e = (<Declr>e).ident;
         if (e instanceof Ident)
             return (<Ident>e).name;
         else if (e instanceof Typing)
@@ -478,7 +480,7 @@ class Interpreter implements AstVisitor<Exp> {
 
 
     visitTypeOf (tof : TypeOf) : Exp {
-        throw "type of not implemented";
+        return tof.value.infType;
     }
 
 
