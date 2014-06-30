@@ -27,9 +27,8 @@ class Typer implements AstVisitor<void> {
             return TypeVoid.instance;
         var unique : Exp[] = [];
         for (var i = 0; i < types.length; i++) {
-            types[i].accept(this);
-            if (!unique.contains(types[i].infType))
-                unique.push(types[i].infType);
+            if (!(types[i] instanceof TypeAny) && !unique.contains(types[i]))
+                unique.push(types[i]);
         }
         return unique.length === 1
             ? unique[0]
@@ -207,16 +206,16 @@ class Typer implements AstVisitor<void> {
             } else if ((<Typing>a.slot).value instanceof Ident) {
                 (<Ident>a.slot).infType = a.infType;
             }
-        } else
-        if (a.slot instanceof Ident) {
+        } else if (a.slot instanceof Ident) {
             var i = <Ident>a.slot;
-            i.infType = a.infType;
+            var t = this.commonType([i.declaredBy.infType, a.infType]);
+            i.infType = t;
             var e = this.env.getDeclaringEnv(i.name);
             if (e) {
                 var di = e.getDirectly(i.name);
-                di.infType = a.infType;
-                di.parent.infType = a.infType;
-                di.parent.parent.infType = a.infType;
+                di.infType = t;
+                di.parent.infType = t;
+                di.parent.parent.infType = t;
             }
         }
     }
@@ -280,7 +279,7 @@ class Typer implements AstVisitor<void> {
         i.then.accept(this);
         if (i.otherwise) {
             i.otherwise.accept(this);
-            i.infType = this.commonType([i.then, i.otherwise])
+            i.infType = this.commonType([i.then.infType, i.otherwise.infType])
         } else {
             i.infType = i.then.infType;
         }
@@ -361,7 +360,12 @@ class Typer implements AstVisitor<void> {
 
     visitArr (arr : Arr) : void {
         this.visitExpList(arr.list);
-        var t = this.commonType(arr.list.items);
+        var ts : Exp[] = [];
+        for (var i = 0; i < arr.list.items.length; ++i) {
+            arr.list.items[i].accept(this);
+            ts.push(arr.list.items[i]);
+        }
+        var t = this.commonType(ts);
         var len = new Int(undefined, "" + arr.list.items.length);
         len.accept(this);
         arr.infType = new TypeArr(undefined, t, len);
