@@ -11,6 +11,7 @@ class Typer implements AstVisitor<void> {
 
     private logger : LogWriter;
     private env : Env<Ident>;
+    private currentFnReturnType : Exp;
 
 
 
@@ -128,6 +129,8 @@ class Typer implements AstVisitor<void> {
     visitReturn (r : Return) : void {
         r.infType = TypeVoid.instance;
         r.value.accept(this);
+        this.currentFnReturnType = this.commonType(
+            [r.value.infType, this.currentFnReturnType]);
     }
 
 
@@ -208,7 +211,7 @@ class Typer implements AstVisitor<void> {
             }
         } else if (a.slot instanceof Ident) {
             var i = <Ident>a.slot;
-            var t = this.commonType([i.declaredBy.infType, a.infType]);
+            var t = this.commonType([this.env.get(i.name).infType, a.infType]);
             i.infType = t;
             var e = this.env.getDeclaringEnv(i.name);
             if (e) {
@@ -388,23 +391,25 @@ class Typer implements AstVisitor<void> {
 
 
     visitFn (fn : Fn) : void {
+        var prevFnReturnType = this.currentFnReturnType;
+        this.currentFnReturnType = TypeAny.instance;
         this.env = new Env(this.env, this.logger);
         this.visitBraced(fn.params);
+        var fnt = new Fn(undefined, fn.params, undefined);
+        fnt.returnType = TypeAny.instance;
         if (fn.body) {
             if (fn.body.list.items.length === 0) {
-                fn.infType = TypeVoid.instance;
+                fnt.returnType = TypeVoid.instance;
             } else {
-                this.env = new Env(this.env, this.logger);
                 this.visitScope(fn.body);
-                if (fn.body.list.items.length === 1) {
-                    var fnt = new Fn(undefined, fn.params, undefined);
-                    fnt.returnType = fn.body.list.items[0].infType;
-                    fn.infType = fnt;
-                }
-                this.env = this.env.parent;
+                fnt.returnType = this.commonType(
+                    [this.currentFnReturnType,
+                     fn.body.list.items.last().infType]);
             }
         }
+        fn.infType = fnt;
         this.env = this.env.parent;
+        this.currentFnReturnType = prevFnReturnType;
     }
 
 

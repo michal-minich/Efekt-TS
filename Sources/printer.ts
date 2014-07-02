@@ -490,13 +490,14 @@ class Printer implements AstVisitor<void> {
         this.printAttributes(fn);
         this.cw.key("fn").space();
         fn.params.accept(this);
-        this.cw.space();
-        if (fn.returnType) {
-            this.cw.markup("->").space();
-            fn.returnType.accept(this);
+        if (fn.infType && (<Fn>fn.infType).returnType) {
+            this.cw.space().markup("->").space();
+            (<Fn>fn.infType).returnType.accept(this);
         }
-        if (fn.body)
+        if (fn.body) {
+            this.cw.space();
             this.visitScope(fn.body);
+        }
     }
 
 
@@ -614,7 +615,9 @@ class Printer implements AstVisitor<void> {
 
     visitDeclr (d : Declr) : void {
         this.visitIdent(d.ident);
-        this.printType(d);
+        if (!(d.parent instanceof Assign
+            && (<Assign>d.parent).value instanceof Fn))
+            this.printType(d);
     }
 
 
