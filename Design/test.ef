@@ -23,6 +23,20 @@ var C : class {}
 var S : struct {}
 var U : union {}
 
+assign
+bin op apply
+bin op apply arg
+fn apply
+fn arg
+member access
+import
+if test
+return and last exp in scope, if fn has declared ret type
+typing type
+constraining
+new
+typeof ?
+
 
 if test then true end
 if test then true else false end

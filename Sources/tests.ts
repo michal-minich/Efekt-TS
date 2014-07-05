@@ -473,6 +473,9 @@ function interpreterTests () : void {
     t("var a = true typeof a").evalTo("Bool");
     t("typeof fn () { 1 }").evalTo("Fn(Int)");
     t("typeof fn () { 1 }()").evalTo("Int");
+    t("typeof fn () { return 1 }()").evalTo("Int");
+    t("typeof fn () { var x = 1 return x }()").evalTo("Int");
+    t("typeof if 1 then true else 1").evalTo("AnyOf(Bool, Int)");
 
     // new
 

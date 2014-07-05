@@ -31,9 +31,14 @@ class Typer implements AstVisitor<void> {
             if (!(types[i] instanceof TypeAny) && !unique.contains(types[i]))
                 unique.push(types[i]);
         }
-        return unique.length === 1
-            ? unique[0]
-            : new TypeAnyOf(undefined, new ExpList(undefined, unique));
+
+        if (unique.length === 0)
+            return TypeAny.instance;
+        if (unique.length === 1)
+            return unique[0];
+        else
+            return new TypeAnyOf(undefined, new ExpList(undefined, unique));
+
     }
 
 
