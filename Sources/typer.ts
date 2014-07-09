@@ -203,20 +203,27 @@ class Typer implements AstVisitor<void> {
         a.value.accept(this);
         a.slot.accept(this);
         a.infType = a.value.infType;
-        if (a.slot instanceof Declr) {
-            a.slot.infType = a.infType;
-            var i = (<Declr>a.slot).ident;
-            i.infType = a.infType;
-        } else if (a.slot instanceof Typing) {
-            if ((<Typing>a.slot).value instanceof Declr) {
-                (<Typing>a.slot).value.infType = a.infType;
-                (<Declr>(<Typing>a.slot).value).ident.infType = a.infType;
-            } else if ((<Typing>a.slot).value instanceof Ident) {
-                (<Ident>a.slot).infType = a.infType;
+        this.setSlotInfType(a.slot, a.infType);
+    }
+
+
+
+
+    setSlotInfType (slot : Exp, infType : Exp) : void {
+        if (slot instanceof Declr) {
+            slot.infType = infType;
+            var i = (<Declr>slot).ident;
+            i.infType = infType;
+        } else if (slot instanceof Typing) {
+            if ((<Typing>slot).value instanceof Declr) {
+                (<Typing>slot).value.infType = infType;
+                (<Declr>(<Typing>slot).value).ident.infType = infType;
+            } else if ((<Typing>slot).value instanceof Ident) {
+                (<Ident>slot).infType = infType;
             }
-        } else if (a.slot instanceof Ident) {
-            var i = <Ident>a.slot;
-            var t = this.commonType([this.env.get(i.name).infType, a.infType]);
+        } else if (slot instanceof Ident) {
+            var i = <Ident>slot;
+            var t = this.commonType([this.env.get(i.name).infType, infType]);
             i.infType = t;
             var e = this.env.getDeclaringEnv(i.name);
             if (e) {
@@ -267,6 +274,15 @@ class Typer implements AstVisitor<void> {
         this.visitBraced(fna.args);
         fna.fn.accept(this);
         fna.infType = (<Fn>fna.fn.infType).returnType;
+
+        var fnt = <Fn>fna.fn.infType;
+        var params = fnt.params.list.items;
+        var args = fna.args.list.items;
+        for (var i = 0; i < params.length; ++i) {
+            var pt = params[i].infType;
+            var at = this.commonType([pt, args[i].infType]);
+            this.setSlotInfType(args[i], at);
+        }
     }
 
 
@@ -284,6 +300,10 @@ class Typer implements AstVisitor<void> {
 
     visitIf (i : If) : void {
         i.test.accept(this);
+        if (i.test instanceof Ident) {
+            i.test.infType = this.commonType([i.test.infType, TypeBool.instance]);
+            this.setSlotInfType((<Ident>i.test), i.test.infType);
+        }
         i.then.accept(this);
         if (i.otherwise) {
             i.otherwise.accept(this);
@@ -292,7 +312,6 @@ class Typer implements AstVisitor<void> {
             i.infType = i.then.infType;
         }
     }
-
 
 
 

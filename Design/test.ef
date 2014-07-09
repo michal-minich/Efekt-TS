@@ -27,10 +27,10 @@ assign
 bin op apply
 bin op apply arg
 fn apply
-fn arg
+- fn arg
 member access
 import
-if test
+- if test
 return and last exp in scope, if fn has declared ret type
 typing type
 constraining
