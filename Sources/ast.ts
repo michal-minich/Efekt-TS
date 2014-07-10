@@ -420,12 +420,12 @@ class Var extends Exp {
 
 class Typing extends Exp {
 
-    public value : Exp;
+    public exp : Exp; // Declr | Ident
     public type : Exp;
 
     constructor (attrs : ExpList, ident : Exp, type : Exp) {
         super(attrs);
-        this.value = ident;
+        this.exp = ident;
         this.type = type;
         ident.parent = this;
         type.parent = this;

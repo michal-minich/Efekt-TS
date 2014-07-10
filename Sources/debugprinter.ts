@@ -76,20 +76,18 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     private printCommon (asi : Asi) : DebugPrinter {
-        if (asi.attrs)
-            this.field("attrs", asi.attrs);
-
         if (this.printInfTypes) {
             if (asi.infType) {
                 if (!(asi instanceof Stm)) {
-                    this.field("infType", asi.infType);
+                    this.cw.space().markup(":").space()
+                        .type(Ide.asiToHtmlString(asi.infType));
                 }
             } else {
-                this.cw.tab().newLine().markup("infType")
-                    .space().attr("&lt;undefined&gt;").unTab();
+                this.cw.space().markup(":").space().type("&lt;undefined&gt;");
             }
         }
-
+        if (asi.attrs)
+            this.field("attrs", asi.attrs);
         return this;
     }
 
@@ -221,7 +219,7 @@ class DebugPrinter implements AstVisitor<void> {
 
     visitTyping (tpg : Typing) : void {
         this.key("Typing", tpg)
-            .field("value", tpg.value)
+            .field("value", tpg.exp)
             .field("type", tpg.type);
     }
 

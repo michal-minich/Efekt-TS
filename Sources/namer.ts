@@ -140,7 +140,7 @@ class Namer implements AstVisitor<void> {
 
     visitTyping (tpg : Typing) : void {
         tpg.type.accept(this);
-        tpg.value.accept(this);
+        tpg.exp.accept(this);
     }
 
 

@@ -207,7 +207,7 @@ class Printer implements AstVisitor<void> {
 
 
     visitTyping (tpg : Typing) : void {
-        tpg.value.accept(this);
+        tpg.exp.accept(this);
         this.cw.space().writeOp(":").space();
         tpg.type.accept(this);
         //this.printType(tpg);
@@ -239,7 +239,7 @@ class Printer implements AstVisitor<void> {
     visitScope (sc : Scope) : void {
         this.printAttributes(sc);
         var useBraces = sc.list.items.length > 1
-            || Printer.showScopeBraces(sc.parent);
+            || (sc.parent && Printer.showScopeBraces(sc.parent));
 
         if (sc.list.items.length === 0) {
             if (useBraces)
@@ -473,6 +473,7 @@ class Printer implements AstVisitor<void> {
 
 
     visitFn (fn : Fn) : void {
+        this.printAttributes(fn);
         if (fn.isFnType) {
             this.cw.type("Fn").markup("(");
             var items = fn.params.list.items;
@@ -483,16 +484,23 @@ class Printer implements AstVisitor<void> {
                     this.cw.type("Unknown");
                 this.cw.markup(",").space();
             }
-            fn.returnType.accept(this);
+            if (fn.returnType)
+                fn.returnType.accept(this);
+            else {
+                this.cw.attr("&lt;unknown&gt;");
+            }
             this.cw.markup(")");
             return;
         }
-        this.printAttributes(fn);
         this.cw.key("fn").space();
         fn.params.accept(this);
         if (fn.infType && (<Fn>fn.infType).returnType) {
             this.cw.space().markup("->").space();
             (<Fn>fn.infType).returnType.accept(this);
+        }
+        if (fn.returnType) {
+            this.cw.space().markup("->").space();
+            fn.returnType.accept(this);
         }
         if (fn.body) {
             this.cw.space();
@@ -615,8 +623,9 @@ class Printer implements AstVisitor<void> {
 
     visitDeclr (d : Declr) : void {
         this.visitIdent(d.ident);
-        if (!(d.parent instanceof Assign
-            && (<Assign>d.parent).value instanceof Fn))
+        if (!((d.parent instanceof Assign
+            && (<Assign>d.parent).value instanceof Fn)
+            || (d.parent instanceof Typing)))
             this.printType(d);
     }
 
@@ -877,7 +886,7 @@ class ShortCircuitFnVisitor implements AstVisitor<boolean> {
 
 
     visitTyping (tpg : Typing) : boolean {
-        return this.acceptTwo(tpg.value, tpg.type);
+        return this.acceptTwo(tpg.exp, tpg.type);
     }
 
 

@@ -234,7 +234,7 @@ class Interpreter implements AstVisitor<Exp> {
 
 
     visitTyping (tpg : Typing) : Exp {
-        return tpg.value;
+        return tpg.exp;
     }
 
 
@@ -417,7 +417,7 @@ class Interpreter implements AstVisitor<Exp> {
         if (e instanceof Ident)
             return (<Ident>e).name;
         else if (e instanceof Typing)
-            return Interpreter.getName((<Typing>e).value);
+            return Interpreter.getName((<Typing>e).exp);
         else if (e instanceof Constraining)
             return Interpreter.getName((<Constraining>e).type);
         else

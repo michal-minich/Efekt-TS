@@ -399,14 +399,31 @@ class Parser {
 
     private parseFn () : Fn {
         var asi = this.parseMany();
+        var retType : Exp;
+        if (asi instanceof BinOpApply) {
+            var op = <BinOpApply>asi;
+            if (op.op.name === "->") {
+                asi = op.op1;
+                retType = op.op2;
+            } else {
+                this.logger.fatal("After fn (), only -> operator is allowed");
+            }
+        }
+
         if (asi instanceof Braced) {
             var bc = <Braced>asi;
             asi = this.parseOne();
             if (!(asi instanceof Scope)) {
                 this.spares.push(asi);
-                return new Fn(undefined, bc, undefined);
+                var fn = new Fn(undefined, bc, undefined);
+                if (retType)
+                    fn.returnType = retType;
+                return fn;
             }
-            return new Fn(undefined, bc, <Scope>asi);
+            var fn = new Fn(undefined, bc, <Scope>asi);
+            if (retType)
+                fn.returnType = retType;
+            return fn;
         } else {
             this.logger.fatal("Expected braced after fn.");
             throw undefined;

@@ -182,9 +182,10 @@ class Typer implements AstVisitor<void> {
 
 
     visitTyping (tpg : Typing) : void {
-        tpg.value.accept(this);
+        tpg.exp.accept(this);
         tpg.type.accept(this);
-        tpg.infType = tpg.value.infType;
+        this.addInfTypeToDeclrIdent(tpg.exp, tpg.type);
+        tpg.infType = tpg.type;
     }
 
 
@@ -202,35 +203,50 @@ class Typer implements AstVisitor<void> {
     visitAssign (a : Assign) : void {
         a.value.accept(this);
         a.slot.accept(this);
-        a.infType = a.value.infType;
-        this.setSlotInfType(a.slot, a.infType);
+        this.addInfTypeToDeclrIdent(a.slot, a.value.infType);
+        a.infType = a.slot.infType;
     }
 
 
 
 
-    setSlotInfType (slot : Exp, infType : Exp) : void {
+    addInfTypeToDeclrIdent (slot : Exp, infType : Exp) : void {
+        var tp : Typing;
+        var dc : Declr;
+
+        if (slot instanceof Typing) {
+            tp = <Typing>slot;
+            slot = tp.exp;
+        }
+
         if (slot instanceof Declr) {
-            slot.infType = infType;
-            var i = (<Declr>slot).ident;
-            i.infType = infType;
-        } else if (slot instanceof Typing) {
-            if ((<Typing>slot).value instanceof Declr) {
-                (<Typing>slot).value.infType = infType;
-                (<Declr>(<Typing>slot).value).ident.infType = infType;
-            } else if ((<Typing>slot).value instanceof Ident) {
-                (<Ident>slot).infType = infType;
-            }
-        } else if (slot instanceof Ident) {
+            dc = <Declr>slot;
+            slot = dc.ident;
+        }
+
+        if (slot instanceof Ident) {
             var i = <Ident>slot;
-            var t = this.commonType([this.env.get(i.name).infType, infType]);
-            i.infType = t;
-            var e = this.env.getDeclaringEnv(i.name);
-            if (e) {
-                var di = e.getDirectly(i.name);
-                di.infType = t;
-                di.parent.infType = t;
-                di.parent.parent.infType = t;
+            var itn = Ide.asiToPlainString(infType);
+            var dtn = Ide.asiToPlainString(this.env.get(i.name).infType);
+            if (dtn === "Any") {
+                if (tp)
+                    return;
+                i.infType = infType;
+                var e = this.env.getDeclaringEnv(i.name);
+                if (e) {
+                    var di = e.getDirectly(i.name);
+                    di.infType = infType;
+                    if (dc)
+                        dc.infType = infType;
+                    if (tp)
+                        tp.infType = infType;
+                }
+            } else {
+                if (itn !== dtn) {
+                    this.logger.error(
+                            "Cannot assign value of type '" + itn +
+                            "' to variable of type '" + dtn + "'.");
+                }
             }
         }
     }
@@ -281,7 +297,7 @@ class Typer implements AstVisitor<void> {
         for (var i = 0; i < params.length; ++i) {
             var pt = params[i].infType;
             var at = this.commonType([pt, args[i].infType]);
-            this.setSlotInfType(args[i], at);
+            this.addInfTypeToDeclrIdent(args[i], at);
         }
     }
 
@@ -301,8 +317,9 @@ class Typer implements AstVisitor<void> {
     visitIf (i : If) : void {
         i.test.accept(this);
         if (i.test instanceof Ident) {
-            i.test.infType = this.commonType([i.test.infType, TypeBool.instance]);
-            this.setSlotInfType((<Ident>i.test), i.test.infType);
+            i.test.infType = this.commonType([i.test.infType,
+                                              TypeBool.instance]);
+            this.addInfTypeToDeclrIdent((<Ident>i.test), i.test.infType);
         }
         i.then.accept(this);
         if (i.otherwise) {
@@ -445,7 +462,6 @@ class Typer implements AstVisitor<void> {
 
 
     visitStruct (st : Struct) : void {
-        throw undefined;
     }
 
 
@@ -539,7 +555,8 @@ class Typer implements AstVisitor<void> {
 
     visitDeclr (d : Declr) : void {
         this.env.declare(d.ident.name, d.ident);
-        d.ident.infType = TypeAny.instance;
+        if (!d.ident.infType)
+            d.ident.infType = TypeAny.instance;
         d.infType = d.ident.infType;
     }
 

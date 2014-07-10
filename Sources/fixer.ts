@@ -182,7 +182,7 @@ class Fixer implements AstVisitor<Asi> {
             return d;
         }
         else if (exp instanceof Typing)
-            Fixer.convertToDeclr(exp, 'value');
+            Fixer.convertToDeclr(exp, 'exp');
         else if (exp instanceof Constraining)
             Fixer.convertToDeclr(exp, 'type');
         else if (exp instanceof Assign) {
@@ -190,7 +190,7 @@ class Fixer implements AstVisitor<Asi> {
             if (s instanceof Ident)
                 Fixer.convertToDeclr(exp, 'slot');
             else if (s instanceof Typing)
-                Fixer.convertToDeclr(s, 'value');
+                Fixer.convertToDeclr(s, 'exp');
             else if (s instanceof Constraining)
                 Fixer.convertToDeclr(s, 'type');
         }
@@ -201,7 +201,7 @@ class Fixer implements AstVisitor<Asi> {
 
 
     visitTyping (tpg : Typing) : Typing {
-        tpg.value = tpg.value.accept(this);
+        tpg.exp = tpg.exp.accept(this);
         return tpg;
     }
 

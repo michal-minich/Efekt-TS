@@ -197,6 +197,10 @@ function unitTests () {
         interpreterTests();
     }
 
+    if (testReport.failedCount === 0) {
+        typerTests();
+    }
+
     document.getElementById("testReport").innerHTML =
         testReport.getReportString();
 }
@@ -467,15 +471,8 @@ function interpreterTests () : void {
 
     // interface on struct
 
-    // typeof
+    // typeof, see typer tests for more
     t("typeof 1").evalTo("Int");
-    t("typeof \"a\"").evalTo("Array(Char, 1)");
-    t("var a = true typeof a").evalTo("Bool");
-    t("typeof fn () { 1 }").evalTo("Fn(Int)");
-    t("typeof fn () { 1 }()").evalTo("Int");
-    t("typeof fn () { return 1 }()").evalTo("Int");
-    t("typeof fn () { var x = 1 return x }()").evalTo("Int");
-    t("typeof if 1 then true else 1").evalTo("AnyOf(Bool, Int)");
 
     // new
 
@@ -499,6 +496,22 @@ function interpreterTests () : void {
     t("var f = fn (x) { x() } { var a = 1 f(fn() { a }) }").evalTo("1");
     t("").evalTo("void");
 }
+
+
+
+
+function typerTests () : void {
+
+    t("typeof \"a\"").evalTo("Array(Char, 1)");
+    t("var a = true typeof a").evalTo("Bool");
+    t("typeof fn () { 1 }").evalTo("Fn(Int)");
+    t("typeof fn () { 1 }()").evalTo("Int");
+    t("typeof fn () { return 1 }()").evalTo("Int");
+    t("typeof fn () { var x = 1 return x }()").evalTo("Int");
+    t("typeof if 1 then true else 1").evalTo("AnyOf(Bool, Int)");
+    t("var x if x then 1 else 2 typeof x").evalTo("Bool");
+}
+
 
 /*
 
