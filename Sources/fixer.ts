@@ -33,6 +33,41 @@ class Fixer implements AstVisitor<Asi> {
 
 
 
+    private static makeDeclr (exp : Exp) : Exp {
+        if (exp instanceof Ident) {
+            var p = exp.parent;
+            var d = new Declr(undefined, <Ident>exp);
+            d.parent = p;
+            return d;
+        }
+        else if (exp instanceof Typing)
+            Fixer.convertToDeclr(exp, 'exp');
+        else if (exp instanceof Constraining)
+            Fixer.convertToDeclr(exp, 'type');
+        else if (exp instanceof Assign) {
+            var s = (<Assign>exp).slot;
+            if (s instanceof Ident)
+                Fixer.convertToDeclr(exp, 'slot');
+            else if (s instanceof Typing)
+                Fixer.convertToDeclr(s, 'exp');
+            else if (s instanceof Constraining)
+                Fixer.convertToDeclr(s, 'type');
+        }
+        return exp;
+    }
+
+
+
+
+    private static convertToDeclr (parent : any, property : string) : void {
+        var d = new Declr(undefined, <Ident>parent[property]);
+        d.parent = parent;
+        parent[property] = d;
+    }
+
+
+
+
     // helpers ===============================================
 
 
@@ -156,15 +191,6 @@ class Fixer implements AstVisitor<Asi> {
 
 
 
-    private static convertToDeclr (parent : any, property : string) : void {
-        var d = new Declr(undefined, <Ident>parent[property]);
-        d.parent = parent;
-        parent[property] = d;
-    }
-
-
-
-
     visitVar (v : Var) : Var {
         v.exp = v.exp.accept(this);
         v.exp = Fixer.makeDeclr(v.exp);
@@ -174,34 +200,9 @@ class Fixer implements AstVisitor<Asi> {
 
 
 
-    private static makeDeclr (exp : Exp) : Exp {
-        if (exp instanceof Ident) {
-            var p = exp.parent;
-            var d = new Declr(undefined, <Ident>exp);
-            d.parent = p;
-            return d;
-        }
-        else if (exp instanceof Typing)
-            Fixer.convertToDeclr(exp, 'exp');
-        else if (exp instanceof Constraining)
-            Fixer.convertToDeclr(exp, 'type');
-        else if (exp instanceof Assign) {
-            var s = (<Assign>exp).slot;
-            if (s instanceof Ident)
-                Fixer.convertToDeclr(exp, 'slot');
-            else if (s instanceof Typing)
-                Fixer.convertToDeclr(s, 'exp');
-            else if (s instanceof Constraining)
-                Fixer.convertToDeclr(s, 'type');
-        }
-        return exp;
-    }
-
-
-
-
     visitTyping (tpg : Typing) : Typing {
         tpg.exp = tpg.exp.accept(this);
+        tpg.type = tpg.type.accept(this);
         return tpg;
     }
 
@@ -209,6 +210,7 @@ class Fixer implements AstVisitor<Asi> {
 
 
     visitConstraining (csg : Constraining) : Constraining {
+        csg.type = csg.type.accept(this);
         csg.constraint = csg.constraint.accept(this);
         return csg;
     }

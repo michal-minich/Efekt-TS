@@ -308,7 +308,7 @@ class Typer implements AstVisitor<void> {
         opa.op1.accept(this);
         opa.op.accept(this);
         opa.op2.accept(this);
-        opa.infType = opa.op.infType;
+        opa.infType = (<Fn>opa.op.infType).returnType;
     }
 
 
