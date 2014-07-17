@@ -9,5 +9,5 @@ function start () {
 
     unitTests();
 
-    Ide.doType((<HTMLTextAreaElement>$id("codeEdit")).value);
+    Ide.usages((<HTMLTextAreaElement>$id("codeEdit")).value);
 }

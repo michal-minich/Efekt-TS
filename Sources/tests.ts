@@ -148,12 +148,12 @@ class Test {
         var exHandler = function (ex : Asi) {
         };
         var fixer = new Fixer(this.logger);
-        var typer = new Typer(this.logger);
+        //var typer = new Typer(this.logger);
         var interpreter = new Interpreter(this.logger, this.logger,
                                           this.logger);
         var sc = new Scope(undefined, combineAsiLists(prelude, this.parsed));
         fixer.visitScope(sc);
-        typer.visitScope(sc);
+        //typer.visitScope(sc);
         var evaled = interpreter.run(sc);
         testReport.addEval(this.code, expected, evaled);
         return this;
@@ -198,7 +198,7 @@ function unitTests () {
     }
 
     if (testReport.failedCount === 0) {
-        typerTests();
+        //typerTests();
     }
 
     document.getElementById("testReport").innerHTML =
@@ -472,7 +472,7 @@ function interpreterTests () : void {
     // interface on struct
 
     // typeof, see typer tests for more
-    t("typeof 1").evalTo("Int");
+    //t("typeof 1").evalTo("Int");
 
     // new
 

@@ -568,7 +568,10 @@ class Interpreter implements AstVisitor<Exp> {
                     if (fnAttr.fn instanceof Ident &&
                         (<Ident>fnAttr.fn).name == "@builtin") {
                         var name = arrToStr(<Arr>fnAttr.args.list.items[0]);
-                        return new Builtin(fn, builtins[name]);
+                        var bn = builtins[name];
+                        if (bn === undefined && name !== "ref")
+                            throw "Undefined builtin '" + name + "'";
+                        return new Builtin(fn, bn);
                     }
                 }
             }

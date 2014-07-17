@@ -223,7 +223,7 @@ class Ide {
         Ide.outputView.clear();
         Ide.outputAstView.clear();
         var sc = new Scope(undefined, combineAsiLists(prelude, al));
-        Ide.typer.visitScope(sc);
+        //Ide.typer.visitScope(sc);
         var res = Ide.interpreter.run(sc);
         Ide.outputView.write(res);
         Ide.debugPrinter.printInfTypes = false;
