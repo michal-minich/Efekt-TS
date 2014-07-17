@@ -380,6 +380,7 @@ class Interpreter implements AstVisitor<Exp> {
                 undefined,
                 new Braced(undefined, new ExpList(undefined, args)),
                 ma.member);
+            fna2.parent = fna.parent;
             return this.visitFnApply(fna2);
         }
 
@@ -448,6 +449,7 @@ class Interpreter implements AstVisitor<Exp> {
                                          new ExpList(undefined,
                                                      [opa.op1, opa.op2])),
                               opa.op);
+        fna.parent = opa.parent;
         return this.visitFnApply(fna);
     }
 
