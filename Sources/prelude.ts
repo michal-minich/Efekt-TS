@@ -22,6 +22,6 @@ var preludeStr =
     ' var ref = @builtin("ref") fn (a : Any) -> Any' +
     ' var target = @builtin("target") fn (ref : Any) -> Any' +
     ' var random = @builtin("target") @readsMutableState ' +
-        '@writesMutableState fn (min : Int, max : Int) -> Int' +
+    '@writesMutableState fn (min : Int, max : Int) -> Int' +
     ' var input = @builtin("target") @nondeterministic fn (output : Any) -> Any' +
     ' void';

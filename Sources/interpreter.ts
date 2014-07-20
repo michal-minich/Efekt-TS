@@ -32,51 +32,6 @@ class Interpreter implements AstVisitor<Exp> {
 
 
 
-    private static get (scope : Scope, name : string) : Exp {
-        return Interpreter.getScope(scope, name).vars[name];
-    }
-
-
-
-
-    private static getScope (scope : Scope, name : string) : Scope {
-        var sc = scope;
-        while (sc) {
-            var asi = sc.vars[name];
-            if (asi)
-                return sc;
-            sc = sc.parentScope;
-        }
-
-        throw "variable " + name + " is undefined.";
-    }
-
-
-
-
-    private static set (scope : Scope,
-                        name : string,
-                        value : Asi,
-                        createNewVar : boolean) : void {
-        if (createNewVar) {
-            scope.vars[name] = value;
-        } else {
-            var sc = scope;
-            while (sc) {
-                if (sc.vars[name]) {
-                    sc.vars[name] = value;
-                    return;
-                }
-                sc = sc.parentScope;
-            }
-            throw "cannot assign to variable " + name +
-                " because it was not declared.";
-        }
-    }
-
-
-
-
     private static createStringArr (s : string) : Arr {
         var exps : Exp[] = [];
         for (var i = 0; i < s.length; ++i) {
@@ -224,9 +179,9 @@ class Interpreter implements AstVisitor<Exp> {
 
     visitVar (v : Var) : Exp {
         if (v.exp instanceof Declr)
-            Interpreter.set(this.currentScope, (<Declr>v.exp).ident.name,
-                            Void.instance,
-                            true);
+            this.currentScope.env.declare((<Declr>v.exp).ident.name,
+                                          Void.instance,
+                                          this.currentScope.currentAsiIx);
         return v.exp.accept(this);
     }
 
@@ -250,22 +205,20 @@ class Interpreter implements AstVisitor<Exp> {
     visitAssign (a : Assign) : Exp {
         var val = a.value.accept(this);
         if (val instanceof Struct)
-            val = Interpreter.copyStruct(<Struct>val);
+            val = this.copyStruct(<Struct>val);
 
         if (a.slot instanceof Ident) {
-            Interpreter.set(this.currentScope, (<Ident>a.slot).name, val,
-                            a.parent instanceof Var);
+            this.currentScope.env.set((<Ident>a.slot).name, val);
         } else if (a.slot instanceof Declr) {
-            Interpreter.set(this.currentScope,
-                            (<Ident>(<Declr>a.slot).ident).name,
-                            val,
-                            a.parent instanceof Var);
+            this.currentScope.env.declare((<Ident>(<Declr>a.slot).ident).name,
+                                          val,
+                                          this.currentScope.currentAsiIx);
         } else if (a.slot instanceof MemberAccess) {
             var ma = <MemberAccess>a.slot;
             var exp = ma.bag.accept(this);
             if (exp instanceof Struct) {
                 var s = <Struct>exp;
-                Interpreter.set(s.body, (<Ident>ma.member).name, val, false);
+                s.body.env.set((<Ident>ma.member).name, val);
             } else {
                 throw "assign to member - expected struct, got: " +
                     getTypeName(ma);
@@ -274,7 +227,7 @@ class Interpreter implements AstVisitor<Exp> {
             var fnRes = <Ref>a.slot.accept(this);
             if (fnRes instanceof Ref) {
                 var rf = <Ref>fnRes;
-                Interpreter.set(rf.scope, rf.item.name, val, false);
+                rf.scope.env.set(rf.item.name, val);
             } else {
                 throw "assign to ref - expected ref, got: " +
                     getTypeName(fnRes);
@@ -288,11 +241,10 @@ class Interpreter implements AstVisitor<Exp> {
 
 
 
-    private static copyStruct (s : Struct) : Struct {
+    private copyStruct (s : Struct) : Struct {
         var sc = new Scope(s.body.attrs ? s.body.attrs : undefined,
                            s.body.list);
-        for (var key in s.body.vars)
-            sc.vars[key] = s.body.vars[key];
+        sc.env = s.body.env.duplicate(this.logger);
         var c = new Struct(s.attrs ? s.attrs : undefined, sc);
         return c;
     }
@@ -301,6 +253,10 @@ class Interpreter implements AstVisitor<Exp> {
 
 
     visitScope (sc : Scope) : Exp {
+        if (!sc.env)
+            sc.env = new Env<Exp>(this.currentScope
+                                      ? this.currentScope.env
+                                      : undefined, this.logger);
         var prevScope = this.currentScope;
         this.currentScope = sc;
         sc.currentAsiIx = -1;
@@ -321,7 +277,7 @@ class Interpreter implements AstVisitor<Exp> {
             res = al.items[cs.currentAsiIx].accept(this);
         }
         if (res instanceof Struct)
-            res = Interpreter.copyStruct(<Struct>res);
+            res = this.copyStruct(<Struct>res);
         return res;
     }
 
@@ -329,7 +285,7 @@ class Interpreter implements AstVisitor<Exp> {
 
 
     visitIdent (i : Ident) : Exp {
-        return Interpreter.get(this.currentScope, i.name).accept(this);
+        return this.currentScope.env.get(i.name).accept(this);
     }
 
 
@@ -339,7 +295,7 @@ class Interpreter implements AstVisitor<Exp> {
         var exp = ma.bag.accept(this);
         if (exp instanceof Struct) {
             var bag = <Struct>exp;
-            return Interpreter.get(bag.body, (<Ident>ma.member).name);
+            return bag.body.env.get((<Ident>ma.member).name);
         }
         throw "expected struct before member access, got: " + getTypeName(exp);
     }
@@ -354,7 +310,7 @@ class Interpreter implements AstVisitor<Exp> {
             for (var i = 0; i < el.items.length; ++i) {
                 var ea = el.items[i].accept(this);
                 if (ea instanceof Struct)
-                    ea = Interpreter.copyStruct(<Struct>ea);
+                    ea = this.copyStruct(<Struct>ea);
                 args.push(ea);
             }
         }
@@ -366,8 +322,8 @@ class Interpreter implements AstVisitor<Exp> {
                     fna.args.list.items[0] instanceof Ident) {
                     var ident = <Ident>fna.args.list.items[0];
                     var rf = new Ref(undefined, ident);
-                    rf.scope = Interpreter.getScope(this.currentScope,
-                                                    ident.name);
+                    rf.scope.env
+                        = this.currentScope.env.getDeclaringEnv(ident.name);
                     return rf;
                 }
             }
@@ -395,7 +351,7 @@ class Interpreter implements AstVisitor<Exp> {
             for (var i = 0; i < args.length; ++i) {
                 var p = Interpreter.getFromBracedAt(fn.params, i);
                 var n = Interpreter.getName(p);
-                Interpreter.set(fn.body, n, args[i], true);
+                fn.body.env.declare(n, args[i]); // use 3rd parameter
             }
             return this.visitScope(fn.body);
         }
@@ -579,9 +535,10 @@ class Interpreter implements AstVisitor<Exp> {
             }
             return fn;
         }
-        var f = new Fn(undefined, fn.params,
-                       new Scope(undefined,
-                                 new AsiList(undefined, fn.body.list.items)));
+        var sc = new Scope(undefined,
+                           new AsiList(undefined, fn.body.list.items));
+        sc.env = new Env<Exp>(fn.body.parentScope.env, this.logger);
+        var f = new Fn(undefined, fn.params, sc);
         f.parent = fn.parent;
         return f;
     }

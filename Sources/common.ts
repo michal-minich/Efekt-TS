@@ -5,7 +5,12 @@
 
 
 interface EnvValues<T> {
-    [name : string] : T
+    [name : string] : T;
+}
+
+
+interface DeclareIx {
+    [name : string] : number;
 }
 
 
@@ -18,12 +23,20 @@ class Env<T> {
 
     private static lastId = 0;
     private values : EnvValues<T> = {};
+    private declareIxs : DeclareIx = {};
     private logger : LogWriter;
 
     constructor (parent : Env<T>, logger : LogWriter) {
         this.parent = parent;
         this.logger = logger;
         this.id = Env.lastId++;
+    }
+
+    duplicate (logger : LogWriter) : Env<T> {
+        var e = new Env<T>(this.parent, logger);
+        for (var key in this.values)
+            e.values[key] = this.values[key];
+        return e;
     }
 
     contains (name : string) : boolean {
@@ -38,9 +51,14 @@ class Env<T> {
         return !this.containsDirectly(name) && this.contains(name);
     }
 
-    declare (name : string, value : T) {
-        if (this.values[name])
-            this.logger.error("Variable '" + name + "' is already declared.");
+    declare (name : string, value : T, declareIx? : number) {
+        if (this.values[name]) {
+            if (this.declareIxs[name] !== declareIx)
+                this.logger.error("Variable '" + name +
+                                      "' is already declared.");
+        } else {
+            this.declareIxs[name] = declareIx;
+        }
         this.values[name] = value;
     }
 
