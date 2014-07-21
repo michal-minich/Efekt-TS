@@ -397,6 +397,7 @@ class Fixer implements AstVisitor<Asi> {
 
 
     visitStruct (st : Struct) : Struct {
+        st.body = this.visitScope(st.body);
         return st;
     }
 

@@ -452,12 +452,19 @@ function interpreterTests () : void {
     t("var a = 0 loop { a = a + 1 if a == 10 then break } a").evalTo("10");
 
     // loop, continue
+    t("var a = 0 loop { if a > 9 then break a = a + 1 } a").evalTo("10");
 
     // label, goto
 
     // import
 
     // struct, member access
+    t("var S = struct { var a = 1 } S().a").evalTo("1");
+    t("var S = struct { var a = 1 } var s = S() s.a").evalTo("1");
+    t("var S = struct { var a = 1 } var s = S() s.a = 2 s.a").evalTo("2");
+    t("var S = struct { var a } var s = S() s.a = 2 s.a").evalTo("2");
+    t("var S = struct { var a = 1 } var s = S() var s2 = s s2.a").evalTo("1");
+    t("var S = struct { var a = 1 } var s = S() var s2 = s s2.a = 2 s.a").evalTo("1");
 
     // array
 
@@ -490,11 +497,10 @@ function interpreterTests () : void {
     t("var f = fn (a) { fn () { a } } f(1)()").evalTo("1");
     t("var f = fn (a) { fn (b) { a - b } } f(10)(1)").evalTo("9");
     t("var b = 0 var f = fn (a) { b = a } f(1)").evalTo("1");
-    //t("var b = 0 var f = fn (a) { b = a } f(1) b").evalTo("1");
+    t("var b = 0 var f = fn (a) { b = a } f(1) b").evalTo("1");
     t("var f { var a = 1 f = fn () { a } } f()").evalTo("1");
     t("var f = fn (x) { x() } var a = 1 f(fn() { a })").evalTo("1");
     t("var f = fn (x) { x() } { var a = 1 f(fn() { a }) }").evalTo("1");
-    t("").evalTo("void");
 }
 
 

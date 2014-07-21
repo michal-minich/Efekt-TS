@@ -481,20 +481,6 @@ class Assign extends Exp {
 
 
 
-interface Vars {
-    [name : string] : Exp
-}
-
-
-
-
-interface Declrs {
-    [name : string] : Ident;
-}
-
-
-
-
 class Scope extends Exp {
 
     public list : AsiList;
@@ -1108,8 +1094,14 @@ class Declr extends Exp {
 
 class Closure extends Exp {
 
-    constructor (attrs : ExpList) {
+    private env : Env<Exp>;
+    private item : Exp;
+
+    constructor (attrs : ExpList, env : Env<Exp>, item : Exp) {
         super(attrs);
+        this.item = item;
+        // parent ?
+        this.env = env;
     }
 
     accept<T> (v : AstVisitor<T>) : T {

@@ -32,8 +32,12 @@ class Env<T> {
         this.id = Env.lastId++;
     }
 
-    duplicate (logger : LogWriter) : Env<T> {
-        var e = new Env<T>(this.parent, logger);
+    create () : Env<T> {
+        return new Env<T>(this, this.logger);
+    }
+
+    duplicate () : Env<T> {
+        var e = new Env<T>(this.parent, this.logger);
         for (var key in this.values)
             e.values[key] = this.values[key];
         return e;

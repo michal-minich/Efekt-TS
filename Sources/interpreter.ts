@@ -206,7 +206,6 @@ class Interpreter implements AstVisitor<Exp> {
         var val = a.value.accept(this);
         if (val instanceof Struct)
             val = this.copyStruct(<Struct>val);
-
         if (a.slot instanceof Ident) {
             this.currentScope.env.set((<Ident>a.slot).name, val);
         } else if (a.slot instanceof Declr) {
@@ -244,7 +243,7 @@ class Interpreter implements AstVisitor<Exp> {
     private copyStruct (s : Struct) : Struct {
         var sc = new Scope(s.body.attrs ? s.body.attrs : undefined,
                            s.body.list);
-        sc.env = s.body.env.duplicate(this.logger);
+        sc.env = s.body.env.duplicate();
         var c = new Struct(s.attrs ? s.attrs : undefined, sc);
         return c;
     }
@@ -537,7 +536,7 @@ class Interpreter implements AstVisitor<Exp> {
         }
         var sc = new Scope(undefined,
                            new AsiList(undefined, fn.body.list.items));
-        sc.env = new Env<Exp>(fn.body.parentScope.env, this.logger);
+        sc.env = fn.body.parentScope.env.create();
         var f = new Fn(undefined, fn.params, sc);
         f.parent = fn.parent;
         return f;
@@ -552,6 +551,16 @@ class Interpreter implements AstVisitor<Exp> {
 
 
     visitStruct (st : Struct) : Struct {
+        /*var sc = new Scope(undefined,
+                           new AsiList(undefined, st.body.list.items));
+        if (st.body.env)
+            sc.env = this.currentScope.env.create();
+        else
+            sc.env = sc.env.duplicate();
+        var s = new Struct(undefined, sc);
+        return s;*/
+        if (!st.body.env)
+            st.body.env = this.currentScope.env.create();
         return st;
     }
 
