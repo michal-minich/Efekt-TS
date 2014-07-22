@@ -553,7 +553,7 @@ var w = fn (a) { a > 6 }
 var x = 10
 var adder = fn (init) {
   var state = init
-  fn () { state = state + 1 + x }
+  fn () { state = state + 1 state + x }
 }
 var a = adder(5)
 var b = adder(10)

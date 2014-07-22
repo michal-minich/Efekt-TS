@@ -254,12 +254,12 @@ class Interpreter implements AstVisitor<Exp> {
 
 
     visitScope (sc : Scope) : Exp {
-        if (!sc.env)
-            sc.env = new Env<Exp>(this.currentEnv || undefined, this.logger);
         var prevEnv = this.currentEnv;
         var prevAsiIx = this.currentAsiIx;
         var prevAsiCount = this.currentAsiCount;
-        this.currentEnv = sc.env;
+        this.currentEnv = this.currentEnv
+            ? this.currentEnv.create()
+            : new Env<Exp>(undefined, this.logger);
         this.currentAsiIx = -1;
         this.currentAsiCount = sc.list.items.length;
         var res = this.walkAsiList(sc.list);
@@ -350,7 +350,7 @@ class Interpreter implements AstVisitor<Exp> {
 
         if (exp instanceof Closure) {
             var fn = <Fn>(<Closure>exp).item;
-            var cls = new Closure(undefined, (<Closure>exp).env.create(), fn);
+            var cls = (<Closure>exp);
             for (var i = 0; i < args.length; ++i) {
                 var p = Interpreter.getFromBracedAt(fn.params, i);
                 var n = Interpreter.getName(p);
