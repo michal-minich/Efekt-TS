@@ -16,7 +16,9 @@ class Interpreter implements AstVisitor<Exp> {
 
     private isBreak : boolean;
     private isContinue : boolean;
-    private currentScope : Scope;
+    private currentEnv : Env<Exp>;
+    private currentAsiIx : number;
+    private currentAsiCount : number;
 
 
 
@@ -179,9 +181,9 @@ class Interpreter implements AstVisitor<Exp> {
 
     visitVar (v : Var) : Exp {
         if (v.exp instanceof Declr)
-            this.currentScope.env.declare((<Declr>v.exp).ident.name,
-                                          Void.instance,
-                                          this.currentScope.currentAsiIx);
+            this.currentEnv.declare((<Declr>v.exp).ident.name,
+                                    Void.instance,
+                                    this.currentAsiIx);
         return v.exp.accept(this);
     }
 
@@ -205,13 +207,13 @@ class Interpreter implements AstVisitor<Exp> {
     visitAssign (a : Assign) : Exp {
         var val = a.value.accept(this);
         if (val instanceof Struct)
-            val = this.copyStruct(<Struct>val);
+            val = Interpreter.copyStruct(<Struct>val);
         if (a.slot instanceof Ident) {
-            this.currentScope.env.set((<Ident>a.slot).name, val);
+            this.currentEnv.set((<Ident>a.slot).name, val);
         } else if (a.slot instanceof Declr) {
-            this.currentScope.env.declare((<Ident>(<Declr>a.slot).ident).name,
-                                          val,
-                                          this.currentScope.currentAsiIx);
+            this.currentEnv.declare((<Ident>(<Declr>a.slot).ident).name,
+                                    val,
+                                    this.currentAsiIx);
         } else if (a.slot instanceof MemberAccess) {
             var ma = <MemberAccess>a.slot;
             var exp = ma.bag.accept(this);
@@ -240,7 +242,7 @@ class Interpreter implements AstVisitor<Exp> {
 
 
 
-    private copyStruct (s : Struct) : Struct {
+    private static copyStruct (s : Struct) : Struct {
         var sc = new Scope(s.body.attrs ? s.body.attrs : undefined,
                            s.body.list);
         sc.env = s.body.env.duplicate();
@@ -253,14 +255,17 @@ class Interpreter implements AstVisitor<Exp> {
 
     visitScope (sc : Scope) : Exp {
         if (!sc.env)
-            sc.env = new Env<Exp>(this.currentScope
-                                      ? this.currentScope.env
-                                      : undefined, this.logger);
-        var prevScope = this.currentScope;
-        this.currentScope = sc;
-        sc.currentAsiIx = -1;
+            sc.env = new Env<Exp>(this.currentEnv || undefined, this.logger);
+        var prevEnv = this.currentEnv;
+        var prevAsiIx = this.currentAsiIx;
+        var prevAsiCount = this.currentAsiCount;
+        this.currentEnv = sc.env;
+        this.currentAsiIx = -1;
+        this.currentAsiCount = sc.list.items.length;
         var res = this.walkAsiList(sc.list);
-        this.currentScope = prevScope;
+        this.currentEnv = prevEnv;
+        this.currentAsiIx = prevAsiIx;
+        this.currentAsiCount = prevAsiCount;
         return res;
     }
 
@@ -268,15 +273,14 @@ class Interpreter implements AstVisitor<Exp> {
 
 
     private walkAsiList (al : AsiList) : Exp {
-        var cs = this.currentScope;
         var res = Void.instance;
-        while ((cs.currentAsiIx < cs.list.items.length - 1) && !this.isBreak &&
-            !this.isContinue) {
-            ++cs.currentAsiIx;
-            res = al.items[cs.currentAsiIx].accept(this);
+        while ((this.currentAsiIx < this.currentAsiCount - 1) &&
+            !this.isBreak && !this.isContinue) {
+            ++this.currentAsiIx;
+            res = al.items[this.currentAsiIx].accept(this);
         }
         if (res instanceof Struct)
-            res = this.copyStruct(<Struct>res);
+            res = Interpreter.copyStruct(<Struct>res);
         return res;
     }
 
@@ -284,7 +288,7 @@ class Interpreter implements AstVisitor<Exp> {
 
 
     visitIdent (i : Ident) : Exp {
-        return this.currentScope.env.get(i.name).accept(this);
+        return this.currentEnv.get(i.name).accept(this);
     }
 
 
@@ -309,7 +313,7 @@ class Interpreter implements AstVisitor<Exp> {
             for (var i = 0; i < el.items.length; ++i) {
                 var ea = el.items[i].accept(this);
                 if (ea instanceof Struct)
-                    ea = this.copyStruct(<Struct>ea);
+                    ea = Interpreter.copyStruct(<Struct>ea);
                 args.push(ea);
             }
         }
@@ -321,8 +325,7 @@ class Interpreter implements AstVisitor<Exp> {
                     fna.args.list.items[0] instanceof Ident) {
                     var ident = <Ident>fna.args.list.items[0];
                     var rf = new Ref(undefined, ident);
-                    rf.scope.env
-                        = this.currentScope.env.getDeclaringEnv(ident.name);
+                    rf.scope.env = this.currentEnv.getDeclaringEnv(ident.name);
                     return rf;
                 }
             }
@@ -345,14 +348,25 @@ class Interpreter implements AstVisitor<Exp> {
             return (<Builtin>exp).impl(args);
         }
 
-        if (exp instanceof Fn) {
-            var fn = <Fn>exp;
+        if (exp instanceof Closure) {
+            var fn = <Fn>(<Closure>exp).item;
+            var cls = new Closure(undefined, (<Closure>exp).env.create(), fn);
             for (var i = 0; i < args.length; ++i) {
                 var p = Interpreter.getFromBracedAt(fn.params, i);
                 var n = Interpreter.getName(p);
-                fn.body.env.declare(n, args[i]); // use 3rd parameter
+                cls.env.declare(n, args[i]); // use 3rd parameter
             }
-            return this.visitScope(fn.body);
+            var prevEnv = this.currentEnv;
+            var prevAsiIx = this.currentAsiIx;
+            var prevAsiCount = this.currentAsiCount;
+            this.currentEnv = cls.env;
+            this.currentAsiIx = -1;
+            this.currentAsiCount = fn.body.list.items.length;
+            var res = this.visitScope(fn.body);
+            this.currentEnv = prevEnv;
+            this.currentAsiIx = prevAsiIx;
+            this.currentAsiCount = prevAsiCount;
+            return res;
         }
 
         if (exp instanceof Struct) {
@@ -534,12 +548,8 @@ class Interpreter implements AstVisitor<Exp> {
             }
             return fn;
         }
-        var sc = new Scope(undefined,
-                           new AsiList(undefined, fn.body.list.items));
-        sc.env = fn.body.parentScope.env.create();
-        var f = new Fn(undefined, fn.params, sc);
-        f.parent = fn.parent;
-        return f;
+        var cls = new Closure(undefined, this.currentEnv.create(), fn);
+        return cls;
     }
 
 
@@ -551,16 +561,8 @@ class Interpreter implements AstVisitor<Exp> {
 
 
     visitStruct (st : Struct) : Struct {
-        /*var sc = new Scope(undefined,
-                           new AsiList(undefined, st.body.list.items));
-        if (st.body.env)
-            sc.env = this.currentScope.env.create();
-        else
-            sc.env = sc.env.duplicate();
-        var s = new Struct(undefined, sc);
-        return s;*/
         if (!st.body.env)
-            st.body.env = this.currentScope.env.create();
+            st.body.env = this.currentEnv.create();
         return st;
     }
 

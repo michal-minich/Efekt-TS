@@ -1094,8 +1094,9 @@ class Declr extends Exp {
 
 class Closure extends Exp {
 
-    private env : Env<Exp>;
-    private item : Exp;
+    public env : Env<Exp>;
+    public item : Exp;
+    public asiIx = -1;
 
     constructor (attrs : ExpList, env : Env<Exp>, item : Exp) {
         super(attrs);

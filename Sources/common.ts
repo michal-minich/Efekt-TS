@@ -22,7 +22,7 @@ class Env<T> {
     public id : number;
 
     private static lastId = 0;
-    private values : EnvValues<T> = {};
+    public values : EnvValues<T> = {};
     private declareIxs : DeclareIx = {};
     private logger : LogWriter;
 

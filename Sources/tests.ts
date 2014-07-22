@@ -550,14 +550,16 @@ var w = fn (a) { a > 6 }
 
 
 -- adder
+var x = 10
 var adder = fn (init) {
   var state = init
-  fn () { state = state + 1 }
+  fn () { state = state + 1 + x }
 }
 var a = adder(5)
 var b = adder(10)
 print(a())
 print(b())
+x = 100
 print(a())
 print(b())
 

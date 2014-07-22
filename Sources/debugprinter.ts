@@ -518,7 +518,13 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     visitClosure (cls : Closure) : void {
-        this.key("Closure", cls);
+        this.key("Closure", cls).field("item", cls.item);
+        this.cw.tab();
+        for (var key in cls.env.values) {
+            this.cw.newLine().markup(key).space();
+            cls.env.values[key].accept(this);
+        }
+        this.cw.unTab();
     }
 
 
