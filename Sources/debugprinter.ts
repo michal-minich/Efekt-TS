@@ -219,7 +219,7 @@ class DebugPrinter implements AstVisitor<void> {
 
     visitTyping (tpg : Typing) : void {
         this.key("Typing", tpg)
-            .field("value", tpg.exp)
+            .field("exp", tpg.exp)
             .field("type", tpg.type);
     }
 

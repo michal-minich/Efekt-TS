@@ -1,9 +1,6 @@
 /// <reference path="common.ts"/>
 /// <reference path="ast.ts"/>
-/// <reference path="writer.ts"/>
-/// <reference path="printer.ts"/>
 /// <reference path="builtin.ts"/>
-/// <reference path="prelude.ts"/>
 
 
 
@@ -16,9 +13,8 @@ class Interpreter implements AstVisitor<Exp> {
 
     private isBreak : boolean;
     private isContinue : boolean;
-    private currentEnv : Env<Exp>;
-    private currentAsiIx : number;
-    private currentAsiCount : number;
+    private env : Env<Exp>;
+    private asiIx : number;
 
 
 
@@ -35,13 +31,11 @@ class Interpreter implements AstVisitor<Exp> {
 
 
     private static createStringArr (s : string) : Arr {
-        var exps : Exp[] = [];
-        for (var i = 0; i < s.length; ++i) {
-            exps.push(new Char(undefined, s[i]));
-        }
-        var arr = new Arr(undefined, new ExpList(undefined, exps),
-                          new TypeChar(undefined));
-        return arr;
+        var es : Exp[] = [];
+        for (var i = 0; i < s.length; ++i)
+            es.push(new Char(undefined, s[i]));
+        return new Arr(
+            undefined, new ExpList(undefined, es), TypeChar.instance);
     }
 
 
@@ -54,8 +48,7 @@ class Interpreter implements AstVisitor<Exp> {
             return this.visitScope(sc);
         } catch (ex) {
             if (ex instanceof String) {
-                var arr = Interpreter.createStringArr(ex);
-                this.exceptionHandler.exception(arr);
+                this.exceptionHandler.exception(Interpreter.createStringArr(ex));
                 return Void.instance;
             } else {
                 throw ex;
@@ -72,17 +65,17 @@ class Interpreter implements AstVisitor<Exp> {
 
 
     visitAsiList (al : AsiList) : Asi {
-        throw "Interpreter.visitAsiList";
+        throw undefined;
     }
 
 
 
 
     visitExpList (el : ExpList) : Asi {
-        for (var i = 0; i < el.items.length - 1; i++)
-            el.items[i].accept(this);
-
-        return el.items[el.items.length - 1].accept(this);
+        var is = el.items;
+        for (var i = 0; i < is.length - 1; ++i)
+            is[i].accept(this);
+        return is[is.length - 1].accept(this);
     }
 
 
@@ -130,7 +123,6 @@ class Interpreter implements AstVisitor<Exp> {
 
     visitLabel (lb : Label) : Void {
         throw undefined;
-        //return lb.ident.accept(this);
     }
 
 
@@ -138,7 +130,6 @@ class Interpreter implements AstVisitor<Exp> {
 
     visitGoto (gt : Goto) : Void {
         throw undefined;
-        //return gt.ident.accept(this);
     }
 
 
@@ -146,7 +137,6 @@ class Interpreter implements AstVisitor<Exp> {
 
     visitImport (im : Import) : Void {
         throw undefined;
-        //return im.value.accept(this);
     }
 
 
@@ -180,10 +170,6 @@ class Interpreter implements AstVisitor<Exp> {
 
 
     visitVar (v : Var) : Exp {
-        if (v.exp instanceof Declr)
-            this.currentEnv.declare((<Declr>v.exp).ident.name,
-                                    Void.instance,
-                                    this.currentAsiIx);
         return v.exp.accept(this);
     }
 
@@ -191,14 +177,14 @@ class Interpreter implements AstVisitor<Exp> {
 
 
     visitTyping (tpg : Typing) : Exp {
-        return tpg.exp;
+        throw undefined;
     }
 
 
 
 
     visitConstraining (csg : Constraining) : Exp {
-        return csg.type;
+        throw undefined;
     }
 
 
@@ -209,11 +195,10 @@ class Interpreter implements AstVisitor<Exp> {
         if (val instanceof Struct)
             val = Interpreter.copyStruct(<Struct>val);
         if (a.slot instanceof Ident) {
-            this.currentEnv.set((<Ident>a.slot).name, val);
+            this.env.set((<Ident>a.slot).name, val);
         } else if (a.slot instanceof Declr) {
-            this.currentEnv.declare((<Ident>(<Declr>a.slot).ident).name,
-                                    val,
-                                    this.currentAsiIx);
+            this.env.declare(
+                (<Ident>(<Declr>a.slot).ident).name, val, this.asiIx);
         } else if (a.slot instanceof MemberAccess) {
             var ma = <MemberAccess>a.slot;
             var exp = ma.bag.accept(this);
@@ -243,44 +228,31 @@ class Interpreter implements AstVisitor<Exp> {
 
 
     private static copyStruct (s : Struct) : Struct {
-        var sc = new Scope(s.body.attrs ? s.body.attrs : undefined,
-                           s.body.list);
+        var sc = new Scope(s.body.attrs || undefined, s.body.list);
         sc.env = s.body.env.duplicate();
-        var c = new Struct(s.attrs ? s.attrs : undefined, sc);
-        return c;
+        return new Struct(s.attrs || undefined, sc);
     }
 
 
 
 
     visitScope (sc : Scope) : Exp {
-        var prevEnv = this.currentEnv;
-        var prevAsiIx = this.currentAsiIx;
-        var prevAsiCount = this.currentAsiCount;
-        this.currentEnv = this.currentEnv
-            ? this.currentEnv.create()
+        var prevEnv = this.env;
+        var prevAsiIx = this.asiIx;
+        this.env = this.env
+            ? this.env.create()
             : new Env<Exp>(undefined, this.logger);
-        this.currentAsiIx = -1;
-        this.currentAsiCount = sc.list.items.length;
-        var res = this.walkAsiList(sc.list);
-        this.currentEnv = prevEnv;
-        this.currentAsiIx = prevAsiIx;
-        this.currentAsiCount = prevAsiCount;
-        return res;
-    }
-
-
-
-
-    private walkAsiList (al : AsiList) : Exp {
+        this.asiIx = -1;
         var res = Void.instance;
-        while ((this.currentAsiIx < this.currentAsiCount - 1) &&
-            !this.isBreak && !this.isContinue) {
-            ++this.currentAsiIx;
-            res = al.items[this.currentAsiIx].accept(this);
+        while ((this.asiIx < sc.list.items.length - 1) && !this.isBreak &&
+            !this.isContinue) {
+            ++this.asiIx;
+            res = sc.list.items[this.asiIx].accept(this);
         }
         if (res instanceof Struct)
             res = Interpreter.copyStruct(<Struct>res);
+        this.env = prevEnv;
+        this.asiIx = prevAsiIx;
         return res;
     }
 
@@ -288,7 +260,7 @@ class Interpreter implements AstVisitor<Exp> {
 
 
     visitIdent (i : Ident) : Exp {
-        return this.currentEnv.get(i.name).accept(this);
+        return this.env.get(i.name);
     }
 
 
@@ -325,7 +297,7 @@ class Interpreter implements AstVisitor<Exp> {
                     fna.args.list.items[0] instanceof Ident) {
                     var ident = <Ident>fna.args.list.items[0];
                     var rf = new Ref(undefined, ident);
-                    rf.scope.env = this.currentEnv.getDeclaringEnv(ident.name);
+                    rf.scope.env = this.env.getDeclaringEnv(ident.name);
                     return rf;
                 }
             }
@@ -356,16 +328,13 @@ class Interpreter implements AstVisitor<Exp> {
                 var n = Interpreter.getName(p);
                 cls.env.declare(n, args[i]); // use 3rd parameter
             }
-            var prevEnv = this.currentEnv;
-            var prevAsiIx = this.currentAsiIx;
-            var prevAsiCount = this.currentAsiCount;
-            this.currentEnv = cls.env;
-            this.currentAsiIx = -1;
-            this.currentAsiCount = fn.body.list.items.length;
+            var prevEnv = this.env;
+            var prevAsiIx = this.asiIx;
+            this.env = cls.env;
+            this.asiIx = -1;
             var res = this.visitScope(fn.body);
-            this.currentEnv = prevEnv;
-            this.currentAsiIx = prevAsiIx;
-            this.currentAsiCount = prevAsiCount;
+            this.env = prevEnv;
+            this.asiIx = prevAsiIx;
             return res;
         }
 
@@ -382,14 +351,14 @@ class Interpreter implements AstVisitor<Exp> {
 
 
     private static getName (e : Exp) : string {
+        if (e instanceof Typing)
+            e = (<Typing>e).exp;
+        else if (e instanceof Constraining)
+            e = (<Constraining>e).type;
         if (e instanceof Declr)
             e = (<Declr>e).ident;
         if (e instanceof Ident)
             return (<Ident>e).name;
-        else if (e instanceof Typing)
-            return Interpreter.getName((<Typing>e).exp);
-        else if (e instanceof Constraining)
-            return Interpreter.getName((<Constraining>e).type);
         else
             throw "exp has no name";
     }
@@ -413,11 +382,10 @@ class Interpreter implements AstVisitor<Exp> {
 
 
     visitBinOpApply (opa : BinOpApply) : Exp {
-        var fna = new FnApply(undefined,
-                              new Braced(undefined,
-                                         new ExpList(undefined,
-                                                     [opa.op1, opa.op2])),
-                              opa.op);
+        var fna = new FnApply(
+            undefined,
+            new Braced(undefined, new ExpList(undefined, [opa.op1, opa.op2])),
+            opa.op);
         fna.parent = opa.parent;
         return this.visitFnApply(fna);
     }
@@ -427,24 +395,21 @@ class Interpreter implements AstVisitor<Exp> {
 
     visitIf (i : If) : Exp {
         var t = i.test.accept(this);
-        if (t instanceof Bool) {
-            if ((<Bool>t).value)
-                return i.then.accept(this);
-            else if (i.otherwise)
-                return i.otherwise.accept(this);
-            else
-                return Void.instance;
-        }
-        else {
-            throw "if test must evaluate to Bool";
-        }
+        if (!(t instanceof Bool))
+            throw "if test must evaluate to Bool, not " + getTypeName(t);
+        if ((<Bool>t).value)
+            return i.then.accept(this);
+        else if (i.otherwise)
+            return i.otherwise.accept(this);
+        else
+            return Void.instance;
     }
 
 
 
 
     visitNew (nw : New) : Ref {
-        throw "new not implemented";
+        throw undefined;
     }
 
 
@@ -548,8 +513,7 @@ class Interpreter implements AstVisitor<Exp> {
             }
             return fn;
         }
-        var cls = new Closure(undefined, this.currentEnv.create(), fn);
-        return cls;
+        return new Closure(undefined, this.env.create(), fn);
     }
 
 
@@ -562,7 +526,7 @@ class Interpreter implements AstVisitor<Exp> {
 
     visitStruct (st : Struct) : Struct {
         if (!st.body.env)
-            st.body.env = this.currentEnv.create();
+            st.body.env = this.env.create();
         return st;
     }
 
@@ -656,8 +620,9 @@ class Interpreter implements AstVisitor<Exp> {
 
 
 
-    visitDeclr (d : Declr) : Declr {
-        return d;
+    visitDeclr (d : Declr) : Void {
+        this.env.declare(d.ident.name, Void.instance, this.asiIx);
+        return Void.instance;
     }
 
 
