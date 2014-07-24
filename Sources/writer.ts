@@ -129,7 +129,7 @@ class HtmlOutputView implements OutputView {
     }
 
     write (asi : Asi) : void {
-        this.outputView.innerHTML += this.asiToStringFn(asi);
+        this.outputView.innerHTML += this.asiToStringFn(asi) + "<br>";
     }
 
     clear () : void {

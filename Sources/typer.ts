@@ -22,7 +22,6 @@ class Typer implements AstVisitor<void> {
 
 
 
-
     private commonType (types : Exp[]) : Exp {
         if (types.length === 0)
             return TypeVoid.instance;

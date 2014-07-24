@@ -65,7 +65,10 @@ class Interpreter implements AstVisitor<Exp> {
 
 
     visitAsiList (al : AsiList) : Asi {
-        throw undefined;
+        var is = al.items;
+        for (var i = 0; i < is.length; ++i)
+            is[i].accept(this);
+        return Void.instance;
     }
 
 
@@ -192,8 +195,8 @@ class Interpreter implements AstVisitor<Exp> {
 
     visitAssign (a : Assign) : Exp {
         var val = a.value.accept(this);
-        if (val instanceof Struct)
-            val = Interpreter.copyStruct(<Struct>val);
+        if (val instanceof Closure)
+            val = Interpreter.copyStruct(<Closure>val);
         if (a.slot instanceof Ident) {
             this.env.set((<Ident>a.slot).name, val);
         } else if (a.slot instanceof Declr) {
@@ -202,14 +205,15 @@ class Interpreter implements AstVisitor<Exp> {
         } else if (a.slot instanceof MemberAccess) {
             var ma = <MemberAccess>a.slot;
             var exp = ma.bag.accept(this);
-            if (exp instanceof Struct) {
-                var s = <Struct>exp;
-                s.body.env.set((<Ident>ma.member).name, val);
+            if (exp instanceof Closure
+                && (<Closure>exp).item instanceof Struct) {
+                var cls = <Closure>exp;
+                cls.env.set((<Ident>ma.member).name, val);
             } else {
                 throw "assign to member - expected struct, got: " +
                     getTypeName(ma);
             }
-        } else if (a.slot instanceof FnApply) {
+        }/*else if (a.slot instanceof FnApply) {
             var fnRes = <Ref>a.slot.accept(this);
             if (fnRes instanceof Ref) {
                 var rf = <Ref>fnRes;
@@ -218,7 +222,7 @@ class Interpreter implements AstVisitor<Exp> {
                 throw "assign to ref - expected ref, got: " +
                     getTypeName(fnRes);
             }
-        } else {
+        }*/ else {
             throw "assign to " + getTypeName(a.slot) + " is not supported";
         }
         return val;
@@ -227,10 +231,10 @@ class Interpreter implements AstVisitor<Exp> {
 
 
 
-    private static copyStruct (s : Struct) : Struct {
-        var sc = new Scope(s.body.attrs || undefined, s.body.list);
-        sc.env = s.body.env.duplicate();
-        return new Struct(s.attrs || undefined, sc);
+    private static copyStruct (cls : Closure) : Closure {
+        return cls.item instanceof Struct
+            ? new Closure(undefined, cls.env.duplicate(), cls.item)
+            : cls;
     }
 
 
@@ -249,8 +253,8 @@ class Interpreter implements AstVisitor<Exp> {
             ++this.asiIx;
             res = sc.list.items[this.asiIx].accept(this);
         }
-        if (res instanceof Struct)
-            res = Interpreter.copyStruct(<Struct>res);
+        if (res instanceof Closure)
+            res = Interpreter.copyStruct(<Closure>res);
         this.env = prevEnv;
         this.asiIx = prevAsiIx;
         return res;
@@ -268,10 +272,8 @@ class Interpreter implements AstVisitor<Exp> {
 
     visitMemberAccess (ma : MemberAccess) : Exp {
         var exp = ma.bag.accept(this);
-        if (exp instanceof Struct) {
-            var bag = <Struct>exp;
-            return bag.body.env.get((<Ident>ma.member).name);
-        }
+        if (exp instanceof Closure)
+            return (<Closure>exp).env.get((<Ident>ma.member).name);
         throw "expected struct before member access, got: " + getTypeName(exp);
     }
 
@@ -284,13 +286,13 @@ class Interpreter implements AstVisitor<Exp> {
             var el = <ExpList>fna.args.list;
             for (var i = 0; i < el.items.length; ++i) {
                 var ea = el.items[i].accept(this);
-                if (ea instanceof Struct)
-                    ea = Interpreter.copyStruct(<Struct>ea);
+                if (ea instanceof Closure)
+                    ea = Interpreter.copyStruct(<Closure>ea);
                 args.push(ea);
             }
         }
 
-        if (fna.fn instanceof Ident) {
+        /*if (fna.fn instanceof Ident) {
             var fni = <Ident>fna.fn;
             if (fni.name === "ref") {
                 if (fna.args.list.items.length === 1 &&
@@ -301,9 +303,9 @@ class Interpreter implements AstVisitor<Exp> {
                     return rf;
                 }
             }
-        }
+        }*/
 
-        if (fna.fn instanceof MemberAccess) {
+        /*if (fna.fn instanceof MemberAccess) {
             var ma = <MemberAccess>fna.fn;
             args.splice(0, 0, ma.bag);
             var fna2 = new FnApply(
@@ -312,7 +314,7 @@ class Interpreter implements AstVisitor<Exp> {
                 ma.member);
             fna2.parent = fna.parent;
             return this.visitFnApply(fna2);
-        }
+        }*/
 
         var exp = fna.fn.accept(this);
 
@@ -321,7 +323,17 @@ class Interpreter implements AstVisitor<Exp> {
         }
 
         if (exp instanceof Closure) {
-            var fn = <Fn>(<Closure>exp).item;
+            var cls = <Closure>exp;
+            if (cls.item instanceof Struct) {
+                var s = <Struct>cls.item;
+                var c = new Closure(undefined, cls.env.create(), s);
+                var prevEnv = this.env;
+                this.env = c.env;
+                this.visitAsiList(s.body.list);
+                this.env = prevEnv;
+                return c;
+            }
+            var fn = <Fn>cls.item;
             var cls = (<Closure>exp);
             for (var i = 0; i < args.length; ++i) {
                 var p = Interpreter.getFromBracedAt(fn.params, i);
@@ -524,10 +536,8 @@ class Interpreter implements AstVisitor<Exp> {
 
 
 
-    visitStruct (st : Struct) : Struct {
-        if (!st.body.env)
-            st.body.env = this.env.create();
-        return st;
+    visitStruct (st : Struct) : Closure {
+        return new Closure(undefined, this.env.create(), st);
     }
 
 

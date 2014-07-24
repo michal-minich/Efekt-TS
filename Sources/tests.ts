@@ -631,8 +631,8 @@ h(s)
 print(s.a)
 
 print("test copy return")
-var f = fn () { s }
-var u = f()
+var i = fn () { s }
+var u = i()
 u.a = 4
 print(s.a)
 print(u.a)

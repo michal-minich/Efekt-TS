@@ -484,7 +484,6 @@ class Assign extends Exp {
 class Scope extends Exp {
 
     public list : AsiList;
-    public env : Env<Exp>;
     public currentAsiIx = -1;
 
     constructor (attrs : ExpList, list : AsiList) {
