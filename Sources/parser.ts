@@ -185,8 +185,8 @@ class Parser {
         var al = this.parseAsiList();
         if (code.length !== this.index)
             this.logger.error("Not all code parsed. not parsed. " +
-                                  "Remaining char count: " +
-                                  (code.length - this.index));
+                              "Remaining char count: " +
+                              (code.length - this.index));
         return al;
     }
 
@@ -263,6 +263,7 @@ class Parser {
         "try": () => this.parseTry(),
         "new": () => this.parseSimpleKeyword<New>(New, true),
         "typeof": () => this.parseSimpleKeyword<TypeOf>(TypeOf, true),
+        "pragma": () => this.parseSimpleKeyword<Pragma>(Pragma, true),
         "struct": () => this.parseStruct(),
         "interface": () => this.parseInterface()
     };
@@ -300,7 +301,7 @@ class Parser {
             this.nextIsAttr = true;
             var asi = this.parseMany();
             if (asi && asi instanceof Exp) {
-                attrs.push(<Exp>asi);
+                attrs.push(asi);
             } else {
                 throw "exp expected after @";
             }
@@ -336,6 +337,7 @@ class Parser {
 
         if (this.finished())
             return undefined;
+
 
         for (var m in this.matchTextToFn)
             if (this.matchText(m))
@@ -469,8 +471,8 @@ class Parser {
 
     private parseCommentLine () : void {
         while (this.index < this.code.length &&
-            !(this.code[this.index] === '\n' ||
-                this.code[this.index] === '\r')) {
+        !(this.code[this.index] === '\n' ||
+        this.code[this.index] === '\r')) {
             ++this.index;
         }
         ++this.index;
@@ -481,9 +483,9 @@ class Parser {
 
     private parseCommentMulti () : void {
         while (this.index < this.code.length - 1 &&
-            !(this.code[this.index] === '*' &&
-                this.code[this.index + 1] === '/')) {
-            ++this.index;
+        !(this.code[this.index] === '*' &&
+        this.code[this.index + 1] === '/')) {
+            ++this.index
         }
         ++this.index;
         ++this.index;
@@ -500,7 +502,7 @@ class Parser {
 
         if (!(asi instanceof Exp))
             this.logger.fatal("Test of if statement must be expression" +
-                                  ", not statement.");
+                              ", not statement.");
 
         if (this.matchText("then"))
             then = this.parseScopedExp();
@@ -588,7 +590,7 @@ class Parser {
         if (this.skipWhite()) {
             if (expIsRequired) {
                 this.logger.fatal(getTypeName(TConstructor) +
-                                      " requires expression");
+                                  " requires expression");
                 throw undefined;
             } else {
                 return new TConstructor(undefined, undefined);
@@ -598,8 +600,8 @@ class Parser {
         if (asi instanceof Exp)
             return new TConstructor(undefined, <Exp>asi);
         this.logger.fatal("Expression expected after " +
-                              getTypeName(TConstructor) +
-                              ", not statement");
+                          getTypeName(TConstructor) +
+                          ", not statement");
         throw undefined;
     }
 
@@ -703,8 +705,19 @@ class Parser {
         }
         var isNewLine = this.matchChar('\n') || this.matchChar('\r');
         while (this.matchChar(' ') || this.matchChar('\t')
-            || this.matchChar('\n') || this.matchChar('\r')) {
+        || this.matchChar('\n') || this.matchChar('\r')) {
         }
         return isNewLine;
+    }
+
+
+
+
+    private static cast<T extends Asi>(TConstructor : any, asi : Asi) {
+        if (asi instanceof TConstructor) {
+            return <T>asi;
+        } else {
+            throw "Expected " + TConstructor + ", got " + getTypeName(asi);
+        }
     }
 }

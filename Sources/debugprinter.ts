@@ -124,6 +124,13 @@ class DebugPrinter implements AstVisitor<void> {
 
 
 
+    visitPragma (pg : Pragma) : void {
+        this.key("Pragma", pg).field("exp", pg.exp);
+    }
+
+
+
+
     // statements ===============================================
 
 

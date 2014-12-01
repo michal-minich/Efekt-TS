@@ -8,6 +8,7 @@ interface AstVisitor<T> extends TerminalAstVisitor<T>,
     visitAsiList (al : AsiList) : T;
     visitExpList (el : ExpList) : T;
     visitBraced (bc : Braced) : T;
+    visitPragma (pg : Pragma) : T;
 
     // statements
     visitLoop (l : Loop) : T;
@@ -220,6 +221,26 @@ class Braced extends Exp {
 
     accept<T> (v : AstVisitor<T>) : T {
         return v.visitBraced(this);
+    }
+}
+
+
+
+
+class Pragma extends Stm {
+
+    public exp : Exp;
+
+    constructor (attrs : ExpList, exp : Exp) {
+        super(attrs);
+        if (exp) {
+            this.exp = exp;
+            exp.parent = this;
+        }
+    }
+
+    accept<T> (v : AstVisitor<T>) : T {
+        return v.visitPragma(this);
     }
 }
 

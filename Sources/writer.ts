@@ -196,7 +196,7 @@ class OutputLogger implements Logger, ExceptionHandler, OutputWriter {
 
     private log (img : string, msg : string) : void {
         this.logView.innerHTML += "<div class='logItem'><span class='" + img +
-            "' title='" + img + "'></span><span>" + msg + "</span></div>";
+        "' title='" + img + "'></span><span>" + msg + "</span></div>";
     }
 
     clear () {
@@ -246,7 +246,7 @@ class ConsoleLogger implements LogWriter, ExceptionHandler, OutputWriter {
 
     private log (img : string, msg : string) : void {
         console.log("<div class='logItem'><span class='" + img +
-                        "'></span>" + img + ": " + msg + "<div>");
+                    "'></span>" + img + ": " + msg + "<div>");
     }
 }
 

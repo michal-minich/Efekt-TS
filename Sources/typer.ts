@@ -82,6 +82,13 @@ class Typer implements AstVisitor<void> {
 
 
 
+    visitPragma (pg : Pragma) : void {
+        throw undefined;
+    }
+
+
+
+
     // statements ===============================================
 
 
@@ -243,8 +250,8 @@ class Typer implements AstVisitor<void> {
             } else {
                 if (itn !== dtn) {
                     this.logger.error(
-                            "Cannot assign value of type '" + itn +
-                            "' to variable of type '" + dtn + "'.");
+                        "Cannot assign value of type '" + itn +
+                        "' to variable of type '" + dtn + "'.");
                 }
             }
         }

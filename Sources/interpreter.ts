@@ -91,6 +91,13 @@ class Interpreter implements AstVisitor<Exp> {
 
 
 
+    visitPragma (pg : Pragma) : Exp {
+        throw undefined;
+    }
+
+
+
+
     // statements ===============================================
 
 
@@ -211,7 +218,7 @@ class Interpreter implements AstVisitor<Exp> {
                 cls.env.set((<Ident>ma.member).name, val);
             } else {
                 throw "assign to member - expected struct, got: " +
-                    getTypeName(ma);
+                getTypeName(ma);
             }
         }/*else if (a.slot instanceof FnApply) {
             var fnRes = <Ref>a.slot.accept(this);
@@ -249,7 +256,7 @@ class Interpreter implements AstVisitor<Exp> {
         this.asiIx = -1;
         var res = Void.instance;
         while ((this.asiIx < sc.list.items.length - 1) && !this.isBreak &&
-            !this.isContinue) {
+        !this.isContinue) {
             ++this.asiIx;
             res = sc.list.items[this.asiIx].accept(this);
         }

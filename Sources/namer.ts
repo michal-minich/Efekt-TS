@@ -50,6 +50,13 @@ class Namer implements AstVisitor<void> {
 
 
 
+    visitPragma (pg : Pragma) {
+        pg.exp.accept(this);
+    }
+
+
+
+
     // statements ===============================================
 
 

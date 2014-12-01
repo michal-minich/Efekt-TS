@@ -59,7 +59,7 @@ class Env<T> {
         if (this.values[name]) {
             if (this.declareIxs[name] !== declareIx)
                 this.logger.error("Variable '" + name +
-                                      "' is already declared.");
+                                  "' is already declared.");
         } else {
             this.declareIxs[name] = declareIx;
         }

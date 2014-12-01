@@ -101,6 +101,14 @@ class Fixer implements AstVisitor<Asi> {
 
 
 
+    visitPragma (pg : Pragma) : Pragma {
+        pg.exp = pg.exp.accept(this);
+        return pg;
+    }
+
+
+
+
     // statements ===============================================
 
 

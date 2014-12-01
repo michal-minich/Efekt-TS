@@ -83,14 +83,22 @@ class Printer implements AstVisitor<void> {
 
     visitBraced (bc : Braced) : void {
         var showBraces = !(bc.list.items.length === 1
-            && (bc.list.items[0] instanceof Braced
-                || bc.list.items[0] instanceof BinOpApply));
+        && (bc.list.items[0] instanceof Braced
+        || bc.list.items[0] instanceof BinOpApply));
         if (showBraces)
             this.cw.markup('(');
         bc.list.accept(this);
         if (showBraces)
             this.cw.markup(')');
         //this.printType(bc);
+    }
+
+
+
+
+    visitPragma (pg : Pragma) : void {
+        this.cw.key("pragma").space();
+        pg.exp.accept(this);
     }
 
 
@@ -787,6 +795,13 @@ class ShortCircuitFnVisitor implements AstVisitor<boolean> {
 
     visitBraced (bc : Braced) : boolean {
         return bc.list ? bc.list.accept(this) : true;
+    }
+
+
+
+
+    visitPragma (pg : Pragma) : boolean {
+        return pg.exp.accept(this);
     }
 
 
