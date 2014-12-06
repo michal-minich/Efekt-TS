@@ -119,7 +119,7 @@ class Namer implements AstVisitor<void> {
         tr.body.accept(this);
         if (tr.catches) {
             for (var i = 0; i < tr.catches.length; i++) {
-                var c = tr.catches[i];
+                const c = tr.catches[i];
                 if (c.on) {
                     c.on.accept(this);
                     c.body.accept(this);
@@ -181,7 +181,7 @@ class Namer implements AstVisitor<void> {
 
 
     visitIdent (i : Ident) : void {
-        var e = this.env.getDeclaringEnv(i.name);
+        const e = this.env.getDeclaringEnv(i.name);
         if (!e) {
             this.logger.error("variable " + i.name + " is not declared");
             i.isUndefined = true;
@@ -196,7 +196,7 @@ class Namer implements AstVisitor<void> {
 
     visitMemberAccess (ma : MemberAccess) : void {
         /*if (m.bag instanceof Ident) {
-            var i = <Ident>m.bag;
+            const i = <Ident>m.bag;
             this.visitIdent(i);
             //this.processIdent(m.ident, i.declaringEnv)
         }*/

@@ -25,7 +25,7 @@ class Typer implements AstVisitor<void> {
     private commonType (types : Exp[]) : Exp {
         if (types.length === 0)
             return TypeVoid.instance;
-        var unique : Exp[] = [];
+        const unique : Exp[] = [];
         for (var i = 0; i < types.length; i++) {
             if (!(types[i] instanceof TypeAny) && !unique.contains(types[i]))
                 unique.push(types[i]);
@@ -160,7 +160,7 @@ class Typer implements AstVisitor<void> {
         tr.body.accept(this);
         if (tr.catches) {
             for (var i = 0; i < tr.catches.length; i++) {
-                var c = tr.catches[i];
+                const c = tr.catches[i];
                 if (c.on) {
                     c.on.accept(this);
                     c.body.accept(this);
@@ -231,16 +231,16 @@ class Typer implements AstVisitor<void> {
         }
 
         if (slot instanceof Ident) {
-            var i = <Ident>slot;
-            var itn = Ide.asiToPlainString(infType);
-            var dtn = Ide.asiToPlainString(this.env.get(i.name).infType);
+            const i = <Ident>slot;
+            const itn = Ide.asiToPlainString(infType);
+            const dtn = Ide.asiToPlainString(this.env.get(i.name).infType);
             if (dtn === "Any") {
                 if (tp)
                     return;
                 i.infType = infType;
-                var e = this.env.getDeclaringEnv(i.name);
+                const e = this.env.getDeclaringEnv(i.name);
                 if (e) {
-                    var di = e.getDirectly(i.name);
+                    const di = e.getDirectly(i.name);
                     di.infType = infType;
                     if (dc)
                         dc.infType = infType;
@@ -273,7 +273,7 @@ class Typer implements AstVisitor<void> {
 
 
     visitIdent (i : Ident) : void {
-        var e = this.env.getDeclaringEnv(i.name);
+        const e = this.env.getDeclaringEnv(i.name);
         if (e) {
             i.infType = e.getDirectly(i.name).infType;
         } else {
@@ -297,12 +297,12 @@ class Typer implements AstVisitor<void> {
         fna.fn.accept(this);
         fna.infType = (<Fn>fna.fn.infType).returnType;
 
-        var fnt = <Fn>fna.fn.infType;
-        var params = fnt.params.list.items;
-        var args = fna.args.list.items;
+        const fnt = <Fn>fna.fn.infType;
+        const params = fnt.params.list.items;
+        const args = fna.args.list.items;
         for (var i = 0; i < params.length; ++i) {
-            var pt = params[i].infType;
-            var at = this.commonType([pt, args[i].infType]);
+            const pt = params[i].infType;
+            const at = this.commonType([pt, args[i].infType]);
             this.addInfTypeToDeclrIdent(args[i], at);
         }
     }
@@ -410,13 +410,13 @@ class Typer implements AstVisitor<void> {
 
     visitArr (arr : Arr) : void {
         this.visitExpList(arr.list);
-        var ts : Exp[] = [];
+        const ts : Exp[] = [];
         for (var i = 0; i < arr.list.items.length; ++i) {
             arr.list.items[i].accept(this);
             ts.push(arr.list.items[i]);
         }
-        var t = this.commonType(ts);
-        var len = new Int(undefined, "" + arr.list.items.length);
+        const t = this.commonType(ts);
+        const len = new Int(undefined, "" + arr.list.items.length);
         len.accept(this);
         arr.infType = new TypeArr(undefined, t, len);
     }
@@ -438,11 +438,11 @@ class Typer implements AstVisitor<void> {
 
 
     visitFn (fn : Fn) : void {
-        var prevFnReturnType = this.currentFnReturnType;
+        const prevFnReturnType = this.currentFnReturnType;
         this.currentFnReturnType = TypeAny.instance;
         this.env = new Env(this.env, this.logger);
         this.visitBraced(fn.params);
-        var fnt = new Fn(undefined, fn.params, undefined);
+        const fnt = new Fn(undefined, fn.params, undefined);
         fnt.returnType = TypeAny.instance;
         if (fn.body) {
             if (fn.body.list.items.length === 0) {

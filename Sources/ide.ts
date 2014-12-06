@@ -39,7 +39,7 @@ class Ide {
 
     static init () {
 
-        var codeEdit = <HTMLTextAreaElement>$id("codeEdit");
+        const codeEdit = <HTMLTextAreaElement>$id("codeEdit");
 
         Ide.outputView = new HtmlOutputView(
             <HTMLPreElement>$id("outputView"),
@@ -145,7 +145,7 @@ class Ide {
 
     static asiToString (asi : Asi, printer : AstVisitor<void>) : string {
         asi.accept(printer);
-        var res = Ide.stringWriter.getString();
+        const res = Ide.stringWriter.getString();
         Ide.stringWriter.clear();
         return res;
     }
@@ -165,7 +165,7 @@ class Ide {
 
 
     static parse (code : string) : void {
-        var al = Ide.parser.parse(code);
+        const al = Ide.parser.parse(code);
         Ide.outputView.show(al);
         Ide.debugPrinter.printInfTypes = false;
         Ide.outputAstView.show(al);
@@ -175,7 +175,7 @@ class Ide {
 
 
     static fix (code : string) : void {
-        var al = Ide.parseAndFix(code);
+        const al = Ide.parseAndFix(code);
         Ide.outputView.show(al);
         Ide.debugPrinter.printInfTypes = false;
         Ide.outputAstView.show(al);
@@ -194,8 +194,8 @@ class Ide {
 
 
     static usages (code : string) {
-        var al = Ide.parseAndFix(code);
-        var sc = new Scope(undefined, combineAsiLists(prelude, al));
+        const al = Ide.parseAndFix(code);
+        const sc = new Scope(undefined, combineAsiLists(prelude, al));
         sc.accept(Ide.namer);
         Ide.outputView.show(al);
         Ide.debugPrinter.printInfTypes = false;
@@ -206,8 +206,8 @@ class Ide {
 
 
     static doType (code : string) {
-        var al = Ide.parseAndFix(code);
-        var sc = new Scope(undefined, combineAsiLists(prelude, al));
+        const al = Ide.parseAndFix(code);
+        const sc = new Scope(undefined, combineAsiLists(prelude, al));
         Ide.namer.visitScope(sc);
         Ide.typer.visitScope(sc);
         Ide.outputView.show(al);
@@ -219,12 +219,12 @@ class Ide {
 
 
     static interpret (code : string) {
-        var al = Ide.parseAndFix(code);
+        const al = Ide.parseAndFix(code);
         Ide.outputView.clear();
         Ide.outputAstView.clear();
-        var sc = new Scope(undefined, combineAsiLists(prelude, al));
+        const sc = new Scope(undefined, combineAsiLists(prelude, al));
         //Ide.typer.visitScope(sc);
-        var res = Ide.interpreter.run(sc);
+        const res = Ide.interpreter.run(sc);
         Ide.outputView.write(res);
         Ide.debugPrinter.printInfTypes = false;
         Ide.outputAstView.write(res);
@@ -234,7 +234,7 @@ class Ide {
 
 
     static usagesMouseMove (event : MouseEvent) {
-        var t = <HTMLElement>event.target || <HTMLElement>event.srcElement;
+        const t = <HTMLElement>event.target || <HTMLElement>event.srcElement;
         if (Ide.lastClass && t === Ide.outputView.element()) {
             Ide.highlightToggle(Ide.lastClass);
             Ide.lastClass = undefined;
@@ -244,9 +244,9 @@ class Ide {
         if (Ide.lastClass)
             Ide.highlightToggle(Ide.lastClass);
         Ide.lastTarget = t;
-        var tcl = t.classList;
+        const tcl = t.classList;
         for (var i = 0; i < tcl.length; ++i) {
-            var cn = tcl[i];
+            const cn = tcl[i];
             if (cn.indexOf("sc_") === 0) {
                 Ide.lastClass = cn;
                 break;
@@ -260,9 +260,9 @@ class Ide {
 
 
     static highlightToggle (className : string) {
-        var usages = Ide.outputView.element().getElementsByClassName(className);
+        const usages = Ide.outputView.element().getElementsByClassName(className);
         for (var i = 0; i < usages.length; ++i) {
-            var ucl = (<HTMLSpanElement>usages[i]).classList;
+            const ucl = (<HTMLSpanElement>usages[i]).classList;
             if (ucl.contains('declr'))
                 ucl.toggle('usageDeclr');
             else if (ucl.contains('write'))

@@ -37,7 +37,7 @@ class Env<T> {
     }
 
     duplicate () : Env<T> {
-        var e = new Env<T>(this.parent, this.logger);
+        const e = new Env<T>(this.parent, this.logger);
         for (var key in this.values)
             e.values[key] = this.values[key];
         return e;
@@ -67,7 +67,7 @@ class Env<T> {
     }
 
     get (name : string) : T {
-        var e = this.getDeclaringEnv(name);
+        const e = this.getDeclaringEnv(name);
         if (e)
             return e.values[name];
         this.logger.error("Variable '" + name + "' is not declared.");
@@ -75,7 +75,7 @@ class Env<T> {
     }
 
     getDirectly (name : string) : T {
-        var value = this.values[name];
+        const value = this.values[name];
         if (value)
             return value;
         this.logger.error("Variable '" + name + "' is not declared.");
@@ -89,7 +89,7 @@ class Env<T> {
     getDeclaringEnv (name : string) : Env<T> {
         var e = this;
         do {
-            var item = e.values[name];
+            const item = e.values[name];
             if (item)
                 return e;
             e = e.parent;
@@ -102,7 +102,7 @@ class Env<T> {
 
 
 function combineAsiLists (first : AsiList, second : AsiList) : AsiList {
-    var alCombined : Asi[] = [];
+    const alCombined : Asi[] = [];
     for (var i = 0; i < first.items.length; i++)
         alCombined.push(first.items[i]);
     for (var i = 0; i < second.items.length; i++)
@@ -114,8 +114,8 @@ function combineAsiLists (first : AsiList, second : AsiList) : AsiList {
 
 
 function arrToStr (arr : Arr) : string {
-    var s : string[] = [];
-    var items = arr.list.items;
+    const s : string[] = [];
+    const items = arr.list.items;
     for (var i = 0; i < items.length; ++i)
         s.push((<Char>items[i]).value);
     return s.join("");
@@ -132,11 +132,11 @@ function $id (elementId : string) : HTMLElement {
 
 
 function getTypeName (o : any) : string {
-    var str = (o.prototype
+    const str = (o.prototype
         ? o.prototype.constructor
         : o.constructor).toString();
-    var cname = str.match(/function\s(\w*)/)[1];
-    var aliases = ["", "anonymous", "Anonymous"];
+    const cname = str.match(/function\s(\w*)/)[1];
+    const aliases = ["", "anonymous", "Anonymous"];
     return aliases.indexOf(cname) > -1 ? "Function" : cname;
 }
 

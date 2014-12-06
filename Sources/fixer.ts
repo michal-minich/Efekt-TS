@@ -35,8 +35,8 @@ class Fixer implements AstVisitor<Asi> {
 
     private static makeDeclr (exp : Exp) : Exp {
         if (exp instanceof Ident) {
-            var p = exp.parent;
-            var d = new Declr(undefined, <Ident>exp);
+            const p = exp.parent;
+            const d = new Declr(undefined, <Ident>exp);
             d.parent = p;
             return d;
         }
@@ -45,7 +45,7 @@ class Fixer implements AstVisitor<Asi> {
         else if (exp instanceof Constraining)
             Fixer.convertToDeclr(exp, 'type');
         else if (exp instanceof Assign) {
-            var s = (<Assign>exp).slot;
+            const s = (<Assign>exp).slot;
             if (s instanceof Ident)
                 Fixer.convertToDeclr(exp, 'slot');
             else if (s instanceof Typing)
@@ -60,7 +60,7 @@ class Fixer implements AstVisitor<Asi> {
 
 
     private static convertToDeclr (parent : any, property : string) : void {
-        var d = new Declr(undefined, <Ident>parent[property]);
+        const d = new Declr(undefined, <Ident>parent[property]);
         d.parent = parent;
         parent[property] = d;
     }
@@ -186,7 +186,7 @@ class Fixer implements AstVisitor<Asi> {
         tr.body = this.visitScope(tr.body);
         if (tr.catches) {
             for (var i = 0; i < tr.catches.length; i++) {
-                var c = tr.catches[i];
+                const c = tr.catches[i];
                 if (c.on) {
                     c.on = this.visitVar(c.on);
                     c.body = this.visitScope(c.body);
@@ -242,7 +242,7 @@ class Fixer implements AstVisitor<Asi> {
 
 
     visitScope (sc : Scope) : Scope {
-        var prevScope = this.currentScope;
+        const prevScope = this.currentScope;
         this.currentScope = sc;
         sc.list = this.visitAsiList(sc.list);
         this.currentScope = prevScope;
@@ -395,7 +395,7 @@ class Fixer implements AstVisitor<Asi> {
 
     visitFn (fn : Fn) : Fn {
         fn.params = this.visitBraced(fn.params);
-        var items = fn.params.list.items;
+        const items = fn.params.list.items;
         for (var i = 0; i < items.length; ++i)
             items[i] = Fixer.makeDeclr(items[i]);
         if (fn.body)

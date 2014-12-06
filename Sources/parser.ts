@@ -85,7 +85,7 @@ class BinOpBuilder {
 
     public buildBinOpApplyTreeFromSequence () : Asi {
         this.reorderBinOpsSequence(this.opExp, this.opOp);
-        var res = this.joinBinOpsSequence(this.opExp, this.opOp);
+        const res = this.joinBinOpsSequence(this.opExp, this.opOp);
         this.opExp = [];
         this.opOp = [];
         return res;
@@ -95,13 +95,13 @@ class BinOpBuilder {
 
 
     private reorderBinOpsSequence (opExp : Asi[], opOp : string[]) : void {
-        var prec = BinOpBuilder.opPrecedence;
-        var right = BinOpBuilder.rightAssociativeOps;
+        const prec = BinOpBuilder.opPrecedence;
+        const right = BinOpBuilder.rightAssociativeOps;
         var i = opOp.length;
         while (i !== 1) {
             --i;
-            var op = opOp[i];
-            var opPrev = opOp[i - 1];
+            const op = opOp[i];
+            const opPrev = opOp[i - 1];
             if (prec[op] <= prec[opPrev]
                 && !(right.contains(opPrev) && right.contains(op)))
                 continue;
@@ -141,7 +141,7 @@ class BinOpBuilder {
             return new Constraining(undefined, <Exp>op1, <Exp>op2);
         } else if (op === ",") {
             if (op1 instanceof ExpList) {
-                var el = <ExpList>op1;
+                const el = <ExpList>op1;
                 el.add(<Exp>op2);
                 return el;
             }
@@ -189,7 +189,7 @@ class Parser {
         this.index = 0;
         if (code.length === 0)
             return new AsiList(undefined, []);
-        var al = this.parseAsiList();
+        const al = this.parseAsiList();
         if (code.length !== this.index)
             this.logger.error("Not all code parsed. not parsed. " +
                               "Remaining char count: " +
@@ -201,10 +201,10 @@ class Parser {
 
 
     private parseAsiList (startsWithCurly : boolean = false) : AsiList {
-        var items : Asi[] = [];
+        const items : Asi[] = [];
         if (this.code.length !== 0) {
             while (true) {
-                var item = this.parseMany(startsWithCurly);
+                const item = this.parseMany(startsWithCurly);
                 if (!item)
                     break;
                 items.push(item);
@@ -219,7 +219,7 @@ class Parser {
 
 
     private parseMany (startsWithCurly : boolean = false) : Asi {
-        var b = new BinOpBuilder(this.logger);
+        const b = new BinOpBuilder(this.logger);
         while (true) {
             var asi = this.parseOne();
             this.skipWhite();
@@ -280,7 +280,7 @@ class Parser {
 
     private parseOp () : Ident {
         if (this.match(Parser.isOp)) {
-            var i = new Ident(undefined, this.matched);
+            const i = new Ident(undefined, this.matched);
             i.isOp = true;
             return i;
         }
@@ -291,7 +291,7 @@ class Parser {
 
 
     private parseVar () : Var {
-        var v = this.parseSimpleKeyword<Var>(Var, true);
+        const v = this.parseSimpleKeyword<Var>(Var, true);
         /*if (!(v.exp instanceof Ident || v.exp instanceof Assign
             || v.exp instanceof ValueVar || v.exp instanceof TypeVar))
             this.logger.error("Expected identifier after var.");*/
@@ -302,11 +302,11 @@ class Parser {
 
 
     private parseOne () : Asi {
-        var attrs : Exp[] = [];
+        const attrs : Exp[] = [];
         this.skipWhite();
         while (this.matchChar('@')) {
             this.nextIsAttr = true;
-            var asi = this.parseMany();
+            const asi = this.parseMany();
             if (asi && asi instanceof Exp) {
                 attrs.push(asi);
             } else {
@@ -319,9 +319,9 @@ class Parser {
         if (this.spares.length !== 0)
             return this.spares.pop();
 
-        var asi = this.parseOneAsi();
+        const asi = this.parseOneAsi();
         if (asi && attrs.length !== 0) {
-            var el = new ExpList(undefined, attrs);
+            const el = new ExpList(undefined, attrs);
             el.parent = asi;
             asi.attrs = el;
         }
@@ -354,7 +354,7 @@ class Parser {
             return new Int(undefined, this.matched);
 
         else if (this.matchIdent()) {
-            var i = new Ident(undefined, this.matched);
+            const i = new Ident(undefined, this.matched);
             if (this.nextIsAttr) {
                 i.name = "@" + i.name;
                 this.nextIsAttr = false;
@@ -383,8 +383,8 @@ class Parser {
     private matchIdent () : boolean {
         if (this.index >= this.code.length)
             return false;
-        var start = this.index;
-        var ch = this.code[this.index];
+        const start = this.index;
+        const ch = this.code[this.index];
         if (ch === '@' || ch === '_' || this.match(Parser.isIdent)) {
             this.match(function (ch) {
                 return Parser.isInt(ch) || Parser.isIdent(ch) || ch === '_';
@@ -410,7 +410,7 @@ class Parser {
         var asi = this.parseMany();
         var retType : Exp;
         if (asi instanceof BinOpApply) {
-            var op = <BinOpApply>asi;
+            const op = <BinOpApply>asi;
             if (op.op.name === "->") {
                 asi = op.op1;
                 retType = op.op2;
@@ -420,16 +420,16 @@ class Parser {
         }
 
         if (asi instanceof Braced) {
-            var bc = <Braced>asi;
+            const bc = <Braced>asi;
             asi = this.parseOne();
             if (!(asi instanceof Scope)) {
                 this.spares.push(asi);
-                var fn = new Fn(undefined, bc, undefined);
+                const fn = new Fn(undefined, bc, undefined);
                 if (retType)
                     fn.returnType = retType;
                 return fn;
             }
-            var fn = new Fn(undefined, bc, <Scope>asi);
+            const fn = new Fn(undefined, bc, <Scope>asi);
             if (retType)
                 fn.returnType = retType;
             return fn;
@@ -443,7 +443,7 @@ class Parser {
 
 
     private parseBracedOrArr<T extends Exp> (TConstructor : any) : T {
-        var asi = this.parseMany();
+        const asi = this.parseMany();
         var el : ExpList;
         if (asi)
             el = asi instanceof ExpList
@@ -459,9 +459,9 @@ class Parser {
 
 
     private parseString () : Arr {
-        var chars : Char[] = [];
+        const chars : Char[] = [];
         while (true) {
-            var ch = this.code[this.index];
+            const ch = this.code[this.index];
             ++this.index;
             if (ch === '"')
                 return new Arr(undefined, new ExpList(undefined, chars),
@@ -505,7 +505,7 @@ class Parser {
         var test : Exp;
         var then : Scope;
         var otherwise : Scope = undefined;
-        var asi = this.parseMany();
+        const asi = this.parseMany();
 
         if (!(asi instanceof Exp))
             this.logger.fatal("Test of if statement must be expression" +
@@ -545,7 +545,7 @@ class Parser {
 
 
     private parseScopedExp () : Scope {
-        var asi = this.parseOne();
+        const asi = this.parseOne();
         if (asi instanceof Scope)
             return <Scope>asi;
         return new Scope(undefined, new AsiList(undefined, [asi]));
@@ -555,7 +555,7 @@ class Parser {
 
 
     private parseTry () : Try {
-        var body = this.parseScopedExp();
+        const body = this.parseScopedExp();
         var fin : Scope = undefined;
         this.skipWhite();
         if (this.matchText("finally"))
@@ -603,7 +603,7 @@ class Parser {
                 return new TConstructor(undefined, undefined);
             }
         }
-        var asi = this.parseMany();
+        const asi = this.parseMany();
         if (asi instanceof Exp)
             return new TConstructor(undefined, <Exp>asi);
         this.logger.fatal("Expression expected after " +
@@ -688,7 +688,7 @@ class Parser {
 
 
     private matchText (text : string) : boolean {
-        var isMatch = this.index + text.length <= this.code.length
+        const isMatch = this.index + text.length <= this.code.length
             && this.code.indexOf(text, this.index) === this.index;
         if (isMatch)
             this.index += text.length;
@@ -710,7 +710,7 @@ class Parser {
     private skipWhite () : boolean {
         while (this.matchChar(' ') || this.matchChar('\t')) {
         }
-        var isNewLine = this.matchChar('\n') || this.matchChar('\r');
+        const isNewLine = this.matchChar('\n') || this.matchChar('\r');
         while (this.matchChar(' ') || this.matchChar('\t')
         || this.matchChar('\n') || this.matchChar('\r')) {
         }

@@ -4,7 +4,7 @@ var prelude : AsiList;
 
 var preludeIsFixed = false;
 
-var preludeStr =
+const preludeStr =
     ' var Any' +
     ' var Int' +
     ' var Bool' +

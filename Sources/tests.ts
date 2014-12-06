@@ -54,14 +54,14 @@ class TestReprot {
 
         ++this.testCount;
 
-        var actualPlain = Ide.asiToPlainString(actualAsi);
-        var actualHtml = Ide.asiToHtmlString(actualAsi);
-        var al = Ide.parser.parse(code);
-        var codeAst = Ide.asiToHtmlDebugString(al, true);
+        const actualPlain = Ide.asiToPlainString(actualAsi);
+        const actualHtml = Ide.asiToHtmlString(actualAsi);
+        const al = Ide.parser.parse(code);
+        const codeAst = Ide.asiToHtmlDebugString(al, true);
         var expectedAst : string;
 
         try {
-            var al = Ide.parser.parse(expected);
+            const al = Ide.parser.parse(expected);
             if (isEval) {
                 expectedAst = "";
                 for (var i = 0; i < al.items.length; ++i) {
@@ -76,15 +76,15 @@ class TestReprot {
             expectedAst = ex;
         }
 
-        var actualAst = Ide.asiToHtmlDebugString(actualAsi, true);
+        const actualAst = Ide.asiToHtmlDebugString(actualAsi, true);
 
 
-        var ok = expected === actualPlain && expectedAst === actualAst;
+        const ok = expected === actualPlain && expectedAst === actualAst;
 
-        var rowClass = "class='test" + (ok ? "Successful" : "Failed") + "'";
+        const rowClass = "class='test" + (ok ? "Successful" : "Failed") + "'";
 
         if (ok) {
-            //var rowClass = "";
+            //const rowClass = "";
             return;
         } else {
             ++this.failedCount;
@@ -120,6 +120,10 @@ class TestReprot {
 
 
 
+const testReport = new TestReprot();
+
+
+
 
 class Test {
 
@@ -145,16 +149,16 @@ class Test {
 
 
     evalTo (expected : string) : Test {
-        var exHandler = function (ex : Asi) {
+        const exHandler = function (ex : Asi) {
         };
-        var fixer = new Fixer(this.logger);
-        //var typer = new Typer(this.logger);
-        var interpreter = new Interpreter(this.logger, this.logger,
-                                          this.logger);
-        var sc = new Scope(undefined, combineAsiLists(prelude, this.parsed));
+        const fixer = new Fixer(this.logger);
+        //const typer = new Typer(this.logger);
+        const interpreter = new Interpreter(this.logger, this.logger,
+                                            this.logger);
+        const sc = new Scope(undefined, combineAsiLists(prelude, this.parsed));
         fixer.visitScope(sc);
         //typer.visitScope(sc);
-        var evaled = interpreter.run(sc);
+        const evaled = interpreter.run(sc);
         testReport.addEval(this.code, expected, evaled);
         return this;
     }
@@ -163,21 +167,16 @@ class Test {
 
 
 
-var loggerX = new ConsoleLogger();
+const loggerX = new ConsoleLogger();
 
 
 
 
 function t (code : string) : Test {
-    var parser = new Parser(loggerX);
-    var parsed = parser.parse(code);
+    const parser = new Parser(loggerX);
+    const parsed = parser.parse(code);
     return new Test(code, parsed);
 }
-
-
-
-
-var testReport = new TestReprot();
 
 
 

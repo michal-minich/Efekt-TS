@@ -8,7 +8,7 @@ interface BuiltinsList {
 }
 
 
-var builtins : BuiltinsList = {
+const builtins : BuiltinsList = {
 
     'print': function (args : Exp[]) {
         for (var i = 0; i < args.length; ++i) {
@@ -56,19 +56,19 @@ var builtins : BuiltinsList = {
     },
 
     'at': function (args : Exp[]) {
-        var arr = <Arr>args[0];
-        var ix = <Int>args[1];
+        const arr = <Arr>args[0];
+        const ix = <Int>args[1];
         return arr.list.items[+ix.value];
     },
 
     'count': function (args : Exp[]) {
-        var arr = <Arr>args[0];
+        const arr = <Arr>args[0];
         return new Int(undefined, "" + arr.list.items.length);
     },
 
     'add': function (args : Exp[]) {
-        var arr = <Arr>args[0];
-        var item = args[1];
+        const arr = <Arr>args[0];
+        const item = args[1];
         item.parent = arr.list;
         arr.list.items.push(item);
         return arr;

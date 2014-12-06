@@ -57,7 +57,7 @@ class Printer implements AstVisitor<void> {
 
     visitAsiList (al : AsiList) : void {
         for (var i = 0; i < al.items.length; i++) {
-            var item = al.items[i];
+            const item = al.items[i];
             item.accept(this);
             if (i < al.items.length - 1) {
                 this.cw.newLine();
@@ -82,7 +82,7 @@ class Printer implements AstVisitor<void> {
 
 
     visitBraced (bc : Braced) : void {
-        var showBraces = !(bc.list.items.length === 1
+        const showBraces = !(bc.list.items.length === 1
         && (bc.list.items[0] instanceof Braced
         || bc.list.items[0] instanceof BinOpApply));
         if (showBraces)
@@ -181,7 +181,7 @@ class Printer implements AstVisitor<void> {
         if (tr.catches) {
             for (var i = 0; i < tr.catches.length; i++) {
                 this.cw.key("catch");
-                var c = tr.catches[i];
+                const c = tr.catches[i];
                 if (c.on) {
                     //this.cw.space().markup("(");
                     this.visitVar(c.on);
@@ -246,7 +246,7 @@ class Printer implements AstVisitor<void> {
 
     visitScope (sc : Scope) : void {
         this.printAttributes(sc);
-        var useBraces = sc.list.items.length > 1
+        const useBraces = sc.list.items.length > 1
             || (sc.parent && Printer.showScopeBraces(sc.parent));
 
         if (sc.list.items.length === 0) {
@@ -254,7 +254,7 @@ class Printer implements AstVisitor<void> {
                 this.cw.markup("{ }");
             return;
         }
-        var ln = sc.list.items.length > 1
+        const ln = sc.list.items.length > 1
             || !sc.list.items[0].accept(this.isInline);
 
         if (ln) {
@@ -303,7 +303,7 @@ class Printer implements AstVisitor<void> {
         }
 
         if (i.declaringEnv) {
-            var cssClass = "sc_" + i.declaringEnv.id + "_" + i.name;
+            const cssClass = "sc_" + i.declaringEnv.id + "_" + i.name;
             if (i.declaredBy) {
                 if (i.assignedValue)
                     fn.call(this.cw, i.name, cssClass + " write");
@@ -484,7 +484,7 @@ class Printer implements AstVisitor<void> {
         this.printAttributes(fn);
         if (fn.isFnType) {
             this.cw.type("Fn").markup("(");
-            var items = fn.params.list.items;
+            const items = fn.params.list.items;
             for (var i = 0; i < items.length; ++i) {
                 if (items[i].infType)
                     items[i].infType.accept(this);
@@ -755,7 +755,7 @@ class ShortCircuitFnVisitor implements AstVisitor<boolean> {
 
     private loopAsiArray (items : Asi[]) : boolean {
         for (var i = 0; i < items.length; i++) {
-            var ist = items[i].accept(this);
+            const ist = items[i].accept(this);
             if (!ist)
                 return false;
         }
@@ -765,7 +765,7 @@ class ShortCircuitFnVisitor implements AstVisitor<boolean> {
 
 
     private acceptTwo (a : Asi, b : Asi) : boolean {
-        var res = a.accept(this);
+        const res = a.accept(this);
         if (!res)
             return false;
         return b.accept(this);
@@ -872,7 +872,7 @@ class ShortCircuitFnVisitor implements AstVisitor<boolean> {
         var res = tr.body.accept(this);
         if (res && tr.catches) {
             for (var i = 0; i < tr.catches.length; i++) {
-                var c = tr.catches[i];
+                const c = tr.catches[i];
                 if (c.on) {
                     res = this.acceptTwo(c.on, c.body);
                     if (!res)
@@ -950,7 +950,7 @@ class ShortCircuitFnVisitor implements AstVisitor<boolean> {
 
 
     visitBinOpApply (opa : BinOpApply) : boolean {
-        var res = this.acceptTwo(opa.op1, opa.op2);
+        const res = this.acceptTwo(opa.op1, opa.op2);
         if (!res)
             return false;
         return this.visitIdent(opa.op);
@@ -960,7 +960,7 @@ class ShortCircuitFnVisitor implements AstVisitor<boolean> {
 
 
     visitIf (i : If) : boolean {
-        var res = this.acceptTwo(i.test, i.then);
+        const res = this.acceptTwo(i.test, i.then);
         if (!res)
             return false;
         return i.otherwise.accept(this);
@@ -1056,7 +1056,7 @@ class ShortCircuitFnVisitor implements AstVisitor<boolean> {
 
 
     visitFn (fn : Fn) : boolean {
-        var res = this.acceptTwo(fn.params, fn.body);
+        const res = this.acceptTwo(fn.params, fn.body);
         if (!res)
             return false;
         return fn.returnType ? fn.returnType.accept(this) : true;

@@ -200,7 +200,7 @@ class DebugPrinter implements AstVisitor<void> {
         this.key("Try", tr).field("body", tr.body);
         if (tr.catches) {
             for (var i = 0; i < tr.catches.length; i++) {
-                var c = tr.catches[i];
+                const c = tr.catches[i];
                 if (c.on)
                     this.field("on", c.on).field("body", c.body);
             }
