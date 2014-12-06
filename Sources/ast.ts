@@ -120,6 +120,7 @@ interface TerminalAstVisitor<T> {
 
 class Asi {
 
+    public __dummyAsi : number;
     public parent : Asi;
     public attrs : ExpList;
     public infType : Exp;
@@ -141,6 +142,8 @@ class Asi {
 
 class Exp extends Asi {
 
+    public __dummyExp : number;
+
     accept<T> (v : AstVisitor<T>) : T {
         throw undefined;
     }
@@ -150,6 +153,8 @@ class Exp extends Asi {
 
 
 class Stm extends Asi {
+
+    public __dummyStm : number;
 
     accept<T> (v : AstVisitor<T>) : T {
         throw undefined;
@@ -166,6 +171,7 @@ class Stm extends Asi {
 
 class AsiList extends Asi {
 
+    public __dummyAsiList : number;
     public items : Asi[];
 
     constructor (attrs : ExpList, items : Asi[]) {
@@ -185,6 +191,7 @@ class AsiList extends Asi {
 
 class ExpList extends Asi {
 
+    public __dummyExpList : number;
     public items : Exp[];
 
     constructor (attrs : ExpList, items : Exp[]) {
@@ -209,6 +216,7 @@ class ExpList extends Asi {
 
 class Braced extends Exp {
 
+    public __dummyBraced : number;
     public list : ExpList;
 
     constructor (attrs : ExpList, list : ExpList) {
@@ -229,6 +237,7 @@ class Braced extends Exp {
 
 class Pragma extends Stm {
 
+    public __dummyPragma : number;
     public exp : Exp;
 
     constructor (attrs : ExpList, exp : Exp) {
@@ -254,6 +263,7 @@ class Pragma extends Stm {
 
 class Loop extends Stm {
 
+    public __dummyLoop : number;
     public body : Scope;
 
     constructor (attrs : ExpList, body : Scope) {
@@ -272,6 +282,8 @@ class Loop extends Stm {
 
 class Break extends Stm {
 
+    public __dummyBreak : number;
+
     accept<T> (v : AstVisitor<T>) : T {
         return v.visitBreak(this);
     }
@@ -281,6 +293,8 @@ class Break extends Stm {
 
 
 class Continue extends Stm {
+
+    public __dummyContinue : number;
 
     accept<T> (v : AstVisitor<T>) : T {
         return v.visitContinue(this);
@@ -292,6 +306,7 @@ class Continue extends Stm {
 
 class Label extends Stm {
 
+    public __dummyLabel : number;
     public name : string;
 
     constructor (attrs : ExpList, name : string) {
@@ -309,6 +324,7 @@ class Label extends Stm {
 
 class Goto extends Stm {
 
+    public __dummyGoto : number;
     public name : string;
 
     constructor (attrs : ExpList, name : string) {
@@ -326,6 +342,7 @@ class Goto extends Stm {
 
 class Import extends Stm {
 
+    public __dummyImport : number;
     public value : Exp;
 
     constructor (attrs : ExpList, value : Exp) {
@@ -346,6 +363,7 @@ class Import extends Stm {
 
 class Return extends Stm {
 
+    public __dummyReturn : number;
     public value : Exp;
 
     constructor (attrs : ExpList, value : Exp) {
@@ -366,6 +384,7 @@ class Return extends Stm {
 
 class Throw extends Stm {
 
+    public __dummyThrow : number;
     public ex : Exp;
 
     constructor (attrs : ExpList, ex : Exp) {
@@ -386,6 +405,7 @@ class Throw extends Stm {
 
 class Try extends Stm {
 
+    public __dummyTry : number;
     public body : Scope;
     public catches : Catch[];
     public fin : Scope;
@@ -423,6 +443,7 @@ class Catch {
 
 class Var extends Exp {
 
+    public __dummyVar : number;
     public exp : Exp;
 
     constructor (attrs : ExpList, exp : Exp) {
@@ -441,6 +462,7 @@ class Var extends Exp {
 
 class Typing extends Exp {
 
+    public __dummyTyping : number;
     public exp : Exp; // Declr | Ident
     public type : Exp;
 
@@ -462,6 +484,7 @@ class Typing extends Exp {
 
 class Constraining extends Exp {
 
+    public __dummyConstraining : number;
     public type : Exp;
     public constraint : Exp;
 
@@ -483,6 +506,7 @@ class Constraining extends Exp {
 
 class Assign extends Exp {
 
+    public __dummyAssign : number;
     public slot : Exp;
     public value : Exp;
 
@@ -504,6 +528,7 @@ class Assign extends Exp {
 
 class Scope extends Exp {
 
+    public __dummyScope : number;
     public list : AsiList;
     public currentAsiIx = -1;
 
@@ -533,6 +558,7 @@ class Scope extends Exp {
 
 class Ident extends Exp {
 
+    public __dummyIdent : number;
     public name : string;
     public isOp : boolean = false;
     public isKey : boolean = false;
@@ -564,6 +590,7 @@ class Ident extends Exp {
 
 class MemberAccess extends Exp {
 
+    public __dummyMemberAccess : number;
     public bag : Exp;
     public member : Exp;
 
@@ -585,6 +612,7 @@ class MemberAccess extends Exp {
 
 class FnApply extends Exp {
 
+    public __dummyFnApply : number;
     public args : Braced;
     public fn : Exp;
 
@@ -606,6 +634,7 @@ class FnApply extends Exp {
 
 class BinOpApply extends Exp {
 
+    public __dummyBinOpApply : number;
     public op : Ident;
     public op1 : Exp;
     public op2 : Exp;
@@ -632,6 +661,7 @@ class BinOpApply extends Exp {
 
 class If extends Exp {
 
+    public __dummyIf : number;
     public test : Exp;
     public then : Scope;
     public otherwise : Scope;
@@ -658,6 +688,7 @@ class If extends Exp {
 
 class New extends Exp {
 
+    public __dummyNew : number;
     public value : Exp;
 
     constructor (attrs : ExpList, value : Exp) {
@@ -676,6 +707,7 @@ class New extends Exp {
 
 class TypeOf extends Exp {
 
+    public __dummyTypeOf : number;
     public value : Exp;
 
     constructor (attrs : ExpList, value : Exp) {
@@ -704,6 +736,7 @@ interface BuiltinFn {
 
 class Builtin extends Exp {
 
+    public __dummyBuiltin : number;
     public fn : Fn;
     public impl : BuiltinFn;
 
@@ -724,6 +757,7 @@ class Builtin extends Exp {
 
 class Err extends Exp {
 
+    public __dummyErr : number;
     public item : Asi;
 
     constructor (attrs : ExpList, item : Asi) {
@@ -742,6 +776,8 @@ class Err extends Exp {
 
 class Void extends Exp {
 
+    public __dummyVoid : number;
+
     accept<T> (v : AstVisitor<T>) : T {
         return v.visitVoid(this);
     }
@@ -754,6 +790,7 @@ class Void extends Exp {
 
 class Bool extends Exp {
 
+    public __dummyBool : number;
     public value : boolean;
 
     constructor (attrs : ExpList, value : boolean) {
@@ -771,6 +808,7 @@ class Bool extends Exp {
 
 class Int extends Exp {
 
+    public __dummyInt : number;
     public value : string;
 
     constructor (attrs : ExpList, value : string) {
@@ -788,6 +826,7 @@ class Int extends Exp {
 
 class Float extends Exp {
 
+    public __dummyFloat : number;
     public value : string;
 
     constructor (attrs : ExpList, value : string) {
@@ -805,6 +844,7 @@ class Float extends Exp {
 
 class Char extends Exp {
 
+    public __dummyChar : number;
     public value : string;
 
     constructor (attrs : ExpList, value : string) {
@@ -822,6 +862,7 @@ class Char extends Exp {
 
 class Arr extends Exp {
 
+    public __dummyArr : number;
     public list : ExpList;
     public itemType : Exp;
 
@@ -845,6 +886,7 @@ class Arr extends Exp {
 
 class Ref extends Exp {
 
+    public __dummyRef : number;
     public item : Ident;
     public scope : Scope;
 
@@ -869,6 +911,7 @@ class Ref extends Exp {
 
 class Fn extends Exp {
 
+    public __dummyFn : number;
     public params : Braced;
     public body : Scope;
     public returnType : Exp;
@@ -903,6 +946,7 @@ class Fn extends Exp {
 
 class Struct extends Exp {
 
+    public __dummyStruct : number;
     public body : Scope;
 
     constructor (attrs : ExpList, body : Scope) {
@@ -921,6 +965,7 @@ class Struct extends Exp {
 
 class Interface extends Exp {
 
+    public __dummyInterface : number;
     public body : Scope;
 
     constructor (attrs : ExpList, body : Scope) {
@@ -944,6 +989,8 @@ class Interface extends Exp {
 
 class TypeAny extends Exp {
 
+    public __dummyTypeAny : number;
+
     accept<T> (v : AstVisitor<T>) : T {
         return v.visitTypeAny(this);
     }
@@ -956,6 +1003,7 @@ class TypeAny extends Exp {
 
 class TypeAnyOf extends Exp {
 
+    public __dummyTypeAnyOf : number;
     public choices : ExpList;
 
     constructor (attrs : ExpList, choices : ExpList) {
@@ -974,6 +1022,7 @@ class TypeAnyOf extends Exp {
 
 class TypeErr extends Exp {
 
+    public __dummyTypeErr : number;
     public elementType : Exp;
 
     constructor (attrs : ExpList, elementType : Exp) {
@@ -992,6 +1041,8 @@ class TypeErr extends Exp {
 
 class TypeVoid extends Exp {
 
+    public __dummyTypeVoid : number;
+
     accept<T> (v : AstVisitor<T>) : T {
         return v.visitTypeVoid(this);
     }
@@ -1003,6 +1054,8 @@ class TypeVoid extends Exp {
 
 
 class TypeBool extends Exp {
+
+    public __dummyTypeBool : number;
 
     accept<T> (v : AstVisitor<T>) : T {
         return v.visitTypeBool(this);
@@ -1016,6 +1069,8 @@ class TypeBool extends Exp {
 
 class TypeInt extends Exp {
 
+    public __dummyTypeInt : number;
+
     accept<T> (v : AstVisitor<T>) : T {
         return v.visitTypeInt(this);
     }
@@ -1027,6 +1082,8 @@ class TypeInt extends Exp {
 
 
 class TypeFloat extends Exp {
+
+    public __dummyTypeFloat : number;
 
     accept<T> (v : AstVisitor<T>) : T {
         return v.visitTypeFloat(this);
@@ -1040,6 +1097,8 @@ class TypeFloat extends Exp {
 
 class TypeChar extends Exp {
 
+    public __dummyTypeChar : number;
+
     accept<T> (v : AstVisitor<T>) : T {
         return v.visitTypeChar(this);
     }
@@ -1052,6 +1111,7 @@ class TypeChar extends Exp {
 
 class TypeArr extends Exp {
 
+    public __dummyTypeArr : number;
     public elementType : Exp;
     public length : Exp;
 
@@ -1073,6 +1133,7 @@ class TypeArr extends Exp {
 
 class TypeRef extends Exp {
 
+    public __dummyTypeRef : number;
     public elementType : Exp;
 
     constructor (attrs : ExpList, elementType : Exp) {
@@ -1096,6 +1157,7 @@ class TypeRef extends Exp {
 
 class Declr extends Exp {
 
+    public __dummyTypeDeclr : number;
     public ident : Ident;
 
     constructor (attrs : ExpList, ident : Ident) {
@@ -1114,6 +1176,7 @@ class Declr extends Exp {
 
 class Closure extends Exp {
 
+    public __dummyTypeClosure : number;
     public env : Env<Exp>;
     public item : Exp;
     public asiIx = -1;
@@ -1134,6 +1197,8 @@ class Closure extends Exp {
 
 
 class RefSlot extends Exp {
+
+    public __dummyRefSlot : number;
 
     constructor (attrs : ExpList) {
         super(attrs);

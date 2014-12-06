@@ -271,7 +271,7 @@ function parseTests () : void {
     // return
     t("import a").parse("import a");
     t("import a.b").parse("import a.b");
-    t("import a.(b, c)").parse("import a.(b, c)");
+    //t("import a.(b, c)").parse("import a.(b, c)");
 
     // pragma
     t("pragma 1").parse();

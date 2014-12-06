@@ -41,6 +41,13 @@ class Interpreter implements AstVisitor<Exp> {
 
 
 
+    private castAsi<T extends Exp> (TConstructor : any, asi : Asi) : Exp {
+        return castAsi<T>(TConstructor, asi, this.logger);
+    }
+
+
+
+
     run (sc : Scope) : Exp {
         if (sc.list.items.length === 0)
             return Void.instance;
@@ -64,7 +71,7 @@ class Interpreter implements AstVisitor<Exp> {
 
 
 
-    visitAsiList (al : AsiList) : Asi {
+    visitAsiList (al : AsiList) : Void {
         var is = al.items;
         for (var i = 0; i < is.length; ++i)
             is[i].accept(this);
@@ -74,11 +81,11 @@ class Interpreter implements AstVisitor<Exp> {
 
 
 
-    visitExpList (el : ExpList) : Asi {
+    visitExpList (el : ExpList) : Exp {
         var is = el.items;
         for (var i = 0; i < is.length - 1; ++i)
             is[i].accept(this);
-        return is[is.length - 1].accept(this);
+        return is[is.length - 1].accept(this); // this is questionable. throw?
     }
 
 
@@ -254,7 +261,7 @@ class Interpreter implements AstVisitor<Exp> {
             ? this.env.create()
             : new Env<Exp>(undefined, this.logger);
         this.asiIx = -1;
-        var res = Void.instance;
+        var res : Exp = Void.instance;
         while ((this.asiIx < sc.list.items.length - 1) && !this.isBreak &&
         !this.isContinue) {
             ++this.asiIx;

@@ -16,7 +16,7 @@ interface TextToAsiFn {
 
 class BinOpBuilder {
 
-    private opExp : Exp[] = [];
+    private opExp : Asi[] = [];
     private opOp : string[] = [];
 
     private static rightAssociativeOps =
@@ -55,7 +55,13 @@ class BinOpBuilder {
 
 
 
-    public addExpAndOpToSequence (asi : Exp, op : string) : void {
+    private castAsi<T extends Exp> (TConstructor : any, asi : Asi) : Exp {
+        return castAsi<T>(TConstructor, asi, this.logger);
+    }
+
+
+
+    public addExpAndOpToSequence (asi : Asi, op : string) : void {
         this.opExp.push(asi);
         this.opOp.push(op);
     }
@@ -63,7 +69,7 @@ class BinOpBuilder {
 
 
 
-    public addExpToSequence (asi : Exp) {
+    public addAsiToSequence (asi : Asi) {
         this.opExp.push(asi);
     }
 
@@ -77,7 +83,7 @@ class BinOpBuilder {
 
 
 
-    public buildBinOpApplyTreeFromSequence () : Exp {
+    public buildBinOpApplyTreeFromSequence () : Asi {
         this.reorderBinOpsSequence(this.opExp, this.opOp);
         var res = this.joinBinOpsSequence(this.opExp, this.opOp);
         this.opExp = [];
@@ -88,7 +94,7 @@ class BinOpBuilder {
 
 
 
-    private reorderBinOpsSequence (opExp : Exp[], opOp : string[]) : void {
+    private reorderBinOpsSequence (opExp : Asi[], opOp : string[]) : void {
         var prec = BinOpBuilder.opPrecedence;
         var right = BinOpBuilder.rightAssociativeOps;
         var i = opOp.length;
@@ -109,7 +115,7 @@ class BinOpBuilder {
 
 
 
-    private joinBinOpsSequence (opExp : Exp[], opOp : string[]) : Exp {
+    private joinBinOpsSequence (opExp : Asi[], opOp : string[]) : Asi {
         for (var i = 0; i < opOp.length; ++i)
             opExp[i + 1] = this.combineExp(
                 opOp[i], opExp[i], opExp[i + 1]);
@@ -119,29 +125,30 @@ class BinOpBuilder {
 
 
 
-    private combineExp (op : string, op1 : Exp, op2 : Exp) : Exp {
+    private combineExp (op : string, op1 : Asi, op2 : Asi) : Asi {
         if (op === ".") {
             //if (!(op2 instanceof Ident))
             //    this.logger.fatal("Expected identifier after '.'.");
-            return new MemberAccess(undefined, op1, <Ident>op2);
+            return new MemberAccess(undefined, <Exp>op1,
+                                    this.castAsi<Ident>(Ident, op2));
         } else if (op === "\n") {
-            return new FnApply(undefined, <Braced>op2, op1);
+            return new FnApply(undefined, <Braced>op2, <Exp>op1);
         } else if (op === "=") {
-            return new Assign(undefined, op1, op2);
+            return new Assign(undefined, <Exp>op1, <Exp>op2);
         } else if (op === ":") {
-            return new Typing(undefined, op1, op2);
+            return new Typing(undefined, <Exp>op1, <Exp>op2);
         } else if (op === "of") {
-            return new Constraining(undefined, op1, op2);
+            return new Constraining(undefined, <Exp>op1, <Exp>op2);
         } else if (op === ",") {
             if (op1 instanceof ExpList) {
                 var el = <ExpList>op1;
-                el.add(op2);
+                el.add(<Exp>op2);
                 return el;
             }
-            return new ExpList(undefined, [op1, op2]);
+            return new ExpList(undefined, [<Exp>op1, <Exp>op2]);
         } else {
-            return new BinOpApply(undefined, new Ident(undefined, op), op1,
-                                  op2);
+            return new BinOpApply(undefined, new Ident(undefined, op), <Exp>op1,
+                                  <Exp>op2);
         }
     }
 }
@@ -220,7 +227,7 @@ class Parser {
                 this.matchChar(')')) {
                 if (!b.isEmpty()) {
                     if (asi)
-                        b.addExpToSequence(<Exp>asi);
+                        b.addAsiToSequence(asi);
                     asi = b.buildBinOpApplyTreeFromSequence();
                 }
                 if (this.code[this.index - 1] === '}' && !startsWithCurly)
@@ -228,11 +235,11 @@ class Parser {
                 return asi;
             } else if (this.matchChar('(')) {
                 --this.index;
-                b.addExpAndOpToSequence(<Exp>asi, "\n");
+                b.addExpAndOpToSequence(asi, "\n");
             } else if (this.matchOp()) {
-                b.addExpAndOpToSequence(<Exp>asi, this.matched);
+                b.addExpAndOpToSequence(asi, this.matched);
             } else if (!b.isEmpty()) {
-                b.addExpToSequence(<Exp>asi);
+                b.addAsiToSequence(asi);
                 asi = b.buildBinOpApplyTreeFromSequence();
                 return asi;
             } else {
@@ -441,7 +448,7 @@ class Parser {
         if (asi)
             el = asi instanceof ExpList
                 ? <ExpList>asi
-                : new ExpList(undefined, [asi]);
+                : new ExpList(undefined, [this.castAsi<Exp>(Exp, asi)]);
         else
             el = new ExpList(undefined, []);
 
@@ -585,7 +592,7 @@ class Parser {
 
 
 
-    private parseSimpleKeyword<T extends Exp> (TConstructor : any,
+    private parseSimpleKeyword<T extends Asi> (TConstructor : any,
                                                expIsRequired : boolean) : T {
         if (this.skipWhite()) {
             if (expIsRequired) {
@@ -713,11 +720,7 @@ class Parser {
 
 
 
-    private static cast<T extends Asi>(TConstructor : any, asi : Asi) {
-        if (asi instanceof TConstructor) {
-            return <T>asi;
-        } else {
-            throw "Expected " + TConstructor + ", got " + getTypeName(asi);
-        }
+    private castAsi<T extends Exp> (TConstructor : any, asi : Asi) : Exp {
+        return castAsi<T>(TConstructor, asi, this.logger);
     }
 }

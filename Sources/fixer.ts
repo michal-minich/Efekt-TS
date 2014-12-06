@@ -68,6 +68,13 @@ class Fixer implements AstVisitor<Asi> {
 
 
 
+    private castToExp (asi : Asi) : Exp {
+        return castAsi<Exp>(Exp, asi, this.logger);
+    }
+
+
+
+
     // helpers ===============================================
 
 
@@ -85,7 +92,7 @@ class Fixer implements AstVisitor<Asi> {
 
     visitExpList (el : ExpList) : ExpList {
         for (var i = 0; i < el.items.length; i++) {
-            el.items[i] = el.items[i].accept(this);
+            el.items[i] = this.castToExp(el.items[i].accept(this));
         }
         return el;
     }
@@ -102,7 +109,7 @@ class Fixer implements AstVisitor<Asi> {
 
 
     visitPragma (pg : Pragma) : Pragma {
-        pg.exp = pg.exp.accept(this);
+        pg.exp = this.castToExp(pg.exp.accept(this));
         return pg;
     }
 
@@ -160,7 +167,7 @@ class Fixer implements AstVisitor<Asi> {
 
 
     visitReturn (r : Return) : Return {
-        r.value = r.value.accept(this);
+        r.value = this.castToExp(r.value.accept(this));
         return r;
     }
 
@@ -168,7 +175,7 @@ class Fixer implements AstVisitor<Asi> {
 
 
     visitThrow (th : Throw) : Asi {
-        th.ex = th.ex.accept(this);
+        th.ex = this.castToExp(th.ex.accept(this));
         return th;
     }
 
@@ -200,7 +207,7 @@ class Fixer implements AstVisitor<Asi> {
 
 
     visitVar (v : Var) : Var {
-        v.exp = v.exp.accept(this);
+        v.exp = this.castToExp(v.exp.accept(this));
         v.exp = Fixer.makeDeclr(v.exp);
         return v;
     }
@@ -209,8 +216,8 @@ class Fixer implements AstVisitor<Asi> {
 
 
     visitTyping (tpg : Typing) : Typing {
-        tpg.exp = tpg.exp.accept(this);
-        tpg.type = tpg.type.accept(this);
+        tpg.exp = this.castToExp(tpg.exp.accept(this));
+        tpg.type = this.castToExp(tpg.type.accept(this));
         return tpg;
     }
 
@@ -218,8 +225,8 @@ class Fixer implements AstVisitor<Asi> {
 
 
     visitConstraining (csg : Constraining) : Constraining {
-        csg.type = csg.type.accept(this);
-        csg.constraint = csg.constraint.accept(this);
+        csg.type = this.castToExp(csg.type.accept(this));
+        csg.constraint = this.castToExp(csg.constraint.accept(this));
         return csg;
     }
 
@@ -227,8 +234,8 @@ class Fixer implements AstVisitor<Asi> {
 
 
     visitAssign (a : Assign) : Assign {
-        a.value = a.value.accept(this);
-        a.slot = a.slot.accept(this);
+        a.value = this.castToExp(a.value.accept(this));
+        a.slot = this.castToExp(a.slot.accept(this));
         return a;
     }
 
@@ -253,7 +260,7 @@ class Fixer implements AstVisitor<Asi> {
 
 
     visitMemberAccess (ma : MemberAccess) : MemberAccess {
-        ma.bag = ma.bag.accept(this);
+        ma.bag = this.castToExp(ma.bag.accept(this));
         //this.visitIdent(m.ident);
         return ma;
     }
@@ -263,7 +270,7 @@ class Fixer implements AstVisitor<Asi> {
 
     visitFnApply (fna : FnApply) : Exp {
         fna.args = this.visitBraced(fna.args);
-        fna.fn = fna.fn.accept(this);
+        fna.fn = this.castToExp(fna.fn.accept(this));
         /*if (fna.fn instanceof Ident && (<Ident>fna.fn).name === "ref") {
             return new Ref(undefined, <Ident>fna.args.list.items[0]);
         }*/
@@ -274,9 +281,9 @@ class Fixer implements AstVisitor<Asi> {
 
 
     visitBinOpApply (opa : BinOpApply) : BinOpApply {
-        opa.op1 = opa.op1.accept(this);
+        opa.op1 = this.castToExp(opa.op1.accept(this));
         opa.op = this.visitIdent(opa.op);
-        opa.op2 = opa.op2.accept(this);
+        opa.op2 = this.castToExp(opa.op2.accept(this));
         return opa;
     }
 
@@ -284,7 +291,7 @@ class Fixer implements AstVisitor<Asi> {
 
 
     visitIf (i : If) : If {
-        i.test = i.test.accept(this);
+        i.test = this.castToExp(i.test.accept(this));
         i.then = this.visitScope(i.then);
         if (i.otherwise) {
             i.otherwise = this.visitScope(i.otherwise);
@@ -297,7 +304,7 @@ class Fixer implements AstVisitor<Asi> {
 
 
     visitNew (nw : New) : New {
-        nw.value = nw.value.accept(this);
+        nw.value = this.castToExp(nw.value.accept(this));
         return nw;
     }
 
@@ -305,7 +312,7 @@ class Fixer implements AstVisitor<Asi> {
 
 
     visitTypeOf (tof : TypeOf) : TypeOf {
-        tof.value = tof.value.accept(this);
+        tof.value = this.castToExp(tof.value.accept(this));
         return tof;
     }
 

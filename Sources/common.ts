@@ -143,6 +143,21 @@ function getTypeName (o : any) : string {
 
 
 
+function castAsi<T extends Exp>(TConstructor : any,
+                                asi : Asi,
+                                logger : LogWriter) : Exp {
+    if (asi instanceof TConstructor) {
+        return <T>asi;
+    } else {
+        logger.error("Expected " + getTypeName(TConstructor) + ", got " +
+                     getTypeName(asi));
+        return new Err(undefined, asi);
+    }
+}
+
+
+
+
 interface Array<T> {
     contains (item : T) : boolean;
     removeAt (index : number) : void;
