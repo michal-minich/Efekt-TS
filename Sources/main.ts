@@ -3,11 +3,11 @@
 
 "use strict";
 
-function start () {
+document.addEventListener("DOMContentLoaded", function () {
 
     Ide.init();
 
     unitTests();
 
     Ide.parse((<HTMLTextAreaElement>$id("codeEdit")).value);
-}
+});
