@@ -1,0 +1,146 @@
+
+body, textarea, div {
+    background-color: #2e2e2e;
+    color: white;
+}
+
+table {
+    border-color: #b9b9b9;
+}
+
+/* tests ========================================= */
+
+.testReport tr:nth-child(even) {
+    background-color: #eee;
+}
+
+.testReport td, .testReport th {
+    border-color: lightgray;
+}
+
+.testReport th {
+    background-color: #e8abab;
+}
+
+.testSuccessful td {
+    background-color: #d4e8d3;
+}
+
+.testFailed td {
+    background-color: #f4c9c5;
+}
+
+/* views  ========================================= */
+
+#mainView label {
+    background-color: dimgray;
+    color: lightgray;
+}
+
+.view {
+    background-color: #bbb;
+}
+
+/* toolbar  ========================================= */
+
+.toolbar {
+    background-color: #464646;
+}
+
+.toolbar > a {
+    background-color: #5b5b5b;
+    border-color: #4f4f4f;
+    color: #adadad;
+}
+
+.toolbar > a:hover {
+    background-color: #525252;
+    border-color: #585858;
+    color: white;
+}
+
+.toolbar > a:active {
+    background-color: #565656;
+    border-color: #3e3e3e;
+    color: #8f8f8f;
+}
+
+/* log ========================================= */
+
+.logItem {
+    background-color: gray;
+    color: white;
+    border-top-color: #888;
+    border-bottom-color: #777;
+}
+
+/* code ========================================= */
+
+.viewInner, .efektCode, pre, textarea {
+    font: bold 10pt Consolas, sans-serif;
+}
+.view {
+    background-color: #232323;
+}
+
+.efektKey {
+    color: #ff5651;
+}
+
+.efektIdent {
+    color: #5990ff;
+}
+
+.efektType {
+    color: #3a9d35;
+}
+
+.efektAttr {
+    color: #ff77dc;
+}
+
+.efektMarkup {
+    color: #8b8b8b;
+}
+
+.efektComment {
+    color: #696969;
+}
+
+.efektText {
+    color: #d59f61;
+}
+
+.efektNum {
+    color: #49c3e2;
+}
+
+.efektOp {
+    color: #ffffff;
+}
+
+/* usages ========================================= */
+
+.usageRead {
+    background-color: yellow;
+}
+
+.usageDeclr {
+    background-color: limegreen;
+}
+
+.usageWrite {
+    background-color: orange;
+}
+
+.usageBuiltin {
+    background-color: lightsteelblue;
+}
+
+.usageUndefined {
+    background-color: lightpink;
+}
+
+.sc_0__ {
+    border-bottom: 1px dotted red;
+}

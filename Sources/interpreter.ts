@@ -47,7 +47,7 @@ class Interpreter implements AstVisitor<Exp> {
         try {
             return this.visitScope(sc);
         } catch (ex) {
-            if (ex instanceof String) {
+            if (typeof ex === "string") {
                 this.exceptionHandler.exception(Interpreter.createStringArr(ex));
                 return Void.instance;
             } else {

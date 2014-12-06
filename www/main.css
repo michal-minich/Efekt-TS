@@ -15,41 +15,19 @@ body {
     height: 100%
 }
 
-body, textarea, div {
-    background-color: #eee;
-    color: black;
-}
-
 table {
-    border-collapse: collapse;
-    border: 1px solid #b9b9b9;
+    border: 1px solid;
 }
 
 /* tests ========================================= */
 
-.testReport tr:nth-child(even) {
-    background-color: #eee;
-}
-
 .testReport td, .testReport th {
-    border: 1px solid lightgray;
+    border: 1px solid;
     padding: 3px 7px
 }
 
 .testReport td {
     white-space: pre-wrap;
-}
-
-.testReport th {
-    background-color: #e8abab;
-}
-
-.testSuccessful td {
-    background-color: #d4e8d3;
-}
-
-.testFailed td {
-    background-color: #f4c9c5;
 }
 
 /* views  ========================================= */
@@ -69,7 +47,7 @@ pre {
 
 #mainView {
     position: absolute;
-    top: 32px;
+    top: 35px;
     bottom: 0;
     left: 0;
     right: 0;
@@ -77,8 +55,6 @@ pre {
 }
 
 #mainView label {
-    background-color: dimgray;
-    color: lightgray;
     padding: 1px 10px;
 }
 
@@ -90,7 +66,6 @@ pre {
     width: 25%;
     height: 100%;
     float: left;
-    background-color: #bbb;
 }
 
 .view:last-child {
@@ -118,44 +93,36 @@ pre {
 /* toolbar  ========================================= */
 
 .toolbar {
-    background-color: #666;
-    height: 25px;
+    height: 27px;
     padding-top: 8px;
     padding-left: 3px;
 }
 
 .toolbar > a {
     padding: 3px 8px;
-    background-color: #5b5b5b;
-    color: #adadad;
-    border: 1px solid #4f4f4f;
+    border: 1px solid;
     margin-left: 2px;
     margin-top: 2px;
 }
 
 .toolbar > a:hover {
-    background-color: #717171;
-    border: 1px solid #585858;
+    border: 1px solid;
     color: white;
 }
 
 .toolbar > a:active {
-    background-color: #565656;
-    border: 1px solid #3e3e3e;
+    border: 1px solid;
     position: relative;
     top: 1px;
     left: 1px;
-    color: #8f8f8f;
 }
 
 /* log ========================================= */
 
 .logItem {
-    background-color: gray;
     border: 0;
-    border-top: 1px solid #888;
-    border-bottom: 1px solid #777;
-    color: white;
+    border-top: 1px solid;
+    border-bottom: 1px solid;
     padding: 5px;
 }
 
@@ -195,74 +162,6 @@ pre {
 
 .logItem .notice {
     background-image: url('images/notice.png');
-}
-
-/* code ========================================= */
-
-.efektCode, pre, textarea {
-    font: bold 10pt Consolas, sans-serif;
-}
-
-.efektKey {
-    color: #af0009;
-}
-
-.efektIdent {
-    color: #2930af;
-}
-
-.efektType {
-    color: #008f24;
-}
-
-.efektAttr {
-    color: #db49ca;
-}
-
-.efektMarkup {
-    color: #5d5d5d;
-}
-
-.efektComment {
-    color: #9c9c9c;
-}
-
-.efektText {
-    color: #d57300;
-}
-
-.efektNum {
-    color: #528ee2;
-}
-
-.efektOp {
-    color: #000000;
-}
-
-/* usages ========================================= */
-
-.usageRead {
-    background-color: yellow;
-}
-
-.usageDeclr {
-    background-color: limegreen;
-}
-
-.usageWrite {
-    background-color: orange;
-}
-
-.usageBuiltin {
-    background-color: lightsteelblue;
-}
-
-.usageUndefined {
-    background-color: lightpink;
-}
-
-.sc_0__ {
-    border-bottom: 1px dotted red;
 }
 
 /* other ========================================= */

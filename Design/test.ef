@@ -21,7 +21,9 @@ var unio : new union {} // ?
 var I : interface {}
 var C : class {}
 var S : struct {}
+var T : tuple {}
 var U : union {}
+var C : choice {}
 
 assign
 bin op apply

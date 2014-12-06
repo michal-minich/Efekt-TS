@@ -275,7 +275,7 @@ function parseTests () : void {
 
     // pragma
     t("pragma 1").parse();
-    
+
     // break
     t("break continue").parse("break\ncontinue");
 
