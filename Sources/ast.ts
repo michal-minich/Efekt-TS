@@ -120,20 +120,19 @@ interface TerminalAstVisitor<T> {
 
 class Asi {
 
+    //noinspection JSUnusedGlobalSymbols
     public __dummyAsi : number;
     public parent : Asi;
     public attrs : ExpList;
     public infType : Exp;
 
-    constructor (attrs : ExpList) {
-        if (attrs) {
-            this.attrs = attrs;
-            attrs.parent = this;
-        }
-    }
-
     accept<T> (v : AstVisitor<T>) : T {
         throw undefined;
+    }
+
+    setAttr (attrs : ExpList) : void {
+        attrs.parent = this;
+        this.attrs = attrs;
     }
 }
 
@@ -142,6 +141,7 @@ class Asi {
 
 class Exp extends Asi {
 
+    //noinspection JSUnusedGlobalSymbols
     public __dummyExp : number;
 
     accept<T> (v : AstVisitor<T>) : T {
@@ -154,6 +154,7 @@ class Exp extends Asi {
 
 class Stm extends Asi {
 
+    //noinspection JSUnusedGlobalSymbols
     public __dummyStm : number;
 
     accept<T> (v : AstVisitor<T>) : T {
@@ -171,11 +172,12 @@ class Stm extends Asi {
 
 class AsiList extends Asi {
 
+    //noinspection JSUnusedGlobalSymbols
     public __dummyAsiList : number;
     public items : Asi[];
 
-    constructor (attrs : ExpList, items : Asi[]) {
-        super(attrs);
+    constructor (items : Asi[]) {
+        super();
         this.items = items;
         for (var i = 0; i < items.length; i++)
             items[i].parent = this;
@@ -191,11 +193,12 @@ class AsiList extends Asi {
 
 class ExpList extends Asi {
 
+    //noinspection JSUnusedGlobalSymbols
     public __dummyExpList : number;
     public items : Exp[];
 
-    constructor (attrs : ExpList, items : Exp[]) {
-        super(attrs);
+    constructor (items : Exp[]) {
+        super();
         this.items = items;
         for (var i = 0; i < items.length; i++)
             items[i].parent = this;
@@ -216,11 +219,12 @@ class ExpList extends Asi {
 
 class Braced extends Exp {
 
+    //noinspection JSUnusedGlobalSymbols
     public __dummyBraced : number;
     public list : ExpList;
 
-    constructor (attrs : ExpList, list : ExpList) {
-        super(attrs);
+    constructor (list : ExpList) {
+        super();
         if (list) {
             this.list = list;
             list.parent = this;
@@ -237,11 +241,12 @@ class Braced extends Exp {
 
 class Pragma extends Stm {
 
+    //noinspection JSUnusedGlobalSymbols
     public __dummyPragma : number;
     public exp : Exp;
 
-    constructor (attrs : ExpList, exp : Exp) {
-        super(attrs);
+    constructor (exp : Exp) {
+        super();
         if (exp) {
             this.exp = exp;
             exp.parent = this;
@@ -263,11 +268,12 @@ class Pragma extends Stm {
 
 class Loop extends Stm {
 
+    //noinspection JSUnusedGlobalSymbols
     public __dummyLoop : number;
     public body : Scope;
 
-    constructor (attrs : ExpList, body : Scope) {
-        super(attrs);
+    constructor (body : Scope) {
+        super();
         this.body = body;
         body.parent = this;
     }
@@ -282,6 +288,7 @@ class Loop extends Stm {
 
 class Break extends Stm {
 
+    //noinspection JSUnusedGlobalSymbols
     public __dummyBreak : number;
 
     accept<T> (v : AstVisitor<T>) : T {
@@ -294,6 +301,7 @@ class Break extends Stm {
 
 class Continue extends Stm {
 
+    //noinspection JSUnusedGlobalSymbols
     public __dummyContinue : number;
 
     accept<T> (v : AstVisitor<T>) : T {
@@ -306,11 +314,12 @@ class Continue extends Stm {
 
 class Label extends Stm {
 
+    //noinspection JSUnusedGlobalSymbols
     public __dummyLabel : number;
     public name : string;
 
-    constructor (attrs : ExpList, name : string) {
-        super(attrs);
+    constructor (name : string) {
+        super();
         this.name = name;
     }
 
@@ -324,11 +333,12 @@ class Label extends Stm {
 
 class Goto extends Stm {
 
+    //noinspection JSUnusedGlobalSymbols
     public __dummyGoto : number;
     public name : string;
 
-    constructor (attrs : ExpList, name : string) {
-        super(attrs);
+    constructor (name : string) {
+        super();
         this.name = name;
     }
 
@@ -342,11 +352,12 @@ class Goto extends Stm {
 
 class Import extends Stm {
 
+    //noinspection JSUnusedGlobalSymbols
     public __dummyImport : number;
     public value : Exp;
 
-    constructor (attrs : ExpList, value : Exp) {
-        super(attrs);
+    constructor (value : Exp) {
+        super();
         if (value) {
             this.value = value;
             value.parent = this;
@@ -363,11 +374,12 @@ class Import extends Stm {
 
 class Return extends Stm {
 
+    //noinspection JSUnusedGlobalSymbols
     public __dummyReturn : number;
     public value : Exp;
 
-    constructor (attrs : ExpList, value : Exp) {
-        super(attrs);
+    constructor (value : Exp) {
+        super();
         if (value) {
             this.value = value;
             value.parent = this;
@@ -384,11 +396,12 @@ class Return extends Stm {
 
 class Throw extends Stm {
 
+    //noinspection JSUnusedGlobalSymbols
     public __dummyThrow : number;
     public ex : Exp;
 
-    constructor (attrs : ExpList, ex : Exp) {
-        super(attrs);
+    constructor (ex : Exp) {
+        super();
         if (ex) {
             this.ex = ex;
             ex.parent = this;
@@ -405,13 +418,14 @@ class Throw extends Stm {
 
 class Try extends Stm {
 
+    //noinspection JSUnusedGlobalSymbols
     public __dummyTry : number;
     public body : Scope;
     public catches : Catch[];
     public fin : Scope;
 
-    constructor (attrs : ExpList, body : Scope, fin : Scope) {
-        super(attrs);
+    constructor (body : Scope, fin : Scope) {
+        super();
         this.body = body;
         body.parent = this;
         if (fin) {
@@ -443,11 +457,12 @@ class Catch {
 
 class Var extends Exp {
 
+    //noinspection JSUnusedGlobalSymbols
     public __dummyVar : number;
     public exp : Exp;
 
-    constructor (attrs : ExpList, exp : Exp) {
-        super(attrs);
+    constructor (exp : Exp) {
+        super();
         this.exp = exp;
         exp.parent = this;
     }
@@ -462,12 +477,13 @@ class Var extends Exp {
 
 class Typing extends Exp {
 
+    //noinspection JSUnusedGlobalSymbols
     public __dummyTyping : number;
     public exp : Exp; // Declr | Ident
     public type : Exp;
 
-    constructor (attrs : ExpList, ident : Exp, type : Exp) {
-        super(attrs);
+    constructor (ident : Exp, type : Exp) {
+        super();
         this.exp = ident;
         this.type = type;
         ident.parent = this;
@@ -484,12 +500,13 @@ class Typing extends Exp {
 
 class Constraining extends Exp {
 
+    //noinspection JSUnusedGlobalSymbols
     public __dummyConstraining : number;
     public type : Exp;
     public constraint : Exp;
 
-    constructor (attrs : ExpList, type : Exp, constraint : Exp) {
-        super(attrs);
+    constructor (type : Exp, constraint : Exp) {
+        super();
         this.type = type;
         this.constraint = constraint;
         type.parent = this;
@@ -506,12 +523,13 @@ class Constraining extends Exp {
 
 class Assign extends Exp {
 
+    //noinspection JSUnusedGlobalSymbols
     public __dummyAssign : number;
     public slot : Exp;
     public value : Exp;
 
-    constructor (attrs : ExpList, slot : Exp, value : Exp) {
-        super(attrs);
+    constructor (slot : Exp, value : Exp) {
+        super();
         this.slot = slot;
         this.value = value;
         slot.parent = this;
@@ -528,12 +546,13 @@ class Assign extends Exp {
 
 class Scope extends Exp {
 
+    //noinspection JSUnusedGlobalSymbols
     public __dummyScope : number;
     public list : AsiList;
     public currentAsiIx = -1;
 
-    constructor (attrs : ExpList, list : AsiList) {
-        super(attrs);
+    constructor (list : AsiList) {
+        super();
         this.list = list;
         list.parent = this;
     }
@@ -558,6 +577,7 @@ class Scope extends Exp {
 
 class Ident extends Exp {
 
+    //noinspection JSUnusedGlobalSymbols
     public __dummyIdent : number;
     public name : string;
     public isOp : boolean = false;
@@ -567,8 +587,8 @@ class Ident extends Exp {
     public assignedValue : Exp;
     public isUndefined : boolean;
 
-    constructor (attrs : ExpList, name : string) {
-        super(attrs);
+    constructor (name : string) {
+        super();
         this.name = name;
     }
 
@@ -590,12 +610,13 @@ class Ident extends Exp {
 
 class MemberAccess extends Exp {
 
+    //noinspection JSUnusedGlobalSymbols
     public __dummyMemberAccess : number;
     public bag : Exp;
     public member : Exp;
 
-    constructor (attrs : ExpList, bag : Exp, member : Exp) {
-        super(attrs);
+    constructor (bag : Exp, member : Exp) {
+        super();
         this.bag = bag;
         this.member = member;
         bag.parent = this;
@@ -612,12 +633,13 @@ class MemberAccess extends Exp {
 
 class FnApply extends Exp {
 
+    //noinspection JSUnusedGlobalSymbols
     public __dummyFnApply : number;
     public args : Braced;
     public fn : Exp;
 
-    constructor (attrs : ExpList, args : Braced, fn : Exp) {
-        super(attrs);
+    constructor (args : Braced, fn : Exp) {
+        super();
         this.args = args;
         this.fn = fn;
         args.parent = this;
@@ -634,13 +656,14 @@ class FnApply extends Exp {
 
 class BinOpApply extends Exp {
 
+    //noinspection JSUnusedGlobalSymbols
     public __dummyBinOpApply : number;
     public op : Ident;
     public op1 : Exp;
     public op2 : Exp;
 
-    constructor (attrs : ExpList, op : Ident, op1 : Exp, op2 : Exp) {
-        super(attrs);
+    constructor (op : Ident, op1 : Exp, op2 : Exp) {
+        super();
         this.op = op;
         this.op1 = op1;
         this.op2 = op2;
@@ -661,13 +684,14 @@ class BinOpApply extends Exp {
 
 class If extends Exp {
 
+    //noinspection JSUnusedGlobalSymbols
     public __dummyIf : number;
     public test : Exp;
     public then : Scope;
     public otherwise : Scope;
 
-    constructor (attrs : ExpList, test : Exp, then : Scope, otherwise : Scope) {
-        super(attrs);
+    constructor (test : Exp, then : Scope, otherwise : Scope) {
+        super();
         this.test = test;
         this.then = then;
         test.parent = this;
@@ -688,11 +712,12 @@ class If extends Exp {
 
 class New extends Exp {
 
+    //noinspection JSUnusedGlobalSymbols
     public __dummyNew : number;
     public value : Exp;
 
-    constructor (attrs : ExpList, value : Exp) {
-        super(attrs);
+    constructor (value : Exp) {
+        super();
         this.value = value;
         value.parent = this;
     }
@@ -707,11 +732,12 @@ class New extends Exp {
 
 class TypeOf extends Exp {
 
+    //noinspection JSUnusedGlobalSymbols
     public __dummyTypeOf : number;
     public value : Exp;
 
-    constructor (attrs : ExpList, value : Exp) {
-        super(attrs);
+    constructor (value : Exp) {
+        super();
         this.value = value;
         value.parent = this;
     }
@@ -736,12 +762,13 @@ interface BuiltinFn {
 
 class Builtin extends Exp {
 
+    //noinspection JSUnusedGlobalSymbols
     public __dummyBuiltin : number;
     public fn : Fn;
     public impl : BuiltinFn;
 
     constructor (fn : Fn, impl : BuiltinFn) {
-        super(undefined);
+        super();
         this.fn = fn;
         fn.parent = this;
         this.impl = impl;
@@ -757,11 +784,12 @@ class Builtin extends Exp {
 
 class Err extends Exp {
 
+    //noinspection JSUnusedGlobalSymbols
     public __dummyErr : number;
     public item : Asi;
 
-    constructor (attrs : ExpList, item : Asi) {
-        super(attrs);
+    constructor (item : Asi) {
+        super();
         this.item = item;
         item.parent = this;
     }
@@ -776,13 +804,14 @@ class Err extends Exp {
 
 class Void extends Exp {
 
+    //noinspection JSUnusedGlobalSymbols
     public __dummyVoid : number;
 
     accept<T> (v : AstVisitor<T>) : T {
         return v.visitVoid(this);
     }
 
-    public static instance = new Void(undefined);
+    public static instance = new Void();
 }
 
 
@@ -790,11 +819,12 @@ class Void extends Exp {
 
 class Bool extends Exp {
 
+    //noinspection JSUnusedGlobalSymbols
     public __dummyBool : number;
     public value : boolean;
 
-    constructor (attrs : ExpList, value : boolean) {
-        super(attrs);
+    constructor (value : boolean) {
+        super();
         this.value = value;
     }
 
@@ -808,11 +838,12 @@ class Bool extends Exp {
 
 class Int extends Exp {
 
+    //noinspection JSUnusedGlobalSymbols
     public __dummyInt : number;
     public value : string;
 
-    constructor (attrs : ExpList, value : string) {
-        super(attrs);
+    constructor (value : string) {
+        super();
         this.value = value;
     }
 
@@ -826,11 +857,12 @@ class Int extends Exp {
 
 class Float extends Exp {
 
+    //noinspection JSUnusedGlobalSymbols
     public __dummyFloat : number;
     public value : string;
 
-    constructor (attrs : ExpList, value : string) {
-        super(attrs);
+    constructor (value : string) {
+        super();
         this.value = value;
     }
 
@@ -844,11 +876,12 @@ class Float extends Exp {
 
 class Char extends Exp {
 
+    //noinspection JSUnusedGlobalSymbols
     public __dummyChar : number;
     public value : string;
 
-    constructor (attrs : ExpList, value : string) {
-        super(attrs);
+    constructor (value : string) {
+        super();
         this.value = value;
     }
 
@@ -862,12 +895,13 @@ class Char extends Exp {
 
 class Arr extends Exp {
 
+    //noinspection JSUnusedGlobalSymbols
     public __dummyArr : number;
     public list : ExpList;
     public itemType : Exp;
 
-    constructor (attrs : ExpList, list : ExpList, itemType : Exp = null) {
-        super(attrs);
+    constructor (list : ExpList, itemType : Exp = null) {
+        super();
         this.list = list;
         list.parent = this;
         if (itemType) {
@@ -886,12 +920,13 @@ class Arr extends Exp {
 
 class Ref extends Exp {
 
+    //noinspection JSUnusedGlobalSymbols
     public __dummyRef : number;
     public item : Ident;
     public scope : Scope;
 
-    constructor (attrs : ExpList, item : Ident) {
-        super(attrs);
+    constructor (item : Ident) {
+        super();
         this.item = item;
         item.parent = this;
     }
@@ -911,13 +946,14 @@ class Ref extends Exp {
 
 class Fn extends Exp {
 
+    //noinspection JSUnusedGlobalSymbols
     public __dummyFn : number;
     public params : Braced;
     public body : Scope;
     public returnType : Exp;
 
-    constructor (attrs : ExpList, params : Braced, body : Scope) {
-        super(attrs);
+    constructor (params : Braced, body : Scope) {
+        super();
         this.params = params;
         params.parent = this;
         if (body) {
@@ -946,11 +982,12 @@ class Fn extends Exp {
 
 class Struct extends Exp {
 
+    //noinspection JSUnusedGlobalSymbols
     public __dummyStruct : number;
     public body : Scope;
 
-    constructor (attrs : ExpList, body : Scope) {
-        super(attrs);
+    constructor (body : Scope) {
+        super();
         this.body = body;
         body.parent = this;
     }
@@ -965,11 +1002,12 @@ class Struct extends Exp {
 
 class Interface extends Exp {
 
+    //noinspection JSUnusedGlobalSymbols
     public __dummyInterface : number;
     public body : Scope;
 
-    constructor (attrs : ExpList, body : Scope) {
-        super(attrs);
+    constructor (body : Scope) {
+        super();
         this.body = body;
         body.parent = this;
     }
@@ -989,13 +1027,14 @@ class Interface extends Exp {
 
 class TypeAny extends Exp {
 
+    //noinspection JSUnusedGlobalSymbols
     public __dummyTypeAny : number;
 
     accept<T> (v : AstVisitor<T>) : T {
         return v.visitTypeAny(this);
     }
 
-    public static instance = new TypeAny(undefined);
+    public static instance = new TypeAny();
 }
 
 
@@ -1003,11 +1042,12 @@ class TypeAny extends Exp {
 
 class TypeAnyOf extends Exp {
 
+    //noinspection JSUnusedGlobalSymbols
     public __dummyTypeAnyOf : number;
     public choices : ExpList;
 
-    constructor (attrs : ExpList, choices : ExpList) {
-        super(attrs);
+    constructor (choices : ExpList) {
+        super();
         this.choices = choices;
         choices.parent = this;
     }
@@ -1022,11 +1062,12 @@ class TypeAnyOf extends Exp {
 
 class TypeErr extends Exp {
 
+    //noinspection JSUnusedGlobalSymbols
     public __dummyTypeErr : number;
     public elementType : Exp;
 
-    constructor (attrs : ExpList, elementType : Exp) {
-        super(attrs);
+    constructor (elementType : Exp) {
+        super();
         this.elementType = elementType;
         elementType.parent = this;
     }
@@ -1041,13 +1082,14 @@ class TypeErr extends Exp {
 
 class TypeVoid extends Exp {
 
+    //noinspection JSUnusedGlobalSymbols
     public __dummyTypeVoid : number;
 
     accept<T> (v : AstVisitor<T>) : T {
         return v.visitTypeVoid(this);
     }
 
-    public static instance = new TypeVoid(undefined);
+    public static instance = new TypeVoid();
 }
 
 
@@ -1055,13 +1097,14 @@ class TypeVoid extends Exp {
 
 class TypeBool extends Exp {
 
+    //noinspection JSUnusedGlobalSymbols
     public __dummyTypeBool : number;
 
     accept<T> (v : AstVisitor<T>) : T {
         return v.visitTypeBool(this);
     }
 
-    public static instance = new TypeBool(undefined);
+    public static instance = new TypeBool();
 }
 
 
@@ -1069,13 +1112,14 @@ class TypeBool extends Exp {
 
 class TypeInt extends Exp {
 
+    //noinspection JSUnusedGlobalSymbols
     public __dummyTypeInt : number;
 
     accept<T> (v : AstVisitor<T>) : T {
         return v.visitTypeInt(this);
     }
 
-    public static instance = new TypeInt(undefined);
+    public static instance = new TypeInt();
 }
 
 
@@ -1083,13 +1127,14 @@ class TypeInt extends Exp {
 
 class TypeFloat extends Exp {
 
+    //noinspection JSUnusedGlobalSymbols
     public __dummyTypeFloat : number;
 
     accept<T> (v : AstVisitor<T>) : T {
         return v.visitTypeFloat(this);
     }
 
-    public static instance = new TypeFloat(undefined);
+    public static instance = new TypeFloat();
 }
 
 
@@ -1097,13 +1142,14 @@ class TypeFloat extends Exp {
 
 class TypeChar extends Exp {
 
+    //noinspection JSUnusedGlobalSymbols
     public __dummyTypeChar : number;
 
     accept<T> (v : AstVisitor<T>) : T {
         return v.visitTypeChar(this);
     }
 
-    public static instance = new TypeChar(undefined);
+    public static instance = new TypeChar();
 }
 
 
@@ -1111,12 +1157,13 @@ class TypeChar extends Exp {
 
 class TypeArr extends Exp {
 
+    //noinspection JSUnusedGlobalSymbols
     public __dummyTypeArr : number;
     public elementType : Exp;
     public length : Exp;
 
-    constructor (attrs : ExpList, elementType : Exp, length : Exp) {
-        super(attrs);
+    constructor (elementType : Exp, length : Exp) {
+        super();
         this.elementType = elementType;
         this.length = length;
         elementType.parent = this;
@@ -1133,11 +1180,12 @@ class TypeArr extends Exp {
 
 class TypeRef extends Exp {
 
+    //noinspection JSUnusedGlobalSymbols
     public __dummyTypeRef : number;
     public elementType : Exp;
 
-    constructor (attrs : ExpList, elementType : Exp) {
-        super(attrs);
+    constructor (elementType : Exp) {
+        super();
         this.elementType = elementType;
         elementType.parent = this;
     }
@@ -1157,11 +1205,12 @@ class TypeRef extends Exp {
 
 class Declr extends Exp {
 
+    //noinspection JSUnusedGlobalSymbols
     public __dummyTypeDeclr : number;
     public ident : Ident;
 
-    constructor (attrs : ExpList, ident : Ident) {
-        super(attrs);
+    constructor (ident : Ident) {
+        super();
         this.ident = ident;
         ident.parent = this;
     }
@@ -1176,13 +1225,14 @@ class Declr extends Exp {
 
 class Closure extends Exp {
 
+    //noinspection JSUnusedGlobalSymbols
     public __dummyTypeClosure : number;
     public env : Env<Exp>;
     public item : Exp;
     public asiIx = -1;
 
-    constructor (attrs : ExpList, env : Env<Exp>, item : Exp) {
-        super(attrs);
+    constructor (env : Env<Exp>, item : Exp) {
+        super();
         this.item = item;
         // parent ?
         this.env = env;
@@ -1198,10 +1248,11 @@ class Closure extends Exp {
 
 class RefSlot extends Exp {
 
+    //noinspection JSUnusedGlobalSymbols
     public __dummyRefSlot : number;
 
-    constructor (attrs : ExpList) {
-        super(attrs);
+    constructor () {
+        super();
     }
 
     accept<T> (v : AstVisitor<T>) : T {

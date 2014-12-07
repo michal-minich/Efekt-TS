@@ -33,9 +33,8 @@ class Interpreter implements AstVisitor<Exp> {
     private static createStringArr (s : string) : Arr {
         const es : Exp[] = [];
         for (var i = 0; i < s.length; ++i)
-            es.push(new Char(undefined, s[i]));
-        return new Arr(
-            undefined, new ExpList(undefined, es), TypeChar.instance);
+            es.push(new Char(s[i]));
+        return new Arr(new ExpList(es), TypeChar.instance);
     }
 
 
@@ -247,7 +246,7 @@ class Interpreter implements AstVisitor<Exp> {
 
     private static copyStruct (cls : Closure) : Closure {
         return cls.item instanceof Struct
-            ? new Closure(undefined, cls.env.duplicate(), cls.item)
+            ? new Closure(cls.env.duplicate(), cls.item)
             : cls;
     }
 
@@ -312,7 +311,7 @@ class Interpreter implements AstVisitor<Exp> {
                 if (fna.args.list.items.length === 1 &&
                     fna.args.list.items[0] instanceof Ident) {
                     const ident = <Ident>fna.args.list.items[0];
-                    const rf = new Ref(undefined, ident);
+                    const rf = new Ref(ident);
                     rf.scope.env = this.env.getDeclaringEnv(ident.name);
                     return rf;
                 }
@@ -324,7 +323,7 @@ class Interpreter implements AstVisitor<Exp> {
             args.splice(0, 0, ma.bag);
             const fna2 = new FnApply(
                 undefined,
-                new Braced(undefined, new ExpList(undefined, args)),
+                new Braced(new ExpList(args)),
                 ma.member);
             fna2.parent = fna.parent;
             return this.visitFnApply(fna2);
@@ -340,7 +339,7 @@ class Interpreter implements AstVisitor<Exp> {
             var cls = <Closure>exp;
             if (cls.item instanceof Struct) {
                 const s = <Struct>cls.item;
-                const c = new Closure(undefined, cls.env.create(), s);
+                const c = new Closure(cls.env.create(), s);
                 const prevEnv = this.env;
                 this.env = c.env;
                 this.visitAsiList(s.body.list);
@@ -408,10 +407,8 @@ class Interpreter implements AstVisitor<Exp> {
 
 
     visitBinOpApply (opa : BinOpApply) : Exp {
-        const fna = new FnApply(
-            undefined,
-            new Braced(undefined, new ExpList(undefined, [opa.op1, opa.op2])),
-            opa.op);
+        const fna = new FnApply(new Braced(new ExpList([opa.op1, opa.op2])),
+                                opa.op);
         fna.parent = opa.parent;
         return this.visitFnApply(fna);
     }
@@ -539,7 +536,7 @@ class Interpreter implements AstVisitor<Exp> {
             }
             return fn;
         }
-        return new Closure(undefined, this.env.create(), fn);
+        return new Closure(this.env.create(), fn);
     }
 
 
@@ -551,7 +548,7 @@ class Interpreter implements AstVisitor<Exp> {
 
 
     visitStruct (st : Struct) : Closure {
-        return new Closure(undefined, this.env.create(), st);
+        return new Closure(this.env.create(), st);
     }
 
 

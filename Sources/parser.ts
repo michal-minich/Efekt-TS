@@ -129,25 +129,25 @@ class BinOpBuilder {
         if (op === ".") {
             //if (!(op2 instanceof Ident))
             //    this.logger.fatal("Expected identifier after '.'.");
-            return new MemberAccess(undefined, <Exp>op1,
+            return new MemberAccess(<Exp>op1,
                                     this.castAsi<Ident>(Ident, op2));
         } else if (op === "\n") {
-            return new FnApply(undefined, <Braced>op2, <Exp>op1);
+            return new FnApply(<Braced>op2, <Exp>op1);
         } else if (op === "=") {
-            return new Assign(undefined, <Exp>op1, <Exp>op2);
+            return new Assign(<Exp>op1, <Exp>op2);
         } else if (op === ":") {
-            return new Typing(undefined, <Exp>op1, <Exp>op2);
+            return new Typing(<Exp>op1, <Exp>op2);
         } else if (op === "of") {
-            return new Constraining(undefined, <Exp>op1, <Exp>op2);
+            return new Constraining(<Exp>op1, <Exp>op2);
         } else if (op === ",") {
             if (op1 instanceof ExpList) {
                 const el = <ExpList>op1;
                 el.add(<Exp>op2);
                 return el;
             }
-            return new ExpList(undefined, [<Exp>op1, <Exp>op2]);
+            return new ExpList([<Exp>op1, <Exp>op2]);
         } else {
-            return new BinOpApply(undefined, new Ident(undefined, op), <Exp>op1,
+            return new BinOpApply(new Ident(op), <Exp>op1,
                                   <Exp>op2);
         }
     }
@@ -188,7 +188,7 @@ class Parser {
         this.code = code;
         this.index = 0;
         if (code.length === 0)
-            return new AsiList(undefined, []);
+            return new AsiList([]);
         const al = this.parseAsiList();
         if (code.length !== this.index)
             this.logger.error("Not all code parsed. not parsed. " +
@@ -212,7 +212,7 @@ class Parser {
                     break;
             }
         }
-        return new AsiList(undefined, items);
+        return new AsiList(items);
     }
 
 
@@ -252,16 +252,16 @@ class Parser {
 
 
     private matchTextToFn : TextToAsiFn = {
-        "true": () => new Bool(undefined, true),
-        "false": () => new Bool(undefined, false),
-        "void": () => new Void(undefined),
+        "true": () => new Bool(true),
+        "false": () => new Bool(false),
+        "void": () => new Void(),
         "var": () => this.parseVar(),
         "if": () => this.parseIf(),
         "fn": () => this.parseFn(),
         "op": () => this.parseOp(),
         "loop": () => this.parseLoop(),
-        "break": () => new Break(undefined),
-        "continue": () => new Continue(undefined),
+        "break": () => new Break(),
+        "continue": () => new Continue(),
         "label": () => this.parseLabel(),
         "goto": () => this.parseGoto(),
         "import": () => this.parseSimpleKeyword<Import>(Import, true),
@@ -280,7 +280,7 @@ class Parser {
 
     private parseOp () : Ident {
         if (this.match(Parser.isOp)) {
-            const i = new Ident(undefined, this.matched);
+            const i = new Ident(this.matched);
             i.isOp = true;
             return i;
         }
@@ -320,11 +320,8 @@ class Parser {
             return this.spares.pop();
 
         const asi = this.parseOneAsi();
-        if (asi && attrs.length !== 0) {
-            const el = new ExpList(undefined, attrs);
-            el.parent = asi;
-            asi.attrs = el;
-        }
+        if (asi && attrs.length !== 0)
+            asi.setAttr(new ExpList(attrs));
         return asi;
     }
 
@@ -351,10 +348,10 @@ class Parser {
                 return this.matchTextToFn[m]();
 
         if (this.match(Parser.isInt))
-            return new Int(undefined, this.matched);
+            return new Int(this.matched);
 
         else if (this.matchIdent()) {
-            const i = new Ident(undefined, this.matched);
+            const i = new Ident(this.matched);
             if (this.nextIsAttr) {
                 i.name = "@" + i.name;
                 this.nextIsAttr = false;
@@ -363,7 +360,7 @@ class Parser {
         }
 
         if (this.matchChar('{'))
-            return new Scope(undefined, this.parseAsiList(true));
+            return new Scope(this.parseAsiList(true));
 
         else if (this.matchChar('('))
             return this.parseBracedOrArr<Braced>(Braced);
@@ -424,12 +421,12 @@ class Parser {
             asi = this.parseOne();
             if (!(asi instanceof Scope)) {
                 this.spares.push(asi);
-                const fn = new Fn(undefined, bc, undefined);
+                const fn = new Fn(bc, undefined);
                 if (retType)
                     fn.returnType = retType;
                 return fn;
             }
-            const fn = new Fn(undefined, bc, <Scope>asi);
+            const fn = new Fn(bc, <Scope>asi);
             if (retType)
                 fn.returnType = retType;
             return fn;
@@ -448,11 +445,11 @@ class Parser {
         if (asi)
             el = asi instanceof ExpList
                 ? <ExpList>asi
-                : new ExpList(undefined, [this.castAsi<Exp>(Exp, asi)]);
+                : new ExpList([this.castAsi<Exp>(Exp, asi)]);
         else
-            el = new ExpList(undefined, []);
+            el = new ExpList([]);
 
-        return new TConstructor(undefined, el);
+        return new TConstructor(el);
     }
 
 
@@ -464,12 +461,12 @@ class Parser {
             const ch = this.code[this.index];
             ++this.index;
             if (ch === '"')
-                return new Arr(undefined, new ExpList(undefined, chars),
-                               new TypeChar(undefined));
+                return new Arr(new ExpList(chars),
+                               new TypeChar());
             if (this.index >= this.code.length)
-                return new Arr(undefined, new ExpList(undefined, chars),
-                               new TypeChar(undefined));
-            chars.push(new Char(undefined, ch));
+                return new Arr(new ExpList(chars),
+                               new TypeChar());
+            chars.push(new Char(ch));
         }
     }
 
@@ -518,27 +515,27 @@ class Parser {
         if (this.matchText("else"))
             otherwise = this.parseScopedExp();
 
-        return new If(undefined, <Exp>asi, then, otherwise);
+        return new If(<Exp>asi, then, otherwise);
     }
 
 
 
 
     private parseInterface () : Interface {
-        return new Interface(undefined, this.parseScopedExp());
+        return new Interface(this.parseScopedExp());
     }
 
 
 
     private parseStruct () : Struct {
-        return new Struct(undefined, this.parseScopedExp());
+        return new Struct(this.parseScopedExp());
     }
 
 
 
 
     private parseLoop () : Loop {
-        return new Loop(undefined, this.parseScopedExp());
+        return new Loop(this.parseScopedExp());
     }
 
 
@@ -548,7 +545,7 @@ class Parser {
         const asi = this.parseOne();
         if (asi instanceof Scope)
             return <Scope>asi;
-        return new Scope(undefined, new AsiList(undefined, [asi]));
+        return new Scope(new AsiList([asi]));
     }
 
 
@@ -560,7 +557,7 @@ class Parser {
         this.skipWhite();
         if (this.matchText("finally"))
             fin = this.parseScopedExp();
-        return new Try(undefined, body, fin);
+        return new Try(body, fin);
     }
 
 
@@ -569,7 +566,7 @@ class Parser {
     private parseLabel () : Label {
         this.skipWhite();
         if (this.matchIdent()) {
-            return new Label(undefined, this.matched);
+            return new Label(this.matched);
         } else {
             this.logger.error("expected name after label");
             throw undefined;
@@ -582,7 +579,7 @@ class Parser {
     private parseGoto () : Goto {
         this.skipWhite();
         if (this.matchIdent()) {
-            return new Goto(undefined, this.matched);
+            return new Goto(this.matched);
         } else {
             this.logger.error("expected name after goto");
             throw undefined;
@@ -600,12 +597,12 @@ class Parser {
                                   " requires expression");
                 throw undefined;
             } else {
-                return new TConstructor(undefined, undefined);
+                return new TConstructor(undefined);
             }
         }
         const asi = this.parseMany();
         if (asi instanceof Exp)
-            return new TConstructor(undefined, <Exp>asi);
+            return new TConstructor(<Exp>asi);
         this.logger.fatal("Expression expected after " +
                           getTypeName(TConstructor) +
                           ", not statement");

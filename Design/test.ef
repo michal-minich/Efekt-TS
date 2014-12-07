@@ -98,6 +98,9 @@ var Type = struct (T of Type) { }
 var Exp = struct (E... of Exp) {  all built in }
 var AnyOf = struct (T...) {  }
 
+@rightAssociative @beforeOperator(op+) var op* = fn (a, b) { ... }
+
+
 @
 deterministic (result does not depends on readsIO, or readsMutableGlobal)
   constant

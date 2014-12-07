@@ -36,7 +36,7 @@ class Typer implements AstVisitor<void> {
         if (unique.length === 1)
             return unique[0];
         else
-            return new TypeAnyOf(undefined, new ExpList(undefined, unique));
+            return new TypeAnyOf(new ExpList(unique));
 
     }
 
@@ -277,7 +277,7 @@ class Typer implements AstVisitor<void> {
         if (e) {
             i.infType = e.getDirectly(i.name).infType;
         } else {
-            i.infType = new TypeErr(undefined, TypeVoid.instance);
+            i.infType = new TypeErr(TypeVoid.instance);
         }
     }
 
@@ -367,7 +367,7 @@ class Typer implements AstVisitor<void> {
 
     visitErr (er : Err) : void {
         er.item.infType.accept(this);
-        er.infType = new TypeErr(undefined, er.item.infType);
+        er.infType = new TypeErr(er.item.infType);
     }
 
 
@@ -416,9 +416,9 @@ class Typer implements AstVisitor<void> {
             ts.push(arr.list.items[i]);
         }
         const t = this.commonType(ts);
-        const len = new Int(undefined, "" + arr.list.items.length);
+        const len = new Int("" + arr.list.items.length);
         len.accept(this);
-        arr.infType = new TypeArr(undefined, t, len);
+        arr.infType = new TypeArr(t, len);
     }
 
 
@@ -426,7 +426,7 @@ class Typer implements AstVisitor<void> {
 
     visitRef (rf : Ref) : void {
         rf.item.accept(this);
-        rf.infType = new TypeRef(undefined, rf.item.infType);
+        rf.infType = new TypeRef(rf.item.infType);
     }
 
 
@@ -442,7 +442,7 @@ class Typer implements AstVisitor<void> {
         this.currentFnReturnType = TypeAny.instance;
         this.env = new Env(this.env, this.logger);
         this.visitBraced(fn.params);
-        const fnt = new Fn(undefined, fn.params, undefined);
+        const fnt = new Fn(fn.params, undefined);
         fnt.returnType = TypeAny.instance;
         if (fn.body) {
             if (fn.body.list.items.length === 0) {

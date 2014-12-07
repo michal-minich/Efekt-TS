@@ -195,7 +195,7 @@ class Ide {
 
     static usages (code : string) {
         const al = Ide.parseAndFix(code);
-        const sc = new Scope(undefined, combineAsiLists(prelude, al));
+        const sc = new Scope(combineAsiLists(prelude, al));
         sc.accept(Ide.namer);
         Ide.outputView.show(al);
         Ide.debugPrinter.printInfTypes = false;
@@ -207,7 +207,7 @@ class Ide {
 
     static doType (code : string) {
         const al = Ide.parseAndFix(code);
-        const sc = new Scope(undefined, combineAsiLists(prelude, al));
+        const sc = new Scope(combineAsiLists(prelude, al));
         Ide.namer.visitScope(sc);
         Ide.typer.visitScope(sc);
         Ide.outputView.show(al);
@@ -222,7 +222,7 @@ class Ide {
         const al = Ide.parseAndFix(code);
         Ide.outputView.clear();
         Ide.outputAstView.clear();
-        const sc = new Scope(undefined, combineAsiLists(prelude, al));
+        const sc = new Scope(combineAsiLists(prelude, al));
         //Ide.typer.visitScope(sc);
         const res = Ide.interpreter.run(sc);
         Ide.outputView.write(res);

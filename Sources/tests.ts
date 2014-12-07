@@ -155,7 +155,7 @@ class Test {
         //const typer = new Typer(this.logger);
         const interpreter = new Interpreter(this.logger, this.logger,
                                             this.logger);
-        const sc = new Scope(undefined, combineAsiLists(prelude, this.parsed));
+        const sc = new Scope(combineAsiLists(prelude, this.parsed));
         fixer.visitScope(sc);
         //typer.visitScope(sc);
         const evaled = interpreter.run(sc);

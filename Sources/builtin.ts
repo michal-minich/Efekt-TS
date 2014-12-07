@@ -19,39 +19,32 @@ const builtins : BuiltinsList = {
     },
 
     '+': function (args) {
-        return new Int(undefined,
-                       "" + (+(<Int>args[0]).value + +(<Int>args[1]).value));
+        return new Int("" + (+(<Int>args[0]).value + +(<Int>args[1]).value));
     },
 
     '-': function (args) {
-        return new Int(undefined,
-                       "" + (+(<Int>args[0]).value - +(<Int>args[1]).value));
+        return new Int("" + (+(<Int>args[0]).value - +(<Int>args[1]).value));
     },
 
     '*': function (args) {
-        return new Int(undefined,
-                       "" + (+(<Int>args[0]).value * +(<Int>args[1]).value));
+        return new Int("" + (+(<Int>args[0]).value * +(<Int>args[1]).value));
     },
 
     '<': function (args) {
-        return new Bool(undefined,
-                        +(<Int>args[0]).value < +(<Int>args[1]).value);
+        return new Bool(+(<Int>args[0]).value < +(<Int>args[1]).value);
     },
 
     '>': function (args) {
-        return new Bool(undefined,
-                        +(<Int>args[0]).value > +(<Int>args[1]).value);
+        return new Bool(+(<Int>args[0]).value > +(<Int>args[1]).value);
     },
 
     '==': function (args) {
-        return new Bool(undefined,
-                        Ide.asiToPlainString(args[0]) ==
+        return new Bool(Ide.asiToPlainString(args[0]) ==
                         Ide.asiToPlainString(args[1]));
     },
 
     '!=': function (args) {
-        return new Bool(undefined,
-                        Ide.asiToPlainString(args[0]) !=
+        return new Bool(Ide.asiToPlainString(args[0]) !=
                         Ide.asiToPlainString(args[1]));
     },
 
@@ -63,7 +56,7 @@ const builtins : BuiltinsList = {
 
     'count': function (args : Exp[]) {
         const arr = <Arr>args[0];
-        return new Int(undefined, "" + arr.list.items.length);
+        return new Int("" + arr.list.items.length);
     },
 
     'add': function (args : Exp[]) {

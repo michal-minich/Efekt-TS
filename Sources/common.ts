@@ -107,7 +107,7 @@ function combineAsiLists (first : AsiList, second : AsiList) : AsiList {
         alCombined.push(first.items[i]);
     for (var i = 0; i < second.items.length; i++)
         alCombined.push(second.items[i]);
-    return new AsiList(undefined, alCombined);
+    return new AsiList(alCombined);
 }
 
 
@@ -151,7 +151,7 @@ function castAsi<T extends Exp>(TConstructor : any,
     } else {
         logger.error("Expected " + getTypeName(TConstructor) + ", got " +
                      getTypeName(asi));
-        return new Err(undefined, asi);
+        return new Err(asi);
     }
 }
 

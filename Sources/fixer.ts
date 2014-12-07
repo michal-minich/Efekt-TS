@@ -36,7 +36,7 @@ class Fixer implements AstVisitor<Asi> {
     private static makeDeclr (exp : Exp) : Exp {
         if (exp instanceof Ident) {
             const p = exp.parent;
-            const d = new Declr(undefined, <Ident>exp);
+            const d = new Declr(<Ident>exp);
             d.parent = p;
             return d;
         }
@@ -60,7 +60,7 @@ class Fixer implements AstVisitor<Asi> {
 
 
     private static convertToDeclr (parent : any, property : string) : void {
-        const d = new Declr(undefined, <Ident>parent[property]);
+        const d = new Declr(<Ident>parent[property]);
         d.parent = parent;
         parent[property] = d;
     }
@@ -272,7 +272,7 @@ class Fixer implements AstVisitor<Asi> {
         fna.args = this.visitBraced(fna.args);
         fna.fn = this.castToExp(fna.fn.accept(this));
         /*if (fna.fn instanceof Ident && (<Ident>fna.fn).name === "ref") {
-            return new Ref(undefined, <Ident>fna.args.list.items[0]);
+            return new Ref(<Ident>fna.args.list.items[0]);
         }*/
         return fna;
     }
