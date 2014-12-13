@@ -19,11 +19,11 @@ class BinOpBuilder {
     private opExp : Asi[] = [];
     private opOp : string[] = [];
 
-    private static rightAssociativeOps =
+    public static rightAssociativeOps =
         ["=", "*=", "/=", "%=", "+=", "-=", "<<=", ">>=", "&==", "^=", "|="];
 
     // \n is virtual operator that binds fn exp to braced to make fn apply
-    private static opPrecedence : Precedence = {
+    public static opPrecedence : Precedence = {
         ".": 160,
         "\n": 160,
         "of": 150,
@@ -207,6 +207,7 @@ class Parser {
                 const item = this.parseMany(startsWithCurly);
                 if (!item)
                     break;
+                this.postProcess(item);
                 items.push(item);
                 if (this.code[this.index - 1] === '}')
                     break;
@@ -323,6 +324,65 @@ class Parser {
         if (asi && attrs.length !== 0)
             asi.setAttr(new ExpList(attrs));
         return asi;
+    }
+
+
+
+
+    private postProcess(asi : Asi) {
+        var op = Parser.getOpIfAny(asi);
+        if (!op)
+            return;
+        if (!(asi instanceof Var))
+            return;
+        var opb = Parser.getBeforeOpIfAny(<Var>asi);
+        if (opb) {
+            for (var opp in BinOpBuilder.opPrecedence) {
+                if (opp === opb.name) {
+                    BinOpBuilder.opPrecedence[op.name] =
+                        BinOpBuilder.opPrecedence[opp] + 1;
+                }
+            }
+        }
+    }
+
+
+
+
+    private static getOpIfAny (asi : Asi) : Ident {
+        if (asi instanceof Var) {
+            var v = <Var>asi;
+            if (v.exp instanceof Assign) {
+                var a = <Assign>v.exp;
+                if (a.slot instanceof Ident)
+                    var ident = <Ident>a.slot;
+                if (ident.isOp) {
+                    return ident;
+                }
+            }
+        }
+        return undefined;
+    }
+
+
+
+
+    private static getBeforeOpIfAny (v : Var) : Ident {
+        if (!v.attrs)
+            return undefined;
+        for (var i = 0; i < v.attrs.items.length; ++i) {
+            var attr = v.attrs.items[i];
+            if (attr instanceof FnApply) {
+                var fna = <FnApply>attr;
+                if (fna.fn instanceof Ident) {
+                    var fnai = <Ident>fna.fn;
+                    if (fnai.name == "@beforeOperator") {
+                        return <Ident>fna.args.list.items[0];
+                    }
+                }
+            }
+        }
+        return undefined;
     }
 
 
