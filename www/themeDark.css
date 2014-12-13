@@ -11,23 +11,23 @@ table {
 /* tests ========================================= */
 
 .testReport tr:nth-child(even) {
-    background-color: #eee;
+    background-color: #2a2a2a;
 }
 
 .testReport td, .testReport th {
-    border-color: lightgray;
+    border-color: #616161;
 }
 
 .testReport th {
-    background-color: #e8abab;
+    background-color: #765757;
 }
 
 .testSuccessful td {
-    background-color: #d4e8d3;
+    background-color: #424242;
 }
 
 .testFailed td {
-    background-color: #f4c9c5;
+    background-color: #534443;
 }
 
 /* views  ========================================= */

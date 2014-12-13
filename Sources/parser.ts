@@ -455,19 +455,38 @@ class Parser {
 
 
 
-    private parseString () : Arr {
-        const chars : Char[] = [];
+    private parseString () : Exp {
+        const startAt = this.index;
+        var firstNewLineAt = 0;
+        var isUnterminated = false;
         while (true) {
+            if (this.index >= this.code.length) {
+                this.logger.error("Unterminated string constant " +
+                                  "at the end of the file.");
+                isUnterminated = true;
+                break;
+            }
             const ch = this.code[this.index];
             ++this.index;
             if (ch === '"')
-                return new Arr(new ExpList(chars),
-                               new TypeChar());
-            if (this.index >= this.code.length)
-                return new Arr(new ExpList(chars),
-                               new TypeChar());
-            chars.push(new Char(ch));
+                break;
+            if (firstNewLineAt === 0 && (ch === '\n' || ch === '\r'))
+                firstNewLineAt = this.index - 1;
         }
+        var to : number;
+        if (isUnterminated && firstNewLineAt !== 0) {
+            to = firstNewLineAt;
+            this.index = firstNewLineAt;
+        } else {
+            to = this.index - 1;
+            if (to > this.code.length)
+                to = this.code.length;
+        }
+        const chars : Char[] = [];
+        for (var i = startAt; i < to; ++i)
+            chars.push(new Char(this.code[i]));
+        var arr = new Arr(new ExpList(chars), TypeChar.instance);
+        return isUnterminated ? new Err(arr) : arr;
     }
 
 
@@ -499,64 +518,61 @@ class Parser {
 
 
     private parseIf () : If {
-        var test : Exp;
-        var then : Scope;
-        var otherwise : Scope = undefined;
         const asi = this.parseMany();
 
-        if (!(asi instanceof Exp))
-            this.logger.fatal("Test of if statement must be expression" +
-                              ", not statement.");
-
+        var then : Scope;
         if (this.matchText("then"))
-            then = this.parseScopedExp();
+            then = this.parseScopedAsi();
+        else
+            this.logger.error("Expected 'then'");
 
         this.skipWhite();
+        var otherwise : Scope;
         if (this.matchText("else"))
-            otherwise = this.parseScopedExp();
+            otherwise = this.parseScopedAsi();
+        else
+            otherwise = undefined;
 
-        return new If(<Exp>asi, then, otherwise);
+        return new If(this.castAsi<Exp>(Exp, asi), then, otherwise);
     }
 
 
 
 
     private parseInterface () : Interface {
-        return new Interface(this.parseScopedExp());
+        return new Interface(this.parseScopedAsi());
     }
 
 
 
     private parseStruct () : Struct {
-        return new Struct(this.parseScopedExp());
+        return new Struct(this.parseScopedAsi());
     }
 
 
 
 
     private parseLoop () : Loop {
-        return new Loop(this.parseScopedExp());
+        return new Loop(this.parseScopedAsi());
     }
 
 
 
 
-    private parseScopedExp () : Scope {
+    private parseScopedAsi () : Scope {
         const asi = this.parseOne();
-        if (asi instanceof Scope)
-            return <Scope>asi;
-        return new Scope(new AsiList([asi]));
+        return asi instanceof Scope ? asi : new Scope(new AsiList([asi]));
     }
 
 
 
 
     private parseTry () : Try {
-        const body = this.parseScopedExp();
+        const body = this.parseScopedAsi();
         var fin : Scope = undefined;
         this.skipWhite();
         if (this.matchText("finally"))
-            fin = this.parseScopedExp();
+            fin = this.parseScopedAsi();
         return new Try(body, fin);
     }
 
