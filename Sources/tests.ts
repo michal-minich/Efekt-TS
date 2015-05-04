@@ -549,11 +549,9 @@ function typerTests () : void {
     t("typeof fn () { var x = 1 return x }()").evalTo("Int");
     t("typeof if 1 then true else 1").evalTo("AnyOf(Bool, Int)");
     t("var x if x then 1 else 2 typeof x").evalTo("Bool");
-}
 
 
 /*
-
 -- select, where
 var select = fn (arr, f) {
   var r = []
@@ -645,3 +643,4 @@ target(f()) = 4
 print(a)
 
 */
+}

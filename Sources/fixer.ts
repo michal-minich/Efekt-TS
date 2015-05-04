@@ -90,18 +90,8 @@ class Fixer implements AstVisitor<Asi> {
 
 
 
-    visitExpList (el : ExpList) : ExpList {
-        for (var i = 0; i < el.items.length; i++) {
-            el.items[i] = this.castToExp(el.items[i].accept(this));
-        }
-        return el;
-    }
-
-
-
-
     visitBraced (bc : Braced) : Braced {
-        bc.list = this.visitExpList(bc.list);
+        bc.list = this.visitAsiList(bc.list);
         return bc;
     }
 
@@ -373,7 +363,7 @@ class Fixer implements AstVisitor<Asi> {
 
 
     visitArr (arr : Arr) : Arr {
-        arr.list = this.visitExpList(arr.list);
+        arr.list = this.visitAsiList(arr.list);
         return arr;
     }
 
@@ -397,7 +387,7 @@ class Fixer implements AstVisitor<Asi> {
         fn.params = this.visitBraced(fn.params);
         const items = fn.params.list.items;
         for (var i = 0; i < items.length; ++i)
-            items[i] = Fixer.makeDeclr(items[i]);
+            items[i] = Fixer.makeDeclr(this.castToExp(items[i]));
         if (fn.body)
             fn.body = this.visitScope(fn.body);
         return fn;

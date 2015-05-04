@@ -36,7 +36,7 @@ class Typer implements AstVisitor<void> {
         if (unique.length === 1)
             return unique[0];
         else
-            return new TypeAnyOf(new ExpList(unique));
+            return new TypeAnyOf(new /*ExpList*/AsiList(unique));
 
     }
 
@@ -58,18 +58,9 @@ class Typer implements AstVisitor<void> {
 
 
 
-    visitExpList (el : ExpList) : void {
-        el.infType = TypeVoid.instance;
-        for (var i = 0; i < el.items.length; i++) {
-            el.items[i].accept(this);
-        }
-    }
-
-
-
 
     visitBraced (bc : Braced) : void {
-        this.visitExpList(bc.list);
+        this.visitAsiList(bc.list);
         if (bc.list.items.length === 0)
             bc.infType = TypeVoid.instance;
         if (bc.list.items.length === 1)
@@ -303,7 +294,7 @@ class Typer implements AstVisitor<void> {
         for (var i = 0; i < params.length; ++i) {
             const pt = params[i].infType;
             const at = this.commonType([pt, args[i].infType]);
-            this.addInfTypeToDeclrIdent(args[i], at);
+            this.addInfTypeToDeclrIdent(castAsi(Exp, args[i], this.logger), at);
         }
     }
 
@@ -409,11 +400,11 @@ class Typer implements AstVisitor<void> {
 
 
     visitArr (arr : Arr) : void {
-        this.visitExpList(arr.list);
+        this.visitAsiList(arr.list);
         const ts : Exp[] = [];
         for (var i = 0; i < arr.list.items.length; ++i) {
             arr.list.items[i].accept(this);
-            ts.push(arr.list.items[i]);
+            ts.push(castAsi(Exp, arr.list.items[i], this.logger));
         }
         const t = this.commonType(ts);
         const len = new Int("" + arr.list.items.length);

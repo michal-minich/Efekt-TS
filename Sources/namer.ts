@@ -34,15 +34,6 @@ class Namer implements AstVisitor<void> {
 
 
 
-    visitExpList (el : ExpList) : void {
-        for (var i = 0; i < el.items.length; i++) {
-            el.items[i].accept(this);
-        }
-    }
-
-
-
-
     visitBraced (bc : Braced) : void {
         bc.list.accept(this);
     }

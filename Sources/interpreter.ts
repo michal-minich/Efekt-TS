@@ -34,7 +34,7 @@ class Interpreter implements AstVisitor<Exp> {
         const es : Exp[] = [];
         for (var i = 0; i < s.length; ++i)
             es.push(new Char(s[i]));
-        return new Arr(new ExpList(es), TypeChar.instance);
+        return new Arr(new AsiList(es), TypeChar.instance);
     }
 
 
@@ -75,16 +75,6 @@ class Interpreter implements AstVisitor<Exp> {
         for (var i = 0; i < is.length; ++i)
             is[i].accept(this);
         return Void.instance;
-    }
-
-
-
-
-    visitExpList (el : ExpList) : Exp {
-        const is = el.items;
-        for (var i = 0; i < is.length - 1; ++i)
-            is[i].accept(this);
-        return is[is.length - 1].accept(this); // this is questionable. throw?
     }
 
 
@@ -296,7 +286,7 @@ class Interpreter implements AstVisitor<Exp> {
     visitFnApply (fna : FnApply) : Exp {
         const args : Exp[] = [];
         if (fna.args.list) {
-            const el = <ExpList>fna.args.list;
+            const el = </*ExpList*/AsiList>fna.args.list;
             for (var i = 0; i < el.items.length; ++i) {
                 var ea = el.items[i].accept(this);
                 if (ea instanceof Closure)
@@ -349,7 +339,7 @@ class Interpreter implements AstVisitor<Exp> {
             const fn = <Fn>cls.item;
             cls = (<Closure>exp);
             for (var i = 0; i < args.length; ++i) {
-                const p = Interpreter.getFromBracedAt(fn.params, i);
+                const p = this.getFromBracedAt(fn.params, i);
                 const n = Interpreter.getName(p);
                 cls.env.declare(n, args[i]); // use 3rd parameter
             }
@@ -391,11 +381,11 @@ class Interpreter implements AstVisitor<Exp> {
 
 
 
-    private static getFromBracedAt (params : Braced, ix : number) : Exp {
+    private getFromBracedAt (params : Braced, ix : number) : Exp {
         if (params.list) {
-            const el = <ExpList>params.list;
+            const el = </*ExpList*/AsiList>params.list;
             if (el.items.length > ix)
-                return el.items[ix];
+                return castAsi(Exp, el.items[ix], this.logger);
             else
                 throw "fn has no param at " + ix;
         } else {
@@ -407,7 +397,7 @@ class Interpreter implements AstVisitor<Exp> {
 
 
     visitBinOpApply (opa : BinOpApply) : Exp {
-        const fna = new FnApply(new Braced(new ExpList([opa.op1, opa.op2])),
+        const fna = new FnApply(new Braced(new AsiList([opa.op1, opa.op2])),
                                 opa.op);
         fna.parent = opa.parent;
         return this.visitFnApply(fna);

@@ -6,7 +6,6 @@ interface AstVisitor<T> extends TerminalAstVisitor<T>,
 
     // helpers
     visitAsiList (al : AsiList) : T;
-    visitExpList (el : ExpList) : T;
     visitBraced (bc : Braced) : T;
     visitPragma (pg : Pragma) : T;
 
@@ -123,14 +122,14 @@ class Asi {
     //noinspection JSUnusedGlobalSymbols
     public __dummyAsi : number;
     public parent : Asi;
-    public attrs : ExpList;
+    public attrs : AsiList;
     public infType : Exp;
 
     accept<T> (v : AstVisitor<T>) : T {
         throw undefined;
     }
 
-    setAttr (attrs : ExpList) : void {
+    setAttr (attrs : AsiList) : void {
         attrs.parent = this;
         this.attrs = attrs;
     }
@@ -186,34 +185,14 @@ class AsiList extends Asi {
     accept<T> (v : AstVisitor<T>) : T {
         return v.visitAsiList(this);
     }
-}
 
 
-
-
-class ExpList extends Asi {
-
-    //noinspection JSUnusedGlobalSymbols
-    public __dummyExpList : number;
-    public items : Exp[];
-
-    constructor (items : Exp[]) {
-        super();
-        this.items = items;
-        for (var i = 0; i < items.length; i++)
-            items[i].parent = this;
-    }
-
-    accept<T> (v : AstVisitor<T>) : T {
-        return v.visitExpList(this);
-    }
-
-    add (item : Exp) : void {
+   add (item : Exp) : void {
         this.items.push(item);
         item.parent = this;
     }
-}
 
+}
 
 
 
@@ -221,9 +200,9 @@ class Braced extends Exp {
 
     //noinspection JSUnusedGlobalSymbols
     public __dummyBraced : number;
-    public list : ExpList;
+    public list : AsiList;
 
-    constructor (list : ExpList) {
+    constructor (list : AsiList) {
         super();
         if (list) {
             this.list = list;
@@ -897,10 +876,10 @@ class Arr extends Exp {
 
     //noinspection JSUnusedGlobalSymbols
     public __dummyArr : number;
-    public list : ExpList;
+    public list : AsiList;
     public itemType : Exp;
 
-    constructor (list : ExpList, itemType : Exp = null) {
+    constructor (list : AsiList, itemType : Exp = null) {
         super();
         this.list = list;
         list.parent = this;
@@ -1044,9 +1023,9 @@ class TypeAnyOf extends Exp {
 
     //noinspection JSUnusedGlobalSymbols
     public __dummyTypeAnyOf : number;
-    public choices : ExpList;
+    public choices : AsiList;
 
-    constructor (choices : ExpList) {
+    constructor (choices : AsiList) {
         super();
         this.choices = choices;
         choices.parent = this;

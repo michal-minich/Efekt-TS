@@ -69,18 +69,6 @@ class Printer implements AstVisitor<void> {
 
 
 
-    visitExpList (el : ExpList) : void {
-        for (var i = 0; i < el.items.length; i++) {
-            el.items[i].accept(this);
-            if (i < el.items.length - 1)
-                this.cw.markup(',').space();
-        }
-        //this.printType(el);
-    }
-
-
-
-
     visitBraced (bc : Braced) : void {
         const showBraces = !(bc.list.items.length === 1
         && (bc.list.items[0] instanceof Braced
@@ -753,17 +741,6 @@ class ShortCircuitFnVisitor implements AstVisitor<boolean> {
 
 
 
-    private loopAsiArray (items : Asi[]) : boolean {
-        for (var i = 0; i < items.length; i++) {
-            const ist = items[i].accept(this);
-            if (!ist)
-                return false;
-        }
-        return true;
-    }
-
-
-
     private acceptTwo (a : Asi, b : Asi) : boolean {
         const res = a.accept(this);
         if (!res)
@@ -780,14 +757,12 @@ class ShortCircuitFnVisitor implements AstVisitor<boolean> {
 
 
     visitAsiList (al : AsiList) : boolean {
-        return this.loopAsiArray(al.items);
-    }
-
-
-
-
-    visitExpList (el : ExpList) : boolean {
-        return this.loopAsiArray(el.items);
+        for (var i = 0; i < al.items.length; i++) {
+            const ist = al.items[i].accept(this);
+            if (!ist)
+                return false;
+        }
+        return true;
     }
 
 
@@ -1097,7 +1072,7 @@ class ShortCircuitFnVisitor implements AstVisitor<boolean> {
 
 
     visitTypeAnyOf (tao : TypeAnyOf) : boolean {
-        return this.visitExpList(tao.choices);
+        return this.visitAsiList(tao.choices);
     }
 
 

@@ -106,13 +106,6 @@ class DebugPrinter implements AstVisitor<void> {
 
 
 
-    visitExpList (el : ExpList) : void {
-        this.key("ExpList", el).items(el.items);
-    }
-
-
-
-
     visitBraced (bc : Braced) : void {
         if (this.invisibleBraced && bc.list.items.length === 1) {
             bc.list.items[0].accept(this);

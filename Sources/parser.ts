@@ -140,12 +140,12 @@ class BinOpBuilder {
         } else if (op === "of") {
             return new Constraining(<Exp>op1, <Exp>op2);
         } else if (op === ",") {
-            if (op1 instanceof ExpList) {
-                const el = <ExpList>op1;
+            if (op1 instanceof /*ExpList*/AsiList) {
+                const el = <AsiList>op1;
                 el.add(<Exp>op2);
                 return el;
             }
-            return new ExpList([<Exp>op1, <Exp>op2]);
+            return new /*ExpList*/AsiList([<Exp>op1, <Exp>op2]);
         } else {
             return new BinOpApply(new Ident(op), <Exp>op1,
                                   <Exp>op2);
@@ -322,7 +322,7 @@ class Parser {
 
         const asi = this.parseOneAsi();
         if (asi && attrs.length !== 0)
-            asi.setAttr(new ExpList(attrs));
+            asi.setAttr(new /*ExpList*/AsiList(attrs));
         return asi;
     }
 
@@ -501,13 +501,13 @@ class Parser {
 
     private parseBracedOrArr<T extends Exp> (TConstructor : any) : T {
         const asi = this.parseMany();
-        var el : ExpList;
+        var el : /*ExpList*/AsiList;
         if (asi)
-            el = asi instanceof ExpList
-                ? <ExpList>asi
-                : new ExpList([this.castAsi<Exp>(Exp, asi)]);
+            el = asi instanceof /*ExpList*/AsiList
+                ? <AsiList>asi
+                : new /*ExpList*/AsiList([this.castAsi<Exp>(Exp, asi)]);
         else
-            el = new ExpList([]);
+            el = new /*ExpList*/AsiList([]);
 
         return new TConstructor(el);
     }
@@ -545,7 +545,7 @@ class Parser {
         const chars : Char[] = [];
         for (var i = startAt; i < to; ++i)
             chars.push(new Char(this.code[i]));
-        var arr = new Arr(new ExpList(chars), TypeChar.instance);
+        var arr = new Arr(new AsiList(chars), TypeChar.instance);
         return isUnterminated ? new Err(arr) : arr;
     }
 
