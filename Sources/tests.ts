@@ -250,7 +250,7 @@ function parseTests () : void {
 
     // typeof
     t("typeof 1 + 2").parse("typeof (1 + 2)");
-    t("typeof var a = 1").parse();
+    //t("typeof var a = 1").parse("typeof error(var a = 1)");
 
     // member access
     t("obj.member").parse();
@@ -432,11 +432,11 @@ function interpreterTests () : void {
     t("(1 + 2) * 10").evalTo("30");
 
     // var & ops
-    t("var a = 1").evalTo("1");
+    t("var a = 1").evalTo("void");
     t("var a = 1 a").evalTo("1");
-    t("var a = 1 + 2").evalTo("3");
-    t("var a = 1 + 2 * 10").evalTo("21");
-    t("var a = (1 + 2) * 10").evalTo("30");
+    t("var a = 1 + 2 a").evalTo("3");
+    t("var a = 1 + 2 * 10 a").evalTo("21");
+    t("var a = (1 + 2) * 10 a ").evalTo("30");
     t("var a = 1 a = a + 2").evalTo("3");
     t("var a = 1 a = a + 2 a").evalTo("3");
 
@@ -445,7 +445,7 @@ function interpreterTests () : void {
     t("if false then 1 else 2").evalTo("2");
 
     // scoped names
-    t("var a = 1 { var a = 2 }").evalTo("2");
+    t("var a = 1 { var a = 2 a }").evalTo("2");
     t("var a = 1 { var a = 2 } a").evalTo("1");
     t("var a = 1 { a = 2 } a").evalTo("2");
 

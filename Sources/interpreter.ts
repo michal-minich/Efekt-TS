@@ -176,7 +176,8 @@ class Interpreter implements AstVisitor<Exp> {
 
 
     visitVar (v : Var) : Exp {
-        return v.exp.accept(this);
+        v.exp.accept(this);
+        return Void.instance;
     }
 
 

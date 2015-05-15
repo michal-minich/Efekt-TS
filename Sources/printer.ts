@@ -56,11 +56,15 @@ class Printer implements AstVisitor<void> {
 
 
     visitAsiList (al : AsiList) : void {
+        const showComas = al.parent && al.parent.isAnyOf(Braced, Arr);
         for (var i = 0; i < al.items.length; i++) {
             const item = al.items[i];
             item.accept(this);
             if (i < al.items.length - 1) {
-                this.cw.newLine();
+                if (showComas)
+                    this.cw.markup(",").space();
+                else
+                    this.cw.newLine();
             }
         }
         //this.printType(al);

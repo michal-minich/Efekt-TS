@@ -129,10 +129,38 @@ class Asi {
         throw undefined;
     }
 
-    setAttr (attrs : AsiList) : void {
+    setAttrs (attrs : AsiList) : void {
         attrs.parent = this;
         this.attrs = attrs;
     }
+
+    is (TConstructor : any) : boolean {
+        return this instanceof TConstructor;
+    }
+
+    isAnyOf (...TConstructors : any[]) : boolean {
+        for (var i = 0; i < TConstructors.length; ++i)
+            if (this.is(TConstructors[i]))
+                return true;
+        return false;
+    }
+
+    as<T extends Exp>(TConstructor : any) : T {
+        return this.is(TConstructor) ? <T>this : undefined;
+    }
+/*
+    to<T extends Exp>(TConstructor : any, logger : LogWriter) : T {
+        if (this.is(TConstructor))
+
+        {
+            logger.error("Expected " + getTypeName(TConstructor) + ", got " +
+                         getTypeName(asi));
+        }
+        else
+        {
+            return new Err(this);
+        }
+    }*/
 }
 
 
@@ -148,6 +176,84 @@ class Exp extends Asi {
     }
 }
 
+
+
+
+class Apply extends Exp {
+
+    //noinspection JSUnusedGlobalSymbols
+    public __dummyApplly : number;
+
+    accept<T> (v : AstVisitor<T>) : T {
+        throw undefined;
+    }
+}
+
+
+
+
+class ComplexLit extends Exp {
+
+    //noinspection JSUnusedGlobalSymbols
+    public __dummyDeclaring : number;
+
+    accept<T> (v : AstVisitor<T>) : T {
+        throw undefined;
+    }
+}
+
+
+
+
+
+class Lit extends Exp {
+
+    //noinspection JSUnusedGlobalSymbols
+    public __dummyLit : number;
+
+    accept<T> (v : AstVisitor<T>) : T {
+        throw undefined;
+    }
+}
+
+
+
+
+class Type extends Exp {
+
+    //noinspection JSUnusedGlobalSymbols
+    public __dummyType : number;
+
+    accept<T> (v : AstVisitor<T>) : T {
+        throw undefined;
+    }
+}
+
+
+
+
+class TypeLit extends Type {
+
+    //noinspection JSUnusedGlobalSymbols
+    public __dummyLit : number;
+
+    accept<T> (v : AstVisitor<T>) : T {
+        throw undefined;
+    }
+}
+
+
+
+
+class Internal extends Exp {
+
+    //noinspection JSUnusedGlobalSymbols
+    public __dummyInternal : number;
+
+    accept<T> (v : AstVisitor<T>) : T {
+        throw undefined;
+    }
+}
 
 
 
@@ -434,7 +540,7 @@ class Catch {
 
 
 
-class Var extends Exp {
+class Var extends Stm {
 
     //noinspection JSUnusedGlobalSymbols
     public __dummyVar : number;
@@ -454,7 +560,7 @@ class Var extends Exp {
 
 
 
-class Typing extends Exp {
+class Typing extends Apply {
 
     //noinspection JSUnusedGlobalSymbols
     public __dummyTyping : number;
@@ -477,7 +583,7 @@ class Typing extends Exp {
 
 
 
-class Constraining extends Exp {
+class Constraining extends Apply {
 
     //noinspection JSUnusedGlobalSymbols
     public __dummyConstraining : number;
@@ -500,7 +606,7 @@ class Constraining extends Exp {
 
 
 
-class Assign extends Exp {
+class Assign extends Apply {
 
     //noinspection JSUnusedGlobalSymbols
     public __dummyAssign : number;
@@ -587,7 +693,7 @@ class Ident extends Exp {
 
 
 
-class MemberAccess extends Exp {
+class MemberAccess extends Apply {
 
     //noinspection JSUnusedGlobalSymbols
     public __dummyMemberAccess : number;
@@ -610,7 +716,7 @@ class MemberAccess extends Exp {
 
 
 
-class FnApply extends Exp {
+class FnApply extends Apply {
 
     //noinspection JSUnusedGlobalSymbols
     public __dummyFnApply : number;
@@ -633,7 +739,7 @@ class FnApply extends Exp {
 
 
 
-class BinOpApply extends Exp {
+class BinOpApply extends Apply {
 
     //noinspection JSUnusedGlobalSymbols
     public __dummyBinOpApply : number;
@@ -709,7 +815,7 @@ class New extends Exp {
 
 
 
-class TypeOf extends Exp {
+class TypeOf extends Type {
 
     //noinspection JSUnusedGlobalSymbols
     public __dummyTypeOf : number;
@@ -739,7 +845,7 @@ interface BuiltinFn {
 }
 
 
-class Builtin extends Exp {
+class Builtin extends Internal {
 
     //noinspection JSUnusedGlobalSymbols
     public __dummyBuiltin : number;
@@ -761,7 +867,7 @@ class Builtin extends Exp {
 
 
 
-class Err extends Exp {
+class Err extends Internal {
 
     //noinspection JSUnusedGlobalSymbols
     public __dummyErr : number;
@@ -781,7 +887,7 @@ class Err extends Exp {
 
 
 
-class Void extends Exp {
+class Void extends Lit {
 
     //noinspection JSUnusedGlobalSymbols
     public __dummyVoid : number;
@@ -796,7 +902,7 @@ class Void extends Exp {
 
 
 
-class Bool extends Exp {
+class Bool extends Lit {
 
     //noinspection JSUnusedGlobalSymbols
     public __dummyBool : number;
@@ -815,7 +921,7 @@ class Bool extends Exp {
 
 
 
-class Int extends Exp {
+class Int extends Lit {
 
     //noinspection JSUnusedGlobalSymbols
     public __dummyInt : number;
@@ -834,7 +940,7 @@ class Int extends Exp {
 
 
 
-class Float extends Exp {
+class Float extends Lit {
 
     //noinspection JSUnusedGlobalSymbols
     public __dummyFloat : number;
@@ -853,7 +959,7 @@ class Float extends Exp {
 
 
 
-class Char extends Exp {
+class Char extends Lit {
 
     //noinspection JSUnusedGlobalSymbols
     public __dummyChar : number;
@@ -872,7 +978,7 @@ class Char extends Exp {
 
 
 
-class Arr extends Exp {
+class Arr extends ComplexLit {
 
     //noinspection JSUnusedGlobalSymbols
     public __dummyArr : number;
@@ -923,7 +1029,7 @@ class Ref extends Exp {
 
 
 
-class Fn extends Exp {
+class Fn extends ComplexLit {
 
     //noinspection JSUnusedGlobalSymbols
     public __dummyFn : number;
@@ -959,7 +1065,7 @@ class Fn extends Exp {
 
 
 
-class Struct extends Exp {
+class Struct extends ComplexLit {
 
     //noinspection JSUnusedGlobalSymbols
     public __dummyStruct : number;
@@ -979,7 +1085,7 @@ class Struct extends Exp {
 
 
 
-class Interface extends Exp {
+class Interface extends ComplexLit {
 
     //noinspection JSUnusedGlobalSymbols
     public __dummyInterface : number;
@@ -1004,7 +1110,7 @@ class Interface extends Exp {
 
 
 
-class TypeAny extends Exp {
+class TypeAny extends TypeLit {
 
     //noinspection JSUnusedGlobalSymbols
     public __dummyTypeAny : number;
@@ -1019,7 +1125,7 @@ class TypeAny extends Exp {
 
 
 
-class TypeAnyOf extends Exp {
+class TypeAnyOf extends Type {
 
     //noinspection JSUnusedGlobalSymbols
     public __dummyTypeAnyOf : number;
@@ -1039,7 +1145,7 @@ class TypeAnyOf extends Exp {
 
 
 
-class TypeErr extends Exp {
+class TypeErr extends Type {
 
     //noinspection JSUnusedGlobalSymbols
     public __dummyTypeErr : number;
@@ -1059,7 +1165,7 @@ class TypeErr extends Exp {
 
 
 
-class TypeVoid extends Exp {
+class TypeVoid extends TypeLit {
 
     //noinspection JSUnusedGlobalSymbols
     public __dummyTypeVoid : number;
@@ -1074,7 +1180,7 @@ class TypeVoid extends Exp {
 
 
 
-class TypeBool extends Exp {
+class TypeBool extends TypeLit {
 
     //noinspection JSUnusedGlobalSymbols
     public __dummyTypeBool : number;
@@ -1089,7 +1195,7 @@ class TypeBool extends Exp {
 
 
 
-class TypeInt extends Exp {
+class TypeInt extends TypeLit {
 
     //noinspection JSUnusedGlobalSymbols
     public __dummyTypeInt : number;
@@ -1104,7 +1210,7 @@ class TypeInt extends Exp {
 
 
 
-class TypeFloat extends Exp {
+class TypeFloat extends TypeLit {
 
     //noinspection JSUnusedGlobalSymbols
     public __dummyTypeFloat : number;
@@ -1119,7 +1225,7 @@ class TypeFloat extends Exp {
 
 
 
-class TypeChar extends Exp {
+class TypeChar extends TypeLit {
 
     //noinspection JSUnusedGlobalSymbols
     public __dummyTypeChar : number;
@@ -1134,7 +1240,7 @@ class TypeChar extends Exp {
 
 
 
-class TypeArr extends Exp {
+class TypeArr extends Type {
 
     //noinspection JSUnusedGlobalSymbols
     public __dummyTypeArr : number;
@@ -1157,7 +1263,7 @@ class TypeArr extends Exp {
 
 
 
-class TypeRef extends Exp {
+class TypeRef extends Type {
 
     //noinspection JSUnusedGlobalSymbols
     public __dummyTypeRef : number;
@@ -1182,7 +1288,7 @@ class TypeRef extends Exp {
 
 
 
-class Declr extends Exp {
+class Declr extends Internal {
 
     //noinspection JSUnusedGlobalSymbols
     public __dummyTypeDeclr : number;
@@ -1202,7 +1308,7 @@ class Declr extends Exp {
 
 
 
-class Closure extends Exp {
+class Closure extends Internal {
 
     //noinspection JSUnusedGlobalSymbols
     public __dummyTypeClosure : number;
@@ -1225,7 +1331,7 @@ class Closure extends Exp {
 
 
 
-class RefSlot extends Exp {
+class RefSlot extends Internal {
 
     //noinspection JSUnusedGlobalSymbols
     public __dummyRefSlot : number;

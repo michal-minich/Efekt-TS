@@ -322,7 +322,7 @@ class Parser {
 
         const asi = this.parseOneAsi();
         if (asi && attrs.length !== 0)
-            asi.setAttr(new /*ExpList*/AsiList(attrs));
+            asi.setAttrs(new /*ExpList*/AsiList(attrs));
         return asi;
     }
 
@@ -356,7 +356,7 @@ class Parser {
                 var a = <Assign>v.exp;
                 if (a.slot instanceof Ident)
                     var ident = <Ident>a.slot;
-                if (ident.isOp) {
+                if (ident && ident.isOp) {
                     return ident;
                 }
             }
@@ -682,7 +682,7 @@ class Parser {
         this.logger.fatal("Expression expected after " +
                           getTypeName(TConstructor) +
                           ", not statement");
-        throw undefined;
+        return new TConstructor(new Err(asi));
     }
 
 

@@ -33,6 +33,7 @@ interface OutputWriter {
 
 
 
+
 interface AsiToStringFn {
     (asi : Asi) : string;
 }
@@ -50,7 +51,6 @@ interface OutputView {
 
 
 interface TextWriter {
-
     write(...values : string[]) : void;
 }
 
