@@ -151,14 +151,10 @@ class Test {
     evalTo (expected : string) : Test {
         const exHandler = function (ex : Asi) {
         };
-        const fixer = new Fixer(this.logger);
-        //const typer = new Typer(this.logger);
-        const interpreter = new Interpreter(this.logger, this.logger,
-                                            this.logger);
-        const sc = new Scope(combineAsiLists(prelude, this.parsed));
-        fixer.visitScope(sc);
-        //typer.visitScope(sc);
-        const evaled = interpreter.run(sc);
+        const interpreter = new Interpreter(
+            this.logger, this.logger, this.logger);
+        const items = combineAsiLists(prelude, this.parsed);
+        const evaled = interpreter.run(items);
         testReport.addEval(this.code, expected, evaled);
         return this;
     }
@@ -193,7 +189,7 @@ function unitTests () {
     }
 
     if (testReport.failedCount === 0) {
-        interpreterTests();
+        //interpreterTests();
     }
 
     if (testReport.failedCount === 0) {

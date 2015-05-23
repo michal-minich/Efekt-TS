@@ -51,19 +51,19 @@ const builtins : BuiltinsList = {
     'at': function (args : Exp[]) : Exp {
         const arr = <Arr>args[0];
         const ix = <Int>args[1];
-        return <Exp>(arr.list.items[+ix.value]);
+        return <Exp>(arr.items[+ix.value]);
     },
 
     'count': function (args : Exp[]) : Exp {
         const arr = <Arr>args[0];
-        return new Int("" + arr.list.items.length);
+        return new Int("" + arr.items.length);
     },
 
     'add': function (args : Exp[]) : Exp {
         const arr = <Arr>args[0];
         const item = args[1];
-        item.parent = arr.list;
-        arr.list.items.push(item);
+        item.parent = arr;
+        arr.items.push(item);
         return arr;
     },
 

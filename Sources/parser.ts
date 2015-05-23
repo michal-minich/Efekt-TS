@@ -135,10 +135,6 @@ class BinOpBuilder {
             return new FnApply(<Braced>op2, <Exp>op1);
         } else if (op === "=") {
             return new Assign(<Exp>op1, <Exp>op2);
-        } else if (op === ":") {
-            return new Typing(<Exp>op1, <Exp>op2);
-        } else if (op === "of") {
-            return new Constraining(<Exp>op1, <Exp>op2);
         } else if (op === ",") {
             if (op1 instanceof /*ExpList*/AsiList) {
                 const el = <AsiList>op1;
@@ -171,6 +167,7 @@ class Parser {
     constructor (logger : LogWriter) {
         this.logger = logger;
     }
+
 
 
 
@@ -270,7 +267,6 @@ class Parser {
         "throw": () => this.parseSimpleKeyword<Throw>(Throw, false),
         "try": () => this.parseTry(),
         "new": () => this.parseSimpleKeyword<New>(New, true),
-        "typeof": () => this.parseSimpleKeyword<TypeOf>(TypeOf, true),
         "pragma": () => this.parseSimpleKeyword<Pragma>(Pragma, true),
         "struct": () => this.parseStruct(),
         "interface": () => this.parseInterface()
@@ -370,14 +366,14 @@ class Parser {
     private static getBeforeOpIfAny (v : Var) : Ident {
         if (!v.attrs)
             return undefined;
-        for (var i = 0; i < v.attrs.items.length; ++i) {
-            var attr = v.attrs.items[i];
+        for (var i = 0; i < v.attrs.length; ++i) {
+            var attr = v.attrs[i];
             if (attr instanceof FnApply) {
                 var fna = <FnApply>attr;
                 if (fna.fn instanceof Ident) {
                     var fnai = <Ident>fna.fn;
                     if (fnai.name == "@beforeOperator") {
-                        return <Ident>fna.args.list.items[0];
+                        return <Ident>fna.args[0];
                     }
                 }
             }
@@ -419,8 +415,11 @@ class Parser {
             return i;
         }
 
-        if (this.matchChar('{'))
-            return new Scope(this.parseAsiList(true));
+        if (this.matchChar('{')) {
+            var al = this.parseAsiList(true);
+            al.brace = "{";
+            return al;
+        }
 
         else if (this.matchChar('('))
             return this.parseBracedOrArr<Braced>(Braced);
@@ -545,7 +544,7 @@ class Parser {
         const chars : Char[] = [];
         for (var i = startAt; i < to; ++i)
             chars.push(new Char(this.code[i]));
-        var arr = new Arr(new AsiList(chars), TypeChar.instance);
+        var arr = new Arr(chars, new Char("")); // todo here should be type
         return isUnterminated ? new Err(arr) : arr;
     }
 

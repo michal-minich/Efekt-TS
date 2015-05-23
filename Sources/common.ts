@@ -115,7 +115,7 @@ function combineAsiLists (first : AsiList, second : AsiList) : AsiList {
 
 function arrToStr (arr : Arr) : string {
     const s : string[] = [];
-    const items = arr.list.items;
+    const items = arr.items;
     for (var i = 0; i < items.length; ++i)
         s.push((<Char>items[i]).value);
     return s.join("");

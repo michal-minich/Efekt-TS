@@ -5,10 +5,18 @@
 /// <reference path="printer.ts"/>
 /// <reference path="parser.ts"/>
 /// <reference path="interpreter.ts"/>
-/// <reference path="namer.ts"/>
-/// <reference path="typer.ts"/>
 /// <reference path="prelude.ts"/>
-/// <reference path="fixer.ts"/>
+"use strict";
+
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    Ide.init();
+
+    unitTests();
+
+    Ide.parse((<HTMLTextAreaElement>$id("codeEdit")).value);
+});
 
 
 class Ide {
@@ -21,9 +29,6 @@ class Ide {
     static outputLogger : OutputLogger;
 
     static parser : Parser;
-    static fixer : Fixer;
-    static namer : Namer;
-    static typer : Typer;
     static interpreter : Interpreter;
 
     static stringWriter : StringWriter;
@@ -52,9 +57,6 @@ class Ide {
                                             Ide.outputAstView);
 
         Ide.parser = new Parser(Ide.outputLogger);
-        Ide.fixer = new Fixer(Ide.outputLogger);
-        Ide.namer = new Namer(Ide.outputLogger);
-        Ide.typer = new Typer(Ide.outputLogger);
         Ide.interpreter = new Interpreter(Ide.outputLogger,
                                           Ide.outputLogger,
                                           Ide.outputLogger);
@@ -73,27 +75,6 @@ class Ide {
             Ide.doWithExceptionHandling(()=> {
                 Ide.outputLogger.clear();
                 Ide.parse(codeEdit.value);
-            });
-        });
-
-        $id("fixButton").addEventListener('mousedown', () => {
-            Ide.doWithExceptionHandling(()=> {
-                Ide.outputLogger.clear();
-                Ide.fix(codeEdit.value);
-            });
-        });
-
-        $id("usagesButton").addEventListener('mousedown', () => {
-            Ide.doWithExceptionHandling(()=> {
-                Ide.outputLogger.clear();
-                Ide.usages(codeEdit.value);
-            });
-        });
-
-        $id("typeButton").addEventListener('mousedown', () => {
-            Ide.doWithExceptionHandling(()=> {
-                Ide.outputLogger.clear();
-                Ide.doType(codeEdit.value);
             });
         });
 
@@ -174,57 +155,13 @@ class Ide {
 
 
 
-    static fix (code : string) : void {
-        const al = Ide.parseAndFix(code);
-        Ide.outputView.show(al);
-        Ide.debugPrinter.printInfTypes = false;
-        Ide.outputAstView.show(al);
-    }
-
-
-
-
-    static parseAndFix (code : string) : AsiList {
-        var al = Ide.parser.parse(code);
-        al = <AsiList>Ide.fixer.fix(al);
-        return al;
-    }
-
-
-
-
-    static usages (code : string) {
-        const al = Ide.parseAndFix(code);
-        const sc = new Scope(combineAsiLists(prelude, al));
-        sc.accept(Ide.namer);
-        Ide.outputView.show(al);
-        Ide.debugPrinter.printInfTypes = false;
-        Ide.outputAstView.show(al);
-    }
-
-
-
-
-    static doType (code : string) {
-        const al = Ide.parseAndFix(code);
-        const sc = new Scope(combineAsiLists(prelude, al));
-        Ide.namer.visitScope(sc);
-        Ide.typer.visitScope(sc);
-        Ide.outputView.show(al);
-        Ide.debugPrinter.printInfTypes = true;
-        Ide.outputAstView.show(al);
-    }
-
-
-
-
     static interpret (code : string) {
-        const al = Ide.parseAndFix(code);
+        let al = Ide.parser.parse(code);
         Ide.outputView.clear();
         Ide.outputAstView.clear();
-        const sc = new Scope(combineAsiLists(prelude, al));
+        al = combineAsiLists(prelude, al);
         //Ide.typer.visitScope(sc);
-        const res = Ide.interpreter.run(sc);
+        const res = Ide.interpreter.run(al);
         Ide.outputView.write(res);
         Ide.debugPrinter.printInfTypes = false;
         Ide.outputAstView.write(res);
