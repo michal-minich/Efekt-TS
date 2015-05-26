@@ -67,7 +67,7 @@ class Asi {
     }
 
     protected setAsiArrayParent<T extends Asi> (items : T[]) : T[] {
-        for (let i = 0; i < items.length; i++)
+        for (var i = 0; i < items.length; i++)
             items[i].parent = this;
         return items;
     }

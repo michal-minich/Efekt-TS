@@ -424,11 +424,13 @@ class Printer implements AstVisitor<void> {
 
 
     visitVar (v : Var) : void {
-        this.printAttributes(v);
         this.cw.key("var").space().ident(v.slot.name);
         this.printType(v);
-        if (v.value)
+
+        if (v.value) {
+            this.cw.space().writeOp('=').space();
             v.value.accept(this);
+        }
     }
 
 

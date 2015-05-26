@@ -55,8 +55,8 @@ class BinOpBuilder {
 
 
 
-    private castAsi<T extends Exp> (TConstructor : any, asi : Asi) : Exp {
-        return castAsi<T>(TConstructor, asi, this.logger);
+    private castAsi<T extends Asi> (TConstructor : any, asi : Asi) : T {
+        return <T>castAsi<T>(TConstructor, asi, this.logger);
     }
 
 
@@ -132,7 +132,8 @@ class BinOpBuilder {
             return new MemberAccess(<Exp>op1,
                                     this.castAsi<Ident>(Ident, op2));
         } else if (op === "\n") {
-            return new FnApply(<Braced>op2, <Exp>op1);
+            return new FnApply(<Exp[]>this.castAsi<AsiList>(AsiList, op2).items,
+                               <Exp>op1);
         } else if (op === "=") {
             return new Assign(<Exp>op1, <Exp>op2);
         } else if (op === ",") {
@@ -143,8 +144,7 @@ class BinOpBuilder {
             }
             return new /*ExpList*/AsiList([<Exp>op1, <Exp>op2]);
         } else {
-            return new BinOpApply(new Ident(op), <Exp>op1,
-                                  <Exp>op2);
+            return new FnApply([<Exp>op1, <Exp>op2], new Ident(op));
         }
     }
 }
@@ -269,7 +269,6 @@ class Parser {
         "new": () => this.parseSimpleKeyword<New>(New, true),
         "pragma": () => this.parseSimpleKeyword<Pragma>(Pragma, true),
         "struct": () => this.parseStruct(),
-        "interface": () => this.parseInterface()
     };
 
 
@@ -288,11 +287,13 @@ class Parser {
 
 
     private parseVar () : Var {
-        const v = this.parseSimpleKeyword<Var>(Var, true);
-        /*if (!(v.exp instanceof Ident || v.exp instanceof Assign
-            || v.exp instanceof ValueVar || v.exp instanceof TypeVar))
-            this.logger.error("Expected identifier after var.");*/
-        return v;
+        var slot = <Ident>this.parseOne();
+        this.skipWhite();
+        var value : Exp;
+        if (this.matchChar('=')) {
+            value = <Exp>this.parseOne();
+        }
+        return new Var(slot, value);
     }
 
 
@@ -318,7 +319,7 @@ class Parser {
 
         const asi = this.parseOneAsi();
         if (asi && attrs.length !== 0)
-            asi.setAttrs(new /*ExpList*/AsiList(attrs));
+            asi.setAttrs(attrs);
         return asi;
     }
 
@@ -346,17 +347,10 @@ class Parser {
 
 
     private static getOpIfAny (asi : Asi) : Ident {
-        if (asi instanceof Var) {
-            var v = <Var>asi;
-            if (v.exp instanceof Assign) {
-                var a = <Assign>v.exp;
-                if (a.slot instanceof Ident)
-                    var ident = <Ident>a.slot;
-                if (ident && ident.isOp) {
-                    return ident;
-                }
-            }
-        }
+        if (asi instanceof Var)
+            if (asi.slot instanceof Ident)
+                if (asi.slot.isOp)
+                    return asi.slot;
         return undefined;
     }
 
@@ -421,14 +415,17 @@ class Parser {
             return al;
         }
 
-        else if (this.matchChar('('))
-            return this.parseBracedOrArr<Braced>(Braced);
+        else if (this.matchChar('(')) {
+            var al = this.parseAsiList(false);
+            al.brace = "(";
+            return al;
+        }
 
         else if (this.matchChar('"'))
             return this.parseString();
 
         else if (this.matchChar('['))
-            return this.parseBracedOrArr<Arr>(Arr);
+            return this.parseArr();
 
         return undefined;
     }
@@ -465,7 +462,7 @@ class Parser {
     private parseFn () : Fn {
         var asi = this.parseMany();
         var retType : Exp;
-        if (asi instanceof BinOpApply) {
+        /*if (asi instanceof BinOpApply) {
             const op = <BinOpApply>asi;
             if (op.op.name === "->") {
                 asi = op.op1;
@@ -473,21 +470,21 @@ class Parser {
             } else {
                 this.logger.fatal("After fn (), only -> operator is allowed");
             }
-        }
+        }*/
 
-        if (asi instanceof Braced) {
-            const bc = <Braced>asi;
+        if (asi instanceof AsiList) {
+            var params = <Var[]>(<AsiList>asi).items;
             asi = this.parseOne();
-            if (!(asi instanceof Scope)) {
+            if (!(asi instanceof AsiList)) {
                 this.spares.push(asi);
-                const fn = new Fn(bc, undefined);
-                if (retType)
-                    fn.returnType = retType;
+                const fn = new Fn(params, undefined);
+                //if (retType)
+                //    fn.returnType = retType;
                 return fn;
             }
-            const fn = new Fn(bc, <Scope>asi);
-            if (retType)
-                fn.returnType = retType;
+            const fn = new Fn(params, (<AsiList>asi).items);
+            //if (retType)
+            //    fn.returnType = retType;
             return fn;
         } else {
             this.logger.fatal("Expected braced after fn.");
@@ -498,17 +495,17 @@ class Parser {
 
 
 
-    private parseBracedOrArr<T extends Exp> (TConstructor : any) : T {
+    private parseArr () : Arr {
         const asi = this.parseMany();
-        var el : /*ExpList*/AsiList;
+        var el : Asi[];
         if (asi)
-            el = asi instanceof /*ExpList*/AsiList
-                ? <AsiList>asi
-                : new /*ExpList*/AsiList([this.castAsi<Exp>(Exp, asi)]);
+            el = asi instanceof AsiList
+                ? asi.items
+                : [asi];
         else
-            el = new /*ExpList*/AsiList([]);
+            el = [];
 
-        return new TConstructor(el);
+        return new Arr(el);
     }
 
 
@@ -579,14 +576,14 @@ class Parser {
     private parseIf () : If {
         const asi = this.parseMany();
 
-        var then : Scope;
+        var then : Asi[];
         if (this.matchText("then"))
             then = this.parseScopedAsi();
         else
             this.logger.error("Expected 'then'");
 
         this.skipWhite();
-        var otherwise : Scope;
+        var otherwise : Asi[];
         if (this.matchText("else"))
             otherwise = this.parseScopedAsi();
         else
@@ -597,15 +594,8 @@ class Parser {
 
 
 
-
-    private parseInterface () : Interface {
-        return new Interface(this.parseScopedAsi());
-    }
-
-
-
     private parseStruct () : Struct {
-        return new Struct(this.parseScopedAsi());
+        return new Struct(<Var[]>this.parseScopedAsi());
     }
 
 
@@ -618,9 +608,9 @@ class Parser {
 
 
 
-    private parseScopedAsi () : Scope {
+    private parseScopedAsi () : Asi[] {
         const asi = this.parseOne();
-        return asi instanceof Scope ? asi : new Scope(new AsiList([asi]));
+        return asi instanceof AsiList ? asi.items : [asi];
     }
 
 
@@ -628,7 +618,7 @@ class Parser {
 
     private parseTry () : Try {
         const body = this.parseScopedAsi();
-        var fin : Scope = undefined;
+        var fin : Asi[];
         this.skipWhite();
         if (this.matchText("finally"))
             fin = this.parseScopedAsi();

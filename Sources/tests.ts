@@ -153,8 +153,8 @@ class Test {
         };
         const interpreter = new Interpreter(
             this.logger, this.logger, this.logger);
-        const items = combineAsiLists(prelude, this.parsed);
-        const evaled = interpreter.run(items);
+        const al = combineAsiLists(prelude, this.parsed);
+        const evaled = interpreter.run(al.items);
         testReport.addEval(this.code, expected, evaled);
         return this;
     }

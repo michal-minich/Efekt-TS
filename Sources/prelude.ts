@@ -4,8 +4,12 @@ var prelude : AsiList;
 
 var preludeIsFixed = false;
 
-const preludeStr =
-    ' var print = @builtin("print") @ioWrite fn (@params a : Any) -> Void' +
+const preludeStr = '';/* +
+    ' var Any' +
+    ' var Void' +
+    ' var Int' +
+    ' var Bool' +
+    ' var print = @builtin("print") @ioWrite fn (@params a)' +
     ' var op+ = @builtin("+") fn (a : Int, b : Int) -> Int' +
     ' var op- = @builtin("-") fn (a : Int, b : Int) -> Int' +
     ' var op* = @builtin("*") fn (a : Int, b : Int) -> Int' +
@@ -21,4 +25,5 @@ const preludeStr =
     ' var random = @builtin("random") @readsMutableState @writesMutableState ' +
     'fn (min : Int, max : Int) -> Int' +
     ' var input = @builtin("input") @nondeterministic fn (output : Any) -> Any' +
-    ' void';
+    ' void';*/
+var  x = 1;

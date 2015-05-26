@@ -156,12 +156,12 @@ class Ide {
 
 
     static interpret (code : string) {
-        let al = Ide.parser.parse(code);
+        var al = Ide.parser.parse(code);
         Ide.outputView.clear();
         Ide.outputAstView.clear();
         al = combineAsiLists(prelude, al);
         //Ide.typer.visitScope(sc);
-        const res = Ide.interpreter.run(al);
+        const res = Ide.interpreter.run(al.items);
         Ide.outputView.write(res);
         Ide.debugPrinter.printInfTypes = false;
         Ide.outputAstView.write(res);

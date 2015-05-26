@@ -20,9 +20,9 @@ class DebugPrinter implements AstVisitor<void> {
 
 
     private items (items : Asi[]) : CodeWriter {
-        this.cw.tab().newLine().markup("items");
+        //this.cw.tab().newLine().markup("items");
         if (items.length === 0) {
-            this.cw.space().attr("&lt;empty&gt;");
+            this.cw.attr("&lt;empty&gt;");
             return this.cw.unTab();
         }
         this.cw.tab().newLine();

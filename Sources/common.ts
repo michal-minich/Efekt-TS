@@ -143,9 +143,9 @@ function getTypeName (o : any) : string {
 
 
 
-function castAsi<T extends Exp>(TConstructor : any,
+function castAsi<T extends Asi>(TConstructor : any,
                                 asi : Asi,
-                                logger : LogWriter) : Exp {
+                                logger : LogWriter) : T | Err {
     if (asi instanceof TConstructor) {
         return <T>asi;
     } else {

@@ -162,7 +162,8 @@ class Interpreter implements AstVisitor<Exp> {
 
 
     visitVar (v : Var) : Exp {
-        this.env.declare(v.slot.name, Void.instance, this.asiIx);
+        var val = v.value ? v.value.accept(this) : Void.instance;
+        this.env.declare(v.slot.name, val, this.asiIx);
         v.value.accept(this);
         return Void.instance;
     }
